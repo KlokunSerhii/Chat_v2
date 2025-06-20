@@ -144,18 +144,8 @@ const ChatApp = () => {
   }, [username]);
 
   useEffect(() => {
-    const container = chatContainerRef.current;
-    if (!container) return;
-
-    const isNearBottom =
-      container.scrollHeight -
-        container.scrollTop -
-        container.clientHeight <
-      50;
-    if (isNearBottom) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [messages]);
+  messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
+}, [messages]);
 
   useEffect(() => {
     localStorage.setItem("chat_username", username);
