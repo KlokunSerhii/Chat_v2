@@ -57,6 +57,10 @@ export const ThemeToggle = styled.button`
 `;
 
 export const ChatMessages = styled.div`
+  padding: 15px;
+  overflow-y: auto;
+  flex-grow: 1;
+  background-color: ${(props) => (props.$dark ? "#1a1a1a" : "#f9f9f9")};
   flex-grow: 1;
   overflow-y: auto;
   padding: 15px;
@@ -78,56 +82,60 @@ const messageAppear = keyframes`
 
 export const Message = styled.div`
   max-width: 70%;
-  padding: 10px 14px;
-  font-size: 15px;
+  margin-bottom: 10px;
+  padding: 10px 15px;
+  border-radius: 15px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  font-size: 14px;
   line-height: 1.4;
-  border-radius: 18px;
-  background-color: ${({ $dark }) => ($dark ? "#2f2f49" : "#f1f0f0")};
-  color: ${({ $dark }) => ($dark ? "#fff" : "#000")};
   position: relative;
-  animation: ${messageAppear} 0.3s ease-in-out;
-  display: flex;
-  flex-direction: column;
-  align-self: ${({ $isOwn }) => ($isOwn ? "flex-end" : "flex-start")};
-  ${({ $isOwn }) =>
-    $isOwn &&
+  word-wrap: break-word;
+
+  /* Якщо власне повідомлення */
+  ${(props) =>
+    props.$isOwn &&
     css`
-      background-color: #0088cc;
-      color: white;
+      background-color: #daf1ff;
+      margin-left: auto;
+      color: #004a8f;
       border-bottom-right-radius: 4px;
     `}
 
-  ${({ $system }) =>
-    $system &&
+  /* Якщо системне повідомлення */
+  ${(props) =>
+    props.$system &&
     css`
-      background: transparent;
-      color: gray;
+      background-color: #f0f0f0;
+      color: #555;
+      font-style: italic;
+      max-width: 90%;
+      margin: 10px auto;
       text-align: center;
-      border-radius: 0;
-      font-size: 13px;
-      margin: 12px 0;
-      max-width: 100%;
+      border-radius: 10px;
+      box-shadow: none;
     `}
 
-  strong {
-    display: block;
-    font-size: 13px;
-    font-weight: 600;
-    margin-bottom: 4px;
-    color: ${({ $dark, $isOwn }) =>
-      $isOwn ? "#cceaff" : $dark ? "#aaa" : "#333"};
-  }
-
-  @media (max-width: 600px) {
-    font-size: 13px;
-    padding: 8px 12px;
-    max-width: 85%;
-  }
+  /* Повідомлення інших користувачів */
+  ${(props) =>
+    !props.$isOwn && !props.$system &&
+    css`
+      background-color: #fff;
+      color: #333;
+      border-bottom-left-radius: 4px;
+    `}
 `;
 
-export const MessageText = styled.div``;
+export const MessageText = styled.div`
+  white-space: pre-wrap;
+`;
 
 export const MessageTime = styled.div`
+  position: absolute;
+  bottom: 4px;
+  right: 10px;
+  font-size: 10px;
+  color: #888;
+  user-select: none;
   font-size: 11px;
   color: ${({ $dark, $isOwn }) =>
     $isOwn ? ($dark ? "#d2e3ff" : "#dfefff") : $dark ? "#888" : "#666"};
