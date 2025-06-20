@@ -44,6 +44,9 @@ const ChatApp = () => {
   const audioRef = useRef(null);
   const usernameInputRef = useRef(null);
   const chatInputRef = useRef(null);
+
+  const [username, setUsername] = useState(() => localStorage.getItem("chat_username") || "");
+  const [tempUsername, setTempUsername] = useState(username);
  
   useEffect(() => {
     if (!username.trim()) return;
@@ -232,12 +235,12 @@ useEffect(() => {
             ref={usernameInputRef}
             type="text"
             placeholder="Введіть ваше ім'я..."
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            value={tempUsername}
+            onChange={(e) => setTempUsername(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === "Enter" && username.trim()) {
-                setUsername(username.trim());
-              }
+            if (e.key === "Enter" && tempUsername.trim()) {
+              setUsername(tempUsername.trim());
+                    }
             }}
           />
           <ChatButton
