@@ -7,7 +7,7 @@ export const ChatContainer = styled.div`
   flex-direction: column;
   height: 85vh;
   border-radius: 10px;
-  background: ${({ $dark }) => ($dark ? "#1e1e2f" : "#f9f9f9")};
+  background: ${({ $dark }) => ($dark ? "#1e1e2f" : "#e3f2fd")};
   box-shadow: ${({ $dark }) =>
     $dark ? "0 0 10px #333" : "0 0 10px #ccc"};
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
@@ -63,7 +63,7 @@ export const ChatMessages = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
-  background-color: ${({ $dark }) => ($dark ? "#2a2a44" : "#fff")};
+  background-color: ${({ $dark }) => ($dark ? "#2a2a44" : "#ffffff")};
   scroll-behavior: smooth;
 
   @media (max-width: 600px) {
@@ -76,28 +76,26 @@ const messageAppear = keyframes`
   to {opacity: 1; transform: translateY(0);}
 `;
 
-export const Message = styled.div`
-  max-width: 60%;
-  margin-bottom: 8px;
-  padding: 10px 15px;
-  border-radius: 12px;
-  background-color: ${({ $dark }) => ($dark ? "#333" : "#eee")};
+Мexport const Message = styled.div`
+  max-width: 70%;
+  padding: 10px 14px;
+  font-size: 15px;
+  line-height: 1.4;
+  border-radius: 18px;
+  background-color: ${({ $dark }) => ($dark ? "#2f2f49" : "#f1f0f0")};
   color: ${({ $dark }) => ($dark ? "#fff" : "#000")};
-
+  position: relative;
+  animation: ${messageAppear} 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  align-self: ${({ $isOwn }) => ($isOwn ? "flex-end" : "flex-start")};
   ${({ $isOwn }) =>
-    $isOwn
-      ? css`
-          margin-left: auto; /* вирівнюємо вправо */
-          background-color: #4a90e2; /* колір свого повідомлення */
-          color: white;
-          border-bottom-right-radius: 0;
-        `
-      : css`
-          margin-right: auto; /* вирівнюємо вліво */
-          background-color: #ddd;
-          color: black;
-          border-bottom-left-radius: 0;
-        `}
+    $isOwn &&
+    css`
+      background-color: #0088cc;
+      color: white;
+      border-bottom-right-radius: 4px;
+    `}
 
   ${({ $system }) =>
     $system &&
@@ -106,21 +104,24 @@ export const Message = styled.div`
       color: gray;
       text-align: center;
       border-radius: 0;
-      margin: 10px 0;
+      font-size: 13px;
+      margin: 12px 0;
       max-width: 100%;
     `}
 
   strong {
-    font-weight: 600;
     display: block;
-    margin-bottom: 3px;
-    user-select: none;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: ${({ $dark, $isOwn }) =>
+      $isOwn ? "#cceaff" : $dark ? "#aaa" : "#333"};
   }
 
   @media (max-width: 600px) {
-    max-width: 90%;
     font-size: 13px;
     padding: 8px 12px;
+    max-width: 85%;
   }
 `;
 
@@ -128,14 +129,28 @@ export const MessageText = styled.div``;
 
 export const MessageTime = styled.div`
   font-size: 11px;
-  color: ${({ $dark }) => ($dark ? "#999" : "#666")};
+  color: ${({ $dark, $isOwn }) =>
+    $isOwn ? ($dark ? "#d2e3ff" : "#dfefff") : $dark ? "#888" : "#666"};
   margin-top: 6px;
   text-align: right;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 4px;
+
+  &::after {
+    content: ${({ $delivered }) => ($delivered ? '"✓✓"' : '"✓"')};
+    font-size: 12px;
+    color: ${({ $isOwn }) => ($isOwn ? "#d0f0ff" : "transparent")};
+    opacity: ${({ $isOwn }) => ($isOwn ? 0.7 : 0)};
+    transition: opacity 0.2s;
+  }
 
   @media (max-width: 600px) {
-    font-size: 9px;
+    font-size: 10px;
   }
 `;
+
 
 const blinkDots = keyframes`
   0%, 20% { opacity: 0.3; }
