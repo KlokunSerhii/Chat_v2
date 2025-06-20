@@ -100,6 +100,8 @@ export const Message = styled.div`
 
 export const MessageText = styled.div`
   white-space: pre-wrap;
+  font-size: 14.5px;
+  line-height: 1.5;
 `;
 
 export const MessageTime = styled.span`
