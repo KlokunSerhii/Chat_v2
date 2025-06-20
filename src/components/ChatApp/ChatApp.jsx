@@ -2,7 +2,11 @@ import React, { useState, useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { io } from "socket.io-client";
+import Picker from "@emoji-mart/react";
+import data from "@emoji-mart/data";
 import { v4 as uuidv4 } from "uuid";
+import { motion, AnimatePresence } from "framer-motion";
+
 import {
   ChatContainer,
   StatusBar,
@@ -18,6 +22,8 @@ import {
   UsernameInput,
   TypingIndicator,
   MessageUsername,
+  ConnectionStatus,
+  EmojiButton,
 } from "./ChatApp.styled.js";
 
 const SOCKET_SERVER_URL = "https://chat-v2-server-7.onrender.com";
@@ -42,7 +48,12 @@ const ChatApp = () => {
     const saved = localStorage.getItem("chat_theme");
     return saved ? saved === "dark" : false;
   });
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
+  const addEmoji = (emoji) => {
+    setInput((prev) => prev + emoji.native);
+    setShowEmojiPicker(false);
+  };
   const socketRef = useRef(null);
   const messagesEndRef = useRef(null);
   const chatInputRef = useRef(null);
@@ -204,7 +215,10 @@ const ChatApp = () => {
   return (
     <ChatContainer $dark={isDarkTheme}>
       <StatusBar $connected={isConnected} $dark={isDarkTheme}>
-        Статус: <span>{isConnected ? "Онлайн" : "Офлайн"}</span>
+        Статус:{" "}
+        <ConnectionStatus $connected={isConnected}>
+          {isConnected ? "🟢 Онлайн" : "🔴 Офлайн"}
+        </ConnectionStatus>
         <ThemeToggle
           onClick={() => setIsDarkTheme((prev) => !prev)}
           title="Перемкнути тему"
@@ -252,12 +266,15 @@ const ChatApp = () => {
               >
                 {/* Ім'я користувача окремо, якщо це не системне повідомлення */}
                 {msg.sender !== "system" && (
-                  <MessageUsername $dark={isDarkTheme}>
+                  <MessageUsername
+                    $dark={isDarkTheme}
+                    $isOwn={msg.username === username}
+                  >
                     {msg.username || "Користувач"}
                   </MessageUsername>
                 )}
 
-                <MessageText>
+                <MessageText $isOwn={msg.username === username}>
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>
                     {msg.text}
                   </ReactMarkdown>
@@ -265,7 +282,7 @@ const ChatApp = () => {
 
                 <MessageTime
                   $dark={isDarkTheme}
-                  $isOwn={msg.username === username}
+                  $isOwn={msg.username === username} // <-- додай це!
                   $delivered={msg.sender !== "system"}
                 >
                   {msg.timestamp}
@@ -285,8 +302,10 @@ const ChatApp = () => {
 
             <div ref={messagesEndRef} />
           </ChatMessages>
-
-          <ChatInputWrapper $dark={isDarkTheme}>
+          <ChatInputWrapper
+            $dark={isDarkTheme}
+            style={{ position: "relative" }}
+          >
             <ChatInput
               ref={chatInputRef}
               type="text"
@@ -298,12 +317,41 @@ const ChatApp = () => {
               $dark={isDarkTheme}
               autoComplete="off"
             />
+
+            <EmojiButton
+              onClick={() => setShowEmojiPicker((prev) => !prev)}
+              title="Додати смайлик"
+              $dark={isDarkTheme}
+              aria-label="Toggle emoji picker"
+            >
+              😃
+            </EmojiButton>
+
             <ChatButton
               onClick={sendMessage}
               disabled={!input.trim() || !isConnected}
             >
               Надіслати
             </ChatButton>
+
+            <AnimatePresence>
+              {showEmojiPicker && (
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: "60px",
+                    right: "20px",
+                    zIndex: 1000,
+                  }}
+                >
+                  <Picker
+                    data={data}
+                    onEmojiSelect={addEmoji}
+                    theme={isDarkTheme ? "dark" : "light"}
+                  />
+                </div>
+              )}
+            </AnimatePresence>
           </ChatInputWrapper>
         </>
       )}
