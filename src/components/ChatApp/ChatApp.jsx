@@ -233,35 +233,40 @@ const ChatApp = () => {
       ) : (
         <>
           <ChatMessages ref={chatContainerRef} $dark={isDarkTheme}>
-            {messages.map((msg) => (
-              <Message
-                key={msg.id}
-                $sender={msg.sender}
-                $dark={isDarkTheme}
-                $system={msg.sender === "system"}
-                $isOwn={msg.username === username}
-              >
-                {msg.sender !== "system" && (
-                  <strong>{msg.username || "Користувач"}: </strong>
-                )}
-                <MessageText>
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {msg.text}
-                  </ReactMarkdown>
-                </MessageText>
-                <MessageTime>{msg.timestamp}</MessageTime>
-              </Message>
-            ))}
-            {typingUsers.map((user) => (
-              <TypingIndicator key={user} $dark={isDarkTheme}>
-                <em>
-                  {user} друкує<span>.</span>
-                  <span>.</span>
-                  <span>.</span>
-                </em>
-              </TypingIndicator>
-            ))}
-            <div ref={messagesEndRef} />
+             {messages.map((msg) => (
+    <Message
+      key={msg.id}
+      $isOwn={msg.username === username}
+      $dark={isDarkTheme}
+      $system={msg.sender === "system"}
+    >
+      {msg.sender !== "system" && (
+        <strong>{msg.username || "Користувач"}</strong>
+      )}
+      <MessageText>
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+          {msg.text}
+        </ReactMarkdown>
+      </MessageText>
+      <MessageTime
+        $dark={isDarkTheme}
+        $isOwn={msg.username === username}
+        $delivered={msg.sender !== "system"} // чи було доставлено — можеш додати логіку
+      >
+        {msg.timestamp}
+      </MessageTime>
+    </Message>
+  ))}
+  {typingUsers.map((user) => (
+    <TypingIndicator key={user} $dark={isDarkTheme}>
+      <em>
+        {user} друкує<span>.</span>
+        <span>.</span>
+        <span>.</span>
+      </em>
+    </TypingIndicator>
+  ))}
+  <div ref={messagesEndRef} />
           </ChatMessages>
 
           <ChatInputWrapper $dark={isDarkTheme}>
