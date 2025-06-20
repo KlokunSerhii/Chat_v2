@@ -203,12 +203,10 @@ useEffect(() => {
 
 // фокус на інпут залежно від стану username
  useEffect(() => {
-   if (!username.trim()) {
-    usernameInputRef.current?.focus();
-  } else {
-     chatInputRef.current?.focus();
-   }
- }, [username]);
+  if (username.trim() && isConnected) {
+    chatInputRef.current?.focus();
+  }
+}, [isConnected]);
 
  
 
