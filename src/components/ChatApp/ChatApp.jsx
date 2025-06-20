@@ -16,7 +16,8 @@ import {
   ThemeToggle,
   UsernameInputWrapper,
   UsernameInput,
-  TypingIndicator
+  TypingIndicator,
+MessageUsername
 } from "./ChatApp.styled.js";
 
 const SOCKET_SERVER_URL = "https://chat-v2-server-7.onrender.com";
@@ -233,27 +234,28 @@ const ChatApp = () => {
           <ChatMessages $dark={isDarkTheme}>
             {messages.map((msg) => (
               <Message
-                key={msg.id}
-                $isOwn={msg.username === username}
-                $dark={isDarkTheme}
-                $system={msg.sender === "system"}
-              >
-                {msg.sender !== "system" && (
-                  <strong>{msg.username || "Користувач"}</strong>
-                )}
-                <MessageText>
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {msg.text}
-                  </ReactMarkdown>
-                </MessageText>
-                <MessageTime
-                  $dark={isDarkTheme}
-                  $isOwn={msg.username === username}
-                  $delivered={msg.sender !== "system"}
-                >
-                  {msg.timestamp}
-                </MessageTime>
-              </Message>
+  key={msg.id}
+  $isOwn={msg.username === username}
+  $dark={isDarkTheme}
+  $system={msg.sender === "system"}
+>
+  {msg.sender !== "system" && (
+    <MessageUsername $dark={isDarkTheme}>{msg.username || "Користувач"}</MessageUsername>
+  )}
+  <MessageText>
+    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+      {msg.text}
+    </ReactMarkdown>
+  </MessageText>
+  <MessageTime
+    $dark={isDarkTheme}
+    $isOwn={msg.username === username}
+    $delivered={msg.sender !== "system"}
+  >
+    {msg.timestamp}
+  </MessageTime>
+</Message>
+
             ))}
             {typingUsers.map((user) => (
               <TypingIndicator key={user} $dark={isDarkTheme}>
