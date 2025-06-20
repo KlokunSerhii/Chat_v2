@@ -42,6 +42,8 @@ const ChatApp = () => {
   const messagesEndRef = useRef(null);
   const chatContainerRef = useRef(null);
   const audioRef = useRef(null);
+  const usernameInputRef = useRef(null);
+  const chatInputRef = useRef(null);
  
   useEffect(() => {
     if (!username.trim()) return;
