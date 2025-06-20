@@ -203,6 +203,18 @@ const ChatApp = () => {
    }
  }, [username]);
 
+ useEffect(() => {
+    if (username.trim() && isConnected) {
+      chatInputRef.current?.focus();
+    }
+  }, [username, isConnected]);
+const sendMessage = () => {
+    if (!input.trim() || !isConnected) return;
+    // … надсилаємо повідомлення
+    setInput("");
+    chatInputRef.current?.focus(); // повертаємо фокус на інпут
+  };
+
   return (
     <ChatContainer $dark={isDarkTheme}>
       <StatusBar $connected={isConnected} $dark={isDarkTheme}>
@@ -220,7 +232,8 @@ const ChatApp = () => {
       {!username.trim() ? (
         <UsernameInputWrapper>
           <UsernameInput
-          ref={usernameInputRef}
+            autoFocus
+            ref={usernameInputRef}
             type="text"
             placeholder="Введіть ваше ім'я..."
             value={username}
@@ -278,7 +291,8 @@ const ChatApp = () => {
 
           <ChatInputWrapper $dark={isDarkTheme}>
             <ChatInput
-            ref={chatInputRef}
+              autoFocus
+              ref={chatInputRef}
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
