@@ -61,6 +61,8 @@ export const Message = styled.div`
   position: relative;
   word-wrap: break-word;
   transition: background-color 0.3s ease, color 0.3s ease;
+  display: flex;
+  flex-direction: column;
 
   /* Власні повідомлення */
   ${(props) =>
@@ -96,6 +98,15 @@ export const Message = styled.div`
       border-bottom-left-radius: 6px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     `}
+`;
+
+export const MessageUsername = styled.div`
+  font-weight: 700;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: ${(props) => (props.$dark ? "#90caf9" : "#0078d4")};
+  user-select: none;
+  transition: color 0.3s ease;
 `;
 
 export const MessageText = styled.div`
@@ -213,13 +224,3 @@ export const TypingIndicator = styled.div`
     100% { opacity: 0.2; }
   }
 `;
-
-export const MessageUsername = styled.div`
-  font-weight: 700;
-  margin-bottom: 6px;
-  font-size: 13px;
-  color: ${(props) => (props.$dark ? "#90caf9" : "#0078d4")};
-  user-select: none;
-  transition: color 0.3s ease;
-`;
-
