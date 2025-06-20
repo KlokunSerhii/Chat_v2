@@ -82,10 +82,11 @@ export const Message = styled.div`
 `;
 
 export const MessageUsername = styled.div`
-  font-weight: 600;
+  font-weight: 700;
   font-size: 13px;
-  margin-bottom: 2px;
+  margin-bottom: 4px;
   color: ${({ $dark }) => ($dark ? "#8ab4f8" : "#0088cc")};
+  user-select: none;
 `;
 
 export const MessageText = styled.div`
@@ -110,86 +111,64 @@ export const ChatInputWrapper = styled.div`
 
 export const ChatInput = styled.input`
   flex-grow: 1;
-  padding: 12px 18px;
-  border-radius: 24px;
-  border: 1px solid ${({ $dark }) => ($dark ? "#555" : "#ccc")};
-  background-color: ${({ $dark }) => ($dark ? "#121212" : "#fff")};
-  color: ${({ $dark }) => ($dark ? "#eee" : "#222")};
+  padding: 12px 16px;
+  border: none;
+  border-radius: 20px;
   font-size: 15px;
+  background-color: ${({ $dark }) => ($dark ? "#262626" : "#fff")};
+  color: ${({ $dark }) => ($dark ? "#eee" : "#222")};
   outline: none;
-  transition: background-color 0.3s ease, border-color 0.3s ease;
+  box-shadow: inset 0 0 5px
+    ${({ $dark }) => ($dark ? "rgba(255, 255, 255, 0.1)" : "rgba(0,0,0,0.1)")};
 
-  &:focus {
-    border-color: ${({ $dark }) => ($dark ? "#44d162" : "#34b233")};
+  &::placeholder {
+    color: ${({ $dark }) => ($dark ? "#999" : "#aaa")};
   }
 `;
 
 export const ChatButton = styled.button`
-  margin-left: 12px;
-  padding: 12px 24px;
-  border-radius: 24px;
+  background-color: ${({ disabled }) =>
+    disabled ? "#9e9e9e" : "#0088cc"};
   border: none;
-  background-color: #34b233;
   color: white;
   font-weight: 600;
-  font-size: 15px;
-  cursor: pointer;
+  padding: 0 20px;
+  margin-left: 12px;
+  border-radius: 20px;
+  cursor: ${({ disabled }) => (disabled ? "default" : "pointer")};
   transition: background-color 0.3s ease;
 
-  &:disabled {
-    background-color: #8bc34a;
-    cursor: not-allowed;
-  }
-
-  &:hover:enabled {
-    background-color: #2e9b2d;
+  &:hover {
+    background-color: ${({ disabled }) => (disabled ? "#9e9e9e" : "#006699")};
   }
 `;
 
 export const UsernameInputWrapper = styled.div`
-  padding: 40px 20px;
   display: flex;
+  padding: 40px 20px;
   justify-content: center;
-  align-items: center;
+  background-color: ${({ $dark }) => ($dark ? "#121212" : "#f0f0f0")};
 `;
 
 export const UsernameInput = styled.input`
-  padding: 14px 24px;
+  padding: 12px 16px;
+  border-radius: 20px;
+  border: 1px solid ${({ $dark }) => ($dark ? "#444" : "#ccc")};
   font-size: 16px;
-  border-radius: 24px;
-  border: 1.5px solid ${({ $dark }) => ($dark ? "#555" : "#ccc")};
+  width: 320px;
+  margin-right: 12px;
+  outline: none;
   background-color: ${({ $dark }) => ($dark ? "#222" : "#fff")};
   color: ${({ $dark }) => ($dark ? "#eee" : "#222")};
-  outline: none;
-  width: 280px;
-  transition: border-color 0.3s ease;
 
-  &:focus {
-    border-color: #34b233;
+  &::placeholder {
+    color: ${({ $dark }) => ($dark ? "#999" : "#aaa")};
   }
 `;
 
 export const TypingIndicator = styled.div`
   font-style: italic;
-  color: ${({ $dark }) => ($dark ? "#999" : "#666")};
-  margin-bottom: 14px;
   font-size: 14px;
-
-  span {
-    animation: blink 1.5s infinite;
-  }
-
-  span:nth-child(2) {
-    animation-delay: 0.3s;
-  }
-
-  span:nth-child(3) {
-    animation-delay: 0.6s;
-  }
-
-  @keyframes blink {
-    0%, 20% { opacity: 0.2; }
-    50% { opacity: 1; }
-    100% { opacity: 0.2; }
-  }
+  margin: 0 0 10px 8px;
+  color: ${({ $dark }) => ($dark ? "#bbb" : "#555")};
 `;
