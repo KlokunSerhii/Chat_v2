@@ -16,7 +16,7 @@ import {
   ThemeToggle,
   UsernameInputWrapper,
   UsernameInput,
-TypingIndicator
+  TypingIndicator
 } from "./ChatApp.styled.js";
 
 const SOCKET_SERVER_URL = "https://chat-v2-server-7.onrender.com";
@@ -27,10 +27,14 @@ const ChatApp = () => {
     const saved = localStorage.getItem("chat_messages");
     return saved ? JSON.parse(saved) : [];
   });
+
   const [input, setInput] = useState("");
   const [typingUsers, setTypingUsers] = useState([]);
-  const [username, setUsername] = useState(
-    () => localStorage.getItem("chat_username") || ""
+  const [username, setUsername] = useState(() =>
+    localStorage.getItem("chat_username") || ""
+  );
+  const [tempUsername, setTempUsername] = useState(() =>
+    localStorage.getItem("chat_username") || ""
   );
   const [isConnected, setIsConnected] = useState(false);
   const [isDarkTheme, setIsDarkTheme] = useState(() => {
@@ -45,9 +49,6 @@ const ChatApp = () => {
   const usernameInputRef = useRef(null);
   const chatInputRef = useRef(null);
 
-  const [username, setUsername] = useState(() => localStorage.getItem("chat_username") || "");
-  const [tempUsername, setTempUsername] = useState(username);
- 
   useEffect(() => {
     if (!username.trim()) return;
 
@@ -61,9 +62,9 @@ const ChatApp = () => {
       console.error("Socket connection error:", err);
       setIsConnected(false);
     });
+
     socketRef.current.on("user-typing", (typingUsername) => {
       if (typingUsername === username) return;
-
       setTypingUsers((prev) => {
         if (!prev.includes(typingUsername)) {
           return [...prev, typingUsername];
@@ -71,7 +72,6 @@ const ChatApp = () => {
         return prev;
       });
 
-      // Прибрати через 2.5 сек
       setTimeout(() => {
         setTypingUsers((prev) =>
           prev.filter((u) => u !== typingUsername)
@@ -92,9 +92,7 @@ const ChatApp = () => {
     });
 
     socketRef.current.on("message", (data) => {
-      // Уникай дублювання власних повідомлень
-      if (data.username === username && data.sender === "user")
-        return;
+      if (data.username === username && data.sender === "user") return;
 
       setMessages((prev) => {
         const newMessages = [
@@ -107,10 +105,7 @@ const ChatApp = () => {
             username: data.username,
           },
         ];
-        localStorage.setItem(
-          "chat_messages",
-          JSON.stringify(newMessages)
-        );
+        localStorage.setItem("chat_messages", JSON.stringify(newMessages));
         return newMessages;
       });
 
@@ -149,28 +144,25 @@ const ChatApp = () => {
   }, [username]);
 
   useEffect(() => {
-  messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
-}, [messages]);
+    messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
+  }, [messages]);
 
   useEffect(() => {
     localStorage.setItem("chat_username", username);
   }, [username]);
 
   useEffect(() => {
-    localStorage.setItem(
-      "chat_theme",
-      isDarkTheme ? "dark" : "light"
-    );
+    localStorage.setItem("chat_theme", isDarkTheme ? "dark" : "light");
   }, [isDarkTheme]);
 
-useEffect(() => {
+  useEffect(() => {
     if (username.trim() && isConnected) {
       chatInputRef.current?.focus();
     }
   }, [username, isConnected]);
 
   const sendMessage = () => {
- if (!input.trim() || !isConnected) return;
+    if (!input.trim() || !isConnected) return;
 
     const userMsg = {
       id: uuidv4(),
@@ -182,10 +174,7 @@ useEffect(() => {
 
     setMessages((prev) => {
       const newMessages = [...prev, userMsg];
-      localStorage.setItem(
-        "chat_messages",
-        JSON.stringify(newMessages)
-      );
+      localStorage.setItem("chat_messages", JSON.stringify(newMessages));
       return newMessages;
     });
 
@@ -194,25 +183,14 @@ useEffect(() => {
       username,
     });
 
-   setInput("");
- if (document.activeElement) document.activeElement.blur();
- chatInputRef.current?.focus(); // ← фокус після відправки
+    setInput("");
+    if (document.activeElement) document.activeElement.blur();
+    chatInputRef.current?.focus();
   };
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") sendMessage();
   };
-
-
-// фокус на інпут залежно від стану username
- useEffect(() => {
-  if (username.trim() && isConnected) {
-    chatInputRef.current?.focus();
-  }
-}, [isConnected]);
-
- 
-
 
   return (
     <ChatContainer $dark={isDarkTheme}>
@@ -238,16 +216,16 @@ useEffect(() => {
             value={tempUsername}
             onChange={(e) => setTempUsername(e.target.value)}
             onKeyDown={(e) => {
-            if (e.key === "Enter" && tempUsername.trim()) {
-              setUsername(tempUsername.trim());
-                    }
+              if (e.key === "Enter" && tempUsername.trim()) {
+                setUsername(tempUsername.trim());
+              }
             }}
           />
           <ChatButton
             onClick={() =>
-              username.trim() && setUsername(username.trim())
+              tempUsername.trim() && setUsername(tempUsername.trim())
             }
-            disabled={!username.trim()}
+            disabled={!tempUsername.trim()}
           >
             Увійти
           </ChatButton>
@@ -257,12 +235,11 @@ useEffect(() => {
           <ChatMessages ref={chatContainerRef} $dark={isDarkTheme}>
             {messages.map((msg) => (
               <Message
-                $sage
                 key={msg.id}
                 $sender={msg.sender}
                 $dark={isDarkTheme}
                 $system={msg.sender === "system"}
-                $isOwn={msg.username === username} // Ось ця пропса!
+                $isOwn={msg.username === username}
               >
                 {msg.sender !== "system" && (
                   <strong>{msg.username || "Користувач"}: </strong>
@@ -284,7 +261,6 @@ useEffect(() => {
                 </em>
               </TypingIndicator>
             ))}
-
             <div ref={messagesEndRef} />
           </ChatMessages>
 
