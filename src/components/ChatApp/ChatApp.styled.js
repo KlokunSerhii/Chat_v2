@@ -211,3 +211,13 @@ export const TypingIndicator = styled.div`
     100% { opacity: 0.2; }
   }
 `;
+
+export const MessageUsername = styled.div`
+  font-weight: 700;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: ${(props) => (props.$dark ? "#90caf9" : "#0078d4")};
+  user-select: none;
+  transition: color 0.3s ease;
+`;
+
