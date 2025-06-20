@@ -21,7 +21,7 @@ import {
 } from "./ChatApp.styled.js";
 
 const SOCKET_SERVER_URL = "https://chat-v2-server-7.onrender.com";
-const SOUND_URL = "/notification.mp3";
+const SOUND_URL = "./notification.mp3";
 
 const ChatApp = () => {
   const [messages, setMessages] = useState(() => {
@@ -31,11 +31,11 @@ const ChatApp = () => {
 
   const [input, setInput] = useState("");
   const [typingUsers, setTypingUsers] = useState([]);
-  const [username, setUsername] = useState(() =>
-    localStorage.getItem("chat_username") || ""
+  const [username, setUsername] = useState(
+    () => localStorage.getItem("chat_username") || ""
   );
-  const [tempUsername, setTempUsername] = useState(() =>
-    localStorage.getItem("chat_username") || ""
+  const [tempUsername, setTempUsername] = useState(
+    () => localStorage.getItem("chat_username") || ""
   );
   const [isConnected, setIsConnected] = useState(false);
   const [isDarkTheme, setIsDarkTheme] = useState(() => {
@@ -73,7 +73,9 @@ const ChatApp = () => {
       });
 
       setTimeout(() => {
-        setTypingUsers((prev) => prev.filter((u) => u !== typingUsername));
+        setTypingUsers((prev) =>
+          prev.filter((u) => u !== typingUsername)
+        );
       }, 2500);
     });
 
@@ -90,7 +92,8 @@ const ChatApp = () => {
     });
 
     socketRef.current.on("message", (data) => {
-      if (data.username === username && data.sender === "user") return;
+      if (data.username === username && data.sender === "user")
+        return;
 
       setMessages((prev) => {
         const newMessages = [
@@ -103,7 +106,10 @@ const ChatApp = () => {
             username: data.username,
           },
         ];
-        localStorage.setItem("chat_messages", JSON.stringify(newMessages));
+        localStorage.setItem(
+          "chat_messages",
+          JSON.stringify(newMessages)
+        );
         return newMessages;
       });
 
@@ -150,7 +156,10 @@ const ChatApp = () => {
   }, [username]);
 
   useEffect(() => {
-    localStorage.setItem("chat_theme", isDarkTheme ? "dark" : "light");
+    localStorage.setItem(
+      "chat_theme",
+      isDarkTheme ? "dark" : "light"
+    );
   }, [isDarkTheme]);
 
   useEffect(() => {
@@ -172,7 +181,10 @@ const ChatApp = () => {
 
     setMessages((prev) => {
       const newMessages = [...prev, userMsg];
-      localStorage.setItem("chat_messages", JSON.stringify(newMessages));
+      localStorage.setItem(
+        "chat_messages",
+        JSON.stringify(newMessages)
+      );
       return newMessages;
     });
 
