@@ -42,14 +42,7 @@ const ChatApp = () => {
   const messagesEndRef = useRef(null);
   const chatContainerRef = useRef(null);
   const audioRef = useRef(null);
- // фокус на інпут залежно від стану username
- useEffect(() => {
-   if (!username.trim()) {
-    usernameInputRef.current?.focus();
-  } else {
-     chatInputRef.current?.focus();
-   }
- }, [username]);
+ 
   useEffect(() => {
     if (!username.trim()) return;
 
@@ -197,6 +190,16 @@ const ChatApp = () => {
   const handleKeyDown = (e) => {
     if (e.key === "Enter") sendMessage();
   };
+
+
+// фокус на інпут залежно від стану username
+ useEffect(() => {
+   if (!username.trim()) {
+    usernameInputRef.current?.focus();
+  } else {
+     chatInputRef.current?.focus();
+   }
+ }, [username]);
 
   return (
     <ChatContainer $dark={isDarkTheme}>
