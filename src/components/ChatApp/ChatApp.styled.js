@@ -76,7 +76,7 @@ const messageAppear = keyframes`
   to {opacity: 1; transform: translateY(0);}
 `;
 
-Мexport const Message = styled.div`
+export const Message = styled.div`
   max-width: 70%;
   padding: 10px 14px;
   font-size: 15px;
