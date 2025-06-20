@@ -1,117 +1,89 @@
-import styled, { keyframes, css } from "styled-components";
+import styled, { css } from "styled-components";
+
+const transition = "background-color 0.3s ease, color 0.3s ease";
 
 export const ChatContainer = styled.div`
-  max-width: 600px;
-  margin: 20px auto;
   display: flex;
   flex-direction: column;
-  height: 85vh;
-  border-radius: 10px;
-  background: ${({ $dark }) => ($dark ? "#1e1e2f" : "#e3f2fd")};
-  box-shadow: ${({ $dark }) =>
-    $dark ? "0 0 10px #333" : "0 0 10px #ccc"};
+  height: 100vh;
+  background-color: ${(props) => (props.$dark ? "#121212" : "#ffffff")};
+  color: ${(props) => (props.$dark ? "#e0e0e0" : "#111")};
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  color: ${({ $dark }) => ($dark ? "#eee" : "#222")};
-
-  @media (max-width: 600px) {
-    max-width: 100%;
-    height: 90vh;
-    margin: 10px;
-  }
+  transition: ${transition};
 `;
 
 export const StatusBar = styled.div`
-  padding: 10px 16px;
-  background-color: ${({ $dark }) => ($dark ? "#27293d" : "#eee")};
-  font-weight: 600;
-  font-size: 15px;
-  border-radius: 10px 10px 0 0;
+  padding: 12px 20px;
+  background-color: ${(props) => (props.$dark ? "#1e1e1e" : "#f7f7f7")};
+  color: ${(props) => (props.$dark ? "#bbb" : "#444")};
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  border-bottom: 1px solid ${(props) => (props.$dark ? "#333" : "#ddd")};
+  transition: ${transition};
 
   span {
-    color: ${({ $connected, $dark }) =>
-      $connected
-        ? $dark
-          ? "#4ade80"
-          : "green"
-        : $dark
-        ? "#f87171"
-        : "red"};
+    color: ${(props) => (props.$connected ? "#4caf50" : props.$dark ? "#f44336" : "#d32f2f")};
+    font-weight: 700;
   }
 `;
 
 export const ThemeToggle = styled.button`
-  font-size: 18px;
   background: transparent;
   border: none;
   cursor: pointer;
-  user-select: none;
-  color: ${({ $dark }) => ($dark ? "#eee" : "#222")};
-  transition: color 0.3s;
+  font-size: 22px;
+  color: ${(props) => (props.$dark ? "#ffd740" : "#555")};
+  transition: color 0.3s ease;
 
   &:hover {
-    color: ${({ $dark }) => ($dark ? "#a3a3ff" : "#5555ff")};
+    color: ${(props) => (props.$dark ? "#fff176" : "#000")};
   }
 `;
 
 export const ChatMessages = styled.div`
-  padding: 15px;
-  overflow-y: auto;
-  flex-grow: 1;
-  background-color: ${(props) => (props.$dark ? "#1a1a1a" : "#f9f9f9")};
   flex-grow: 1;
   overflow-y: auto;
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  background-color: ${({ $dark }) => ($dark ? "#2a2a44" : "#ffffff")};
-  scroll-behavior: smooth;
-
-  @media (max-width: 600px) {
-    padding: 10px;
-  }
-`;
-
-const messageAppear = keyframes`
-  from {opacity: 0; transform: translateY(15px);}
-  to {opacity: 1; transform: translateY(0);}
+  padding: 20px;
+  background-color: ${(props) => (props.$dark ? "#181818" : "#f9f9f9")};
+  transition: ${transition};
 `;
 
 export const Message = styled.div`
   max-width: 70%;
-  margin-bottom: 10px;
-  padding: 10px 15px;
-  border-radius: 15px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  font-size: 14px;
-  line-height: 1.4;
+  margin-bottom: 14px;
+  padding: 12px 18px;
+  border-radius: 18px;
+  box-shadow: 0 1.5px 4px rgba(0,0,0,0.15);
+  font-size: 14.5px;
+  line-height: 1.5;
   position: relative;
   word-wrap: break-word;
+  transition: background-color 0.3s ease, color 0.3s ease;
 
-  /* Якщо власне повідомлення */
+  /* Власні повідомлення */
   ${(props) =>
     props.$isOwn &&
     css`
-      background-color: #daf1ff;
+      background-color: ${props.$dark ? "#005c99" : "#daf1ff"};
       margin-left: auto;
-      color: #004a8f;
-      border-bottom-right-radius: 4px;
+      color: ${props.$dark ? "#cce6ff" : "#004a8f"};
+      border-bottom-right-radius: 6px;
+      box-shadow: 0 2px 6px rgba(0, 92, 153, 0.6);
     `}
 
-  /* Якщо системне повідомлення */
+  /* Системні повідомлення */
   ${(props) =>
     props.$system &&
     css`
-      background-color: #f0f0f0;
-      color: #555;
+      background-color: ${props.$dark ? "#2e2e2e" : "#eee"};
+      color: ${props.$dark ? "#999" : "#666"};
       font-style: italic;
       max-width: 90%;
-      margin: 10px auto;
+      margin: 12px auto;
       text-align: center;
-      border-radius: 10px;
+      border-radius: 14px;
       box-shadow: none;
     `}
 
@@ -119,9 +91,10 @@ export const Message = styled.div`
   ${(props) =>
     !props.$isOwn && !props.$system &&
     css`
-      background-color: #fff;
-      color: #333;
-      border-bottom-left-radius: 4px;
+      background-color: ${props.$dark ? "#252525" : "#fff"};
+      color: ${props.$dark ? "#ddd" : "#333"};
+      border-bottom-left-radius: 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     `}
 `;
 
@@ -129,182 +102,112 @@ export const MessageText = styled.div`
   white-space: pre-wrap;
 `;
 
-export const MessageTime = styled.div`
+export const MessageTime = styled.span`
   position: absolute;
-  bottom: 4px;
-  right: 10px;
-  font-size: 10px;
-  color: #888;
-  user-select: none;
+  bottom: 6px;
+  right: 14px;
   font-size: 11px;
-  color: ${({ $dark, $isOwn }) =>
-    $isOwn ? ($dark ? "#d2e3ff" : "#dfefff") : $dark ? "#888" : "#666"};
-  margin-top: 6px;
-  text-align: right;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 4px;
-
-  &::after {
-    content: ${({ $delivered }) => ($delivered ? '"✓✓"' : '"✓"')};
-    font-size: 12px;
-    color: ${({ $isOwn }) => ($isOwn ? "#d0f0ff" : "transparent")};
-    opacity: ${({ $isOwn }) => ($isOwn ? 0.7 : 0)};
-    transition: opacity 0.2s;
-  }
-
-  @media (max-width: 600px) {
-    font-size: 10px;
-  }
-`;
-
-
-const blinkDots = keyframes`
-  0%, 20% { opacity: 0.3; }
-  50% { opacity: 1; }
-  100% { opacity: 0.3; }
-`;
-
-export const TypingIndicator = styled.div`
-  font-style: italic;
-  color: ${({ $dark }) => ($dark ? "#ccc" : "#555")};
-  max-width: 75%;
-  padding: 10px 15px;
-  border-radius: 20px;
-  background-color: ${({ $dark }) => ($dark ? "#3b3f72" : "#e5e5ea")};
-  align-self: flex-start;
-  display: flex;
-  gap: 4px;
-  font-size: 15px;
-
-  span {
-    display: inline-block;
-    animation-name: ${blinkDots};
-    animation-duration: 1.4s;
-    animation-iteration-count: infinite;
-    animation-fill-mode: both;
-    opacity: 0.3;
-
-    &:nth-child(1) {
-      animation-delay: 0s;
-    }
-    &:nth-child(2) {
-      animation-delay: 0.2s;
-    }
-    &:nth-child(3) {
-      animation-delay: 0.4s;
-    }
-  }
-
-  @media (max-width: 600px) {
-    max-width: 90%;
-    font-size: 13px;
-    padding: 8px 12px;
-  }
+  color: ${(props) => (props.$dark ? "rgba(255,255,255,0.5)" : "#888")};
+  user-select: none;
 `;
 
 export const ChatInputWrapper = styled.div`
   display: flex;
-  padding: 15px 20px;
-  background-color: ${({ $dark }) => ($dark ? "#27293d" : "#fafafa")};
-  border-radius: 0 0 10px 10px;
-  gap: 10px;
-
-  @media (max-width: 600px) {
-    padding: 12px 15px;
-  }
+  padding: 12px 20px;
+  background-color: ${(props) => (props.$dark ? "#1e1e1e" : "#f7f7f7")};
+  border-top: 1px solid ${(props) => (props.$dark ? "#333" : "#ddd")};
+  transition: ${transition};
 `;
 
 export const ChatInput = styled.input`
   flex-grow: 1;
-  padding: 12px 18px;
+  padding: 10px 16px;
+  border-radius: 25px;
+  border: 1.5px solid ${(props) => (props.$dark ? "#555" : "#ccc")};
+  background-color: ${(props) => (props.$dark ? "#222" : "#fff")};
+  color: ${(props) => (props.$dark ? "#eee" : "#111")};
   font-size: 15px;
-  border: 1px solid ${({ $dark }) => ($dark ? "#555" : "#ccc")};
-  border-radius: 10px;
   outline: none;
-  background-color: ${({ $dark }) => ($dark ? "#2f2f49" : "#fff")};
-  color: ${({ $dark }) => ($dark ? "#eee" : "#222")};
-  transition: border-color 0.25s ease;
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 
   &:focus {
-    border-color: ${({ $dark }) => ($dark ? "#a3a3ff" : "#007bff")};
+    border-color: ${(props) => (props.$dark ? "#40c4ff" : "#0078d4")};
   }
 
   &:disabled {
-    background-color: ${({ $dark }) => ($dark ? "#1e1e2f" : "#eee")};
-    color: ${({ $dark }) => ($dark ? "#666" : "#999")};
+    background-color: ${(props) => (props.$dark ? "#2a2a2a" : "#ddd")};
     cursor: not-allowed;
-  }
-
-  @media (max-width: 600px) {
-    font-size: 14px;
-    padding: 10px 14px;
+    color: ${(props) => (props.$dark ? "#666" : "#999")};
   }
 `;
 
 export const ChatButton = styled.button`
-  padding: 12px 25px;
-  font-size: 15px;
-  font-weight: 600;
-  background-color: #4f46e5;
-  color: white;
+  margin-left: 14px;
+  padding: 10px 22px;
+  border-radius: 25px;
   border: none;
-  border-radius: 10px;
+  background-color: #0078d4;
+  color: white;
+  font-weight: 700;
+  font-size: 15px;
   cursor: pointer;
-  user-select: none;
   transition: background-color 0.3s ease;
 
   &:disabled {
-    background-color: #999;
+    background-color: #666;
     cursor: not-allowed;
   }
 
-  &:hover:not(:disabled) {
-    background-color: #3c32b8;
+  &:hover:enabled {
+    background-color: #005a9e;
   }
-
-  @media (max-width: 600px) {
-    padding: 10px 20px;
-    font-size: 14px;
-  }
-`;
-
-export const ConnectionStatus = styled.span`
-  font-weight: 700;
 `;
 
 export const UsernameInputWrapper = styled.div`
+  padding: 25px;
   display: flex;
-  padding: 30px 20px;
   justify-content: center;
-  gap: 10px;
-  background-color: ${({ $dark }) => ($dark ? "#27293d" : "#fafafa")};
-  border-radius: 0 0 10px 10px;
-
-  @media (max-width: 600px) {
-    padding: 25px 15px;
-    flex-direction: column;
-    align-items: stretch;
-  }
+  align-items: center;
 `;
 
 export const UsernameInput = styled.input`
-  flex-grow: 1;
-  padding: 14px 18px;
-  font-size: 16px;
-  border-radius: 10px;
-  border: 1px solid ${({ $dark }) => ($dark ? "#555" : "#ccc")};
+  padding: 12px 20px;
+  font-size: 18px;
+  border-radius: 25px;
+  border: 1.5px solid ${(props) => (props.$dark ? "#555" : "#ccc")};
+  background-color: ${(props) => (props.$dark ? "#222" : "#fff")};
+  color: ${(props) => (props.$dark ? "#eee" : "#111")};
   outline: none;
-  background-color: ${({ $dark }) => ($dark ? "#2f2f49" : "#fff")};
-  color: ${({ $dark }) => ($dark ? "#eee" : "#222")};
+  width: 280px;
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 
   &:focus {
-    border-color: ${({ $dark }) => ($dark ? "#a3a3ff" : "#007bff")};
+    border-color: ${(props) => (props.$dark ? "#40c4ff" : "#0078d4")};
+  }
+`;
+
+export const TypingIndicator = styled.div`
+  font-style: italic;
+  color: ${(props) => (props.$dark ? "#999" : "#666")};
+  margin-bottom: 14px;
+  font-size: 14px;
+  transition: color 0.3s ease;
+
+  span {
+    animation: blink 1.5s infinite;
   }
 
-  @media (max-width: 600px) {
-    font-size: 14px;
-    padding: 12px 14px;
+  span:nth-child(2) {
+    animation-delay: 0.3s;
+  }
+
+  span:nth-child(3) {
+    animation-delay: 0.6s;
+  }
+
+  @keyframes blink {
+    0%, 20% { opacity: 0.2; }
+    50% { opacity: 1; }
+    100% { opacity: 0.2; }
   }
 `;
