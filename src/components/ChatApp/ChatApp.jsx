@@ -231,67 +231,46 @@ const ChatApp = () => {
         </UsernameInputWrapper>
       ) : (
         <>
-          <ChatMessages $dark={isDarkTheme}>
-            {messages.map((msg) => (
-              <Message
-  key={msg.id}
-  $isOwn={msg.username === username}
-  $dark={isDarkTheme}
-  $system={msg.sender === "system"}
->
-  {msg.sender !== "system" && (
-    <MessageUsername $dark={isDarkTheme}>{msg.username || "Користувач"}</MessageUsername>
-  )}
-  <MessageText>
-    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-      {msg.text}
-    </ReactMarkdown>
-  </MessageText>
-  <MessageTime
-    $dark={isDarkTheme}
-    $isOwn={msg.username === username}
-    $delivered={msg.sender !== "system"}
-  >
-    {msg.timestamp}
-  </MessageTime>
-</Message>
+          <ChatMessages ref={chatContainerRef} $dark={isDarkTheme}>
+  {messages.map((msg) => (
+    <Message
+      key={msg.id}
+      $isOwn={msg.username === username}
+      $dark={isDarkTheme}
+      $system={msg.sender === "system"}
+    >
+      {msg.sender !== "system" && (
+        <MessageUsername $dark={isDarkTheme}>
+          {msg.username || "Користувач"}
+        </MessageUsername>
+      )}
 
-            ))}
-            {typingUsers.map((user) => (
-              <TypingIndicator key={user} $dark={isDarkTheme}>
-                <em>
-                  {user} друкує<span>.</span>
-                  <span>.</span>
-                  <span>.</span>
-                </em>
-              </TypingIndicator>
-            ))}
-            <div ref={messagesEndRef} />
-          </ChatMessages>
+      <MessageText>
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.text}</ReactMarkdown>
+      </MessageText>
 
-          <ChatInputWrapper $dark={isDarkTheme}>
-            <ChatInput
-              ref={chatInputRef}
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={
-                isConnected
-                  ? "Введіть повідомлення..."
-                  : "Не підключено"
-              }
-              disabled={!isConnected}
-              autoComplete="off"
-              spellCheck="false"
-            />
-            <ChatButton
-              onClick={sendMessage}
-              disabled={!isConnected || !input.trim()}
-            >
-              Надіслати
-            </ChatButton>
-          </ChatInputWrapper>
+      <MessageTime
+        $dark={isDarkTheme}
+        $isOwn={msg.username === username}
+        $delivered={msg.sender !== "system"}
+      >
+        {msg.timestamp}
+      </MessageTime>
+    </Message>
+  ))}
+
+  {typingUsers.map((user) => (
+    <TypingIndicator key={user} $dark={isDarkTheme}>
+      <em>
+        {user} друкує<span>.</span>
+        <span>.</span>
+        <span>.</span>
+      </em>
+    </TypingIndicator>
+  ))}
+
+  <div ref={messagesEndRef} />
+</ChatMessages>
         </>
       )}
 
