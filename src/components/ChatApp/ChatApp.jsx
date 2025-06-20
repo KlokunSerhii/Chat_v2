@@ -44,10 +44,9 @@ const ChatApp = () => {
 
   const socketRef = useRef(null);
   const messagesEndRef = useRef(null);
-  const chatContainerRef = useRef(null);
+  const chatInputRef = useRef(null);
   const audioRef = useRef(null);
   const usernameInputRef = useRef(null);
-  const chatInputRef = useRef(null);
 
   useEffect(() => {
     if (!username.trim()) return;
@@ -184,7 +183,6 @@ const ChatApp = () => {
     });
 
     setInput("");
-    if (document.activeElement) document.activeElement.blur();
     chatInputRef.current?.focus();
   };
 
@@ -232,41 +230,41 @@ const ChatApp = () => {
         </UsernameInputWrapper>
       ) : (
         <>
-          <ChatMessages ref={chatContainerRef} $dark={isDarkTheme}>
-             {messages.map((msg) => (
-    <Message
-      key={msg.id}
-      $isOwn={msg.username === username}
-      $dark={isDarkTheme}
-      $system={msg.sender === "system"}
-    >
-      {msg.sender !== "system" && (
-        <strong>{msg.username || "Користувач"}</strong>
-      )}
-      <MessageText>
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-          {msg.text}
-        </ReactMarkdown>
-      </MessageText>
-      <MessageTime
-        $dark={isDarkTheme}
-        $isOwn={msg.username === username}
-        $delivered={msg.sender !== "system"} // чи було доставлено — можеш додати логіку
-      >
-        {msg.timestamp}
-      </MessageTime>
-    </Message>
-  ))}
-  {typingUsers.map((user) => (
-    <TypingIndicator key={user} $dark={isDarkTheme}>
-      <em>
-        {user} друкує<span>.</span>
-        <span>.</span>
-        <span>.</span>
-      </em>
-    </TypingIndicator>
-  ))}
-  <div ref={messagesEndRef} />
+          <ChatMessages $dark={isDarkTheme}>
+            {messages.map((msg) => (
+              <Message
+                key={msg.id}
+                $isOwn={msg.username === username}
+                $dark={isDarkTheme}
+                $system={msg.sender === "system"}
+              >
+                {msg.sender !== "system" && (
+                  <strong>{msg.username || "Користувач"}</strong>
+                )}
+                <MessageText>
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {msg.text}
+                  </ReactMarkdown>
+                </MessageText>
+                <MessageTime
+                  $dark={isDarkTheme}
+                  $isOwn={msg.username === username}
+                  $delivered={msg.sender !== "system"}
+                >
+                  {msg.timestamp}
+                </MessageTime>
+              </Message>
+            ))}
+            {typingUsers.map((user) => (
+              <TypingIndicator key={user} $dark={isDarkTheme}>
+                <em>
+                  {user} друкує<span>.</span>
+                  <span>.</span>
+                  <span>.</span>
+                </em>
+              </TypingIndicator>
+            ))}
+            <div ref={messagesEndRef} />
           </ChatMessages>
 
           <ChatInputWrapper $dark={isDarkTheme}>
