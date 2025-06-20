@@ -72,6 +72,7 @@ export const Message = styled.div`
     if ($system) return $dark ? "#999" : "#666";
     return $isOwn ? ($dark ? "#b9f6ca" : "#202020") : $dark ? "#ddd" : "#222";
   }};
+  /* Вирівнюємо повідомлення по правому або лівому краю */
   align-self: ${({ $isOwn }) => ($isOwn ? "flex-end" : "flex-start")};
   box-shadow: ${({ $isOwn, $dark }) =>
     $isOwn
@@ -80,6 +81,7 @@ export const Message = styled.div`
         : "0 1px 3px rgba(0, 92, 75, 0.5)"
       : "0 1px 1px rgba(0,0,0,0.1)"};
 `;
+
 
 export const MessageUsername = styled.div`
   font-weight: 700;
