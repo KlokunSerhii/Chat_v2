@@ -29,15 +29,50 @@ export const StatusBar = styled.div`
 `;
 
 export const ThemeToggle = styled.button`
-  background: transparent;
+  width: 60px;
+  height: 32px;
   border: none;
+  border-radius: 50px;
+  background-color: ${({ $dark }) => ($dark ? "#4b5563" : "#fbbf24")};
+  position: relative;
   cursor: pointer;
-  font-size: 22px;
-  color: ${({ $dark }) => ($dark ? "#ffd740" : "#555")};
-  transition: color 0.3s ease;
+  transition: background-color 0.3s ease;
+  display: flex;
+  align-items: center;
+  padding: 4px;
 
-  &:hover {
-    color: ${({ $dark }) => ($dark ? "#fff176" : "#000")};
+  .slider {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: ${({ $dark }) =>
+      $dark ? "#4b5563" : "#fbbf24"};
+    position: absolute;
+    top: 4px;
+    left: ${({ $dark }) => ($dark ? "32px" : "4px")};
+    transition: left 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+  }
+
+  .sun,
+  .moon {
+    opacity: 0;
+    position: absolute;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+
+  .sun {
+    opacity: ${({ $dark }) => ($dark ? 0 : 1)};
+    left: 8px;
+  }
+
+  .moon {
+    opacity: ${({ $dark }) => ($dark ? 1 : 0)};
+    right: 8px;
   }
 `;
 
@@ -89,7 +124,7 @@ export const Message = styled.div`
         : "#dcf8c6"
       : $dark
       ? "#262626"
-      : "#fff";
+      : "#b8f57f";
   }};
   color: ${({ $dark, $isOwn, $system }) => {
     if ($system) return $dark ? "#999" : "#666";
@@ -251,5 +286,25 @@ export const EmojiButton = styled.button`
   &:hover {
     color: ${({ $dark }) => ($dark ? "#fff176" : "#005577")};
     transform: scale(1.2);
+  }
+`;
+
+export const OnlineList = styled.div`
+  padding: 10px 20px;
+  font-size: 14px;
+  background: ${({ $dark }) => ($dark ? "#1f1f1f" : "#f0f0f0")};
+  border-bottom: 1px solid ${({ $dark }) => ($dark ? "#333" : "#ddd")};
+  color: ${({ $dark }) => ($dark ? "#bbb" : "#333")};
+`;
+
+export const OnlineUser = styled.div`
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  &::before {
+    content: "🟢";
+    font-size: 10px;
   }
 `;

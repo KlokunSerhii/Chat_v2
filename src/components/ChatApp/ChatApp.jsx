@@ -24,6 +24,8 @@ import {
   MessageUsername,
   ConnectionStatus,
   EmojiButton,
+  OnlineList,
+  OnlineUser,
 } from "./ChatApp.styled.js";
 
 const SOCKET_SERVER_URL = "https://chat-v2-server-7.onrender.com";
@@ -34,7 +36,7 @@ const ChatApp = () => {
     const saved = localStorage.getItem("chat_messages");
     return saved ? JSON.parse(saved) : [];
   });
-
+  const [onlineUsers, setOnlineUsers] = useState([]);
   const [input, setInput] = useState("");
   const [typingUsers, setTypingUsers] = useState([]);
   const [username, setUsername] = useState(
@@ -69,6 +71,9 @@ const ChatApp = () => {
 
     socketRef.current.on("connect", () => setIsConnected(true));
     socketRef.current.on("disconnect", () => setIsConnected(false));
+    socketRef.current.on("online-users", (users) => {
+      setOnlineUsers(users);
+    });
     socketRef.current.on("connect_error", (err) => {
       console.error("Socket connection error:", err);
       setIsConnected(false);
@@ -221,11 +226,11 @@ const ChatApp = () => {
         </ConnectionStatus>
         <ThemeToggle
           onClick={() => setIsDarkTheme((prev) => !prev)}
+          $dark={isDarkTheme}
           title="Перемкнути тему"
           aria-label="Toggle theme"
-          $dark={isDarkTheme}
         >
-          {isDarkTheme ? "🌞" : "🌙"}
+          <div className="slider">{isDarkTheme ? "🌙" : "🌞"}</div>
         </ThemeToggle>
       </StatusBar>
 
@@ -256,6 +261,17 @@ const ChatApp = () => {
         </UsernameInputWrapper>
       ) : (
         <>
+          <OnlineList $dark={isDarkTheme}>
+            <strong>Онлайн:</strong>
+            {onlineUsers.length === 0 ? (
+              <div>Немає користувачів</div>
+            ) : (
+              onlineUsers.map((username) => (
+                <OnlineUser key={username}>{username}</OnlineUser>
+              ))
+            )}
+          </OnlineList>
+
           <ChatMessages $dark={isDarkTheme}>
             {messages.map((msg) => (
               <Message
