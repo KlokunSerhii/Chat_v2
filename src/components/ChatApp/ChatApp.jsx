@@ -218,7 +218,7 @@ const ChatApp = () => {
       {!username.trim() ? (
         <UsernameInputWrapper>
           <UsernameInput
-+           ref={usernameInputRef}
+          ref={usernameInputRef}
             type="text"
             placeholder="Введіть ваше ім'я..."
             value={username}
@@ -276,7 +276,7 @@ const ChatApp = () => {
 
           <ChatInputWrapper $dark={isDarkTheme}>
             <ChatInput
-+             ref={chatInputRef}
+            ref={chatInputRef}
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
