@@ -187,6 +187,7 @@ const ChatApp = () => {
 
     setInput("");
     if (document.activeElement) document.activeElement.blur();
+hatInputRef.current?.focus(); // повертаємо фокус на інпут
   };
 
   const handleKeyDown = (e) => {
@@ -208,12 +209,7 @@ const ChatApp = () => {
       chatInputRef.current?.focus();
     }
   }, [username, isConnected]);
-const sendMessage = () => {
-    if (!input.trim() || !isConnected) return;
-    // … надсилаємо повідомлення
-    setInput("");
-    chatInputRef.current?.focus(); // повертаємо фокус на інпут
-  };
+
 
   return (
     <ChatContainer $dark={isDarkTheme}>
