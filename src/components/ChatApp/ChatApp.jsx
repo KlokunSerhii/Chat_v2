@@ -42,7 +42,14 @@ const ChatApp = () => {
   const messagesEndRef = useRef(null);
   const chatContainerRef = useRef(null);
   const audioRef = useRef(null);
-
++ // фокус на інпут залежно від стану username
+ useEffect(() => {
+   if (!username.trim()) {
+    usernameInputRef.current?.focus();
+  } else {
+     chatInputRef.current?.focus();
+   }
+ }, [username]);
   useEffect(() => {
     if (!username.trim()) return;
 
@@ -208,6 +215,7 @@ const ChatApp = () => {
       {!username.trim() ? (
         <UsernameInputWrapper>
           <UsernameInput
++           ref={usernameInputRef}
             type="text"
             placeholder="Введіть ваше ім'я..."
             value={username}
@@ -265,6 +273,7 @@ const ChatApp = () => {
 
           <ChatInputWrapper $dark={isDarkTheme}>
             <ChatInput
++             ref={chatInputRef}
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
