@@ -17,7 +17,7 @@ import {
   UsernameInputWrapper,
   UsernameInput,
   TypingIndicator,
-MessageUsername
+  MessageUsername,
 } from "./ChatApp.styled.js";
 
 const SOCKET_SERVER_URL = "https://chat-v2-server-7.onrender.com";
@@ -73,9 +73,7 @@ const ChatApp = () => {
       });
 
       setTimeout(() => {
-        setTypingUsers((prev) =>
-          prev.filter((u) => u !== typingUsername)
-        );
+        setTypingUsers((prev) => prev.filter((u) => u !== typingUsername));
       }, 2500);
     });
 
@@ -231,46 +229,68 @@ const ChatApp = () => {
         </UsernameInputWrapper>
       ) : (
         <>
-          <ChatMessages ref={chatContainerRef} $dark={isDarkTheme}>
-  {messages.map((msg) => (
-    <Message
-      key={msg.id}
-      $isOwn={msg.username === username}
-      $dark={isDarkTheme}
-      $system={msg.sender === "system"}
-    >
-      {msg.sender !== "system" && (
-        <MessageUsername $dark={isDarkTheme}>
-          {msg.username || "Користувач"}
-        </MessageUsername>
-      )}
+          <ChatMessages $dark={isDarkTheme}>
+            {messages.map((msg) => (
+              <Message
+                key={msg.id}
+                $isOwn={msg.username === username}
+                $dark={isDarkTheme}
+                $system={msg.sender === "system"}
+              >
+                {msg.sender !== "system" && (
+                  <MessageUsername $dark={isDarkTheme}>
+                    {msg.username || "Користувач"}
+                  </MessageUsername>
+                )}
 
-      <MessageText>
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.text}</ReactMarkdown>
-      </MessageText>
+                <MessageText>
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {msg.text}
+                  </ReactMarkdown>
+                </MessageText>
 
-      <MessageTime
-        $dark={isDarkTheme}
-        $isOwn={msg.username === username}
-        $delivered={msg.sender !== "system"}
-      >
-        {msg.timestamp}
-      </MessageTime>
-    </Message>
-  ))}
+                <MessageTime
+                  $dark={isDarkTheme}
+                  $isOwn={msg.username === username}
+                  $delivered={msg.sender !== "system"}
+                >
+                  {msg.timestamp}
+                </MessageTime>
+              </Message>
+            ))}
 
-  {typingUsers.map((user) => (
-    <TypingIndicator key={user} $dark={isDarkTheme}>
-      <em>
-        {user} друкує<span>.</span>
-        <span>.</span>
-        <span>.</span>
-      </em>
-    </TypingIndicator>
-  ))}
+            {typingUsers.map((user) => (
+              <TypingIndicator key={user} $dark={isDarkTheme}>
+                <em>
+                  {user} друкує<span>.</span>
+                  <span>.</span>
+                  <span>.</span>
+                </em>
+              </TypingIndicator>
+            ))}
 
-  <div ref={messagesEndRef} />
-</ChatMessages>
+            <div ref={messagesEndRef} />
+          </ChatMessages>
+
+          <ChatInputWrapper $dark={isDarkTheme}>
+            <ChatInput
+              ref={chatInputRef}
+              type="text"
+              placeholder="Напишіть повідомлення..."
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              disabled={!isConnected}
+              $dark={isDarkTheme}
+              autoComplete="off"
+            />
+            <ChatButton
+              onClick={sendMessage}
+              disabled={!input.trim() || !isConnected}
+            >
+              Надіслати
+            </ChatButton>
+          </ChatInputWrapper>
         </>
       )}
 
