@@ -217,6 +217,7 @@ const ChatApp = () => {
                 setUsername(tempUsername.trim());
               }
             }}
+            $dark={isDarkTheme}
           />
           <ChatButton
             onClick={() =>
@@ -237,6 +238,7 @@ const ChatApp = () => {
                 $dark={isDarkTheme}
                 $system={msg.sender === "system"}
               >
+                {/* Ім'я користувача окремо, якщо це не системне повідомлення */}
                 {msg.sender !== "system" && (
                   <MessageUsername $dark={isDarkTheme}>
                     {msg.username || "Користувач"}
