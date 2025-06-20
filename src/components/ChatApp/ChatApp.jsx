@@ -160,8 +160,14 @@ const ChatApp = () => {
     );
   }, [isDarkTheme]);
 
+useEffect(() => {
+    if (username.trim() && isConnected) {
+      chatInputRef.current?.focus();
+    }
+  }, [username, isConnected]);
+
   const sendMessage = () => {
-    if (!input.trim() || !isConnected) return;
+ if (!input.trim() || !isConnected) return;
 
     const userMsg = {
       id: uuidv4(),
@@ -185,9 +191,9 @@ const ChatApp = () => {
       username,
     });
 
-    setInput("");
-    if (document.activeElement) document.activeElement.blur();
-hatInputRef.current?.focus(); // повертаємо фокус на інпут
+   setInput("");
+ if (document.activeElement) document.activeElement.blur();
+ chatInputRef.current?.focus(); // ← фокус після відправки
   };
 
   const handleKeyDown = (e) => {
@@ -204,11 +210,7 @@ hatInputRef.current?.focus(); // повертаємо фокус на інпут
    }
  }, [username]);
 
- useEffect(() => {
-    if (username.trim() && isConnected) {
-      chatInputRef.current?.focus();
-    }
-  }, [username, isConnected]);
+ 
 
 
   return (
@@ -287,7 +289,6 @@ hatInputRef.current?.focus(); // повертаємо фокус на інпут
 
           <ChatInputWrapper $dark={isDarkTheme}>
             <ChatInput
-              autoFocus
               ref={chatInputRef}
               type="text"
               value={input}
