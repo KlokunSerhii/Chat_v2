@@ -1,11 +1,11 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { io } from "socket.io-client";
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
 import { v4 as uuidv4 } from "uuid";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 
 import {
   ChatContainer,
@@ -26,12 +26,32 @@ import {
   EmojiButton,
   OnlineList,
   OnlineUser,
+  AvatarImage,
 } from "./ChatApp.styled.js";
 
 const SOCKET_SERVER_URL = "https://chat-v2-server-7.onrender.com";
 const SOUND_URL = "./notification.mp3";
 
-const ChatApp = () => {
+export default function ChatApp() {
+  // Avatar selection
+  const avatarSeeds = useMemo(
+    () => Array.from({ length: 5 }, () => uuidv4()),
+    []
+  );
+  const [selectedSeed, setSelectedSeed] = useState(avatarSeeds[0]);
+  const [avatar, setAvatar] = useState(
+    () =>
+      localStorage.getItem("chat_avatar") ||
+      `https://api.dicebear.com/7.x/avataaars/svg?seed=${avatarSeeds[0]}`
+  );
+
+  // User state
+  const [username, setUsername] = useState(
+    () => localStorage.getItem("chat_username") || ""
+  );
+  const [tempUsername, setTempUsername] = useState(username);
+
+  // Chat state
   const [messages, setMessages] = useState(() => {
     const saved = localStorage.getItem("chat_messages");
     return saved ? JSON.parse(saved) : [];
@@ -39,138 +59,107 @@ const ChatApp = () => {
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [input, setInput] = useState("");
   const [typingUsers, setTypingUsers] = useState([]);
-  const [username, setUsername] = useState(
-    () => localStorage.getItem("chat_username") || ""
-  );
-  const [tempUsername, setTempUsername] = useState(
-    () => localStorage.getItem("chat_username") || ""
-  );
   const [isConnected, setIsConnected] = useState(false);
-  const [isDarkTheme, setIsDarkTheme] = useState(() => {
-    const saved = localStorage.getItem("chat_theme");
-    return saved ? saved === "dark" : false;
-  });
+  const [isDarkTheme, setIsDarkTheme] = useState(
+    () => localStorage.getItem("chat_theme") === "dark"
+  );
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-
   const addEmoji = (emoji) => {
     setInput((prev) => prev + emoji.native);
     setShowEmojiPicker(false);
   };
+  // Refs and socket
   const socketRef = useRef(null);
   const messagesEndRef = useRef(null);
   const chatInputRef = useRef(null);
   const audioRef = useRef(null);
   const usernameInputRef = useRef(null);
 
+  // Login handler
+  const handleLogin = () => {
+    const name = tempUsername.trim();
+    if (!name) return;
+    const url = `https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedSeed}`;
+    setAvatar(url);
+    setUsername(name);
+    localStorage.setItem("chat_username", name);
+    localStorage.setItem("chat_avatar", url);
+  };
+
+  // Chat socket logic
   useEffect(() => {
-    if (!username.trim()) return;
+    if (!username) return;
+    const socket = io(SOCKET_SERVER_URL, {
+      query: { username, avatar },
+    });
+    socketRef.current = socket;
 
-    socketRef.current = io(SOCKET_SERVER_URL, {
-      query: { username },
+    socket.on("connect", () => setIsConnected(true));
+    socket.on("disconnect", () => setIsConnected(false));
+
+    socket.on("online-users", (users) => setOnlineUsers(users));
+    socket.on("user-typing", (u) => {
+      if (u === username) return;
+      setTypingUsers((prev) =>
+        prev.includes(u) ? prev : [...prev, u]
+      );
+      setTimeout(
+        () => setTypingUsers((prev) => prev.filter((x) => x !== u)),
+        2500
+      );
     });
 
-    socketRef.current.on("connect", () => setIsConnected(true));
-    socketRef.current.on("disconnect", () => setIsConnected(false));
-    socketRef.current.on("online-users", (users) => {
-      setOnlineUsers(users);
-    });
-    socketRef.current.on("connect_error", (err) => {
-      console.error("Socket connection error:", err);
-      setIsConnected(false);
-    });
-
-    socketRef.current.on("user-typing", (typingUsername) => {
-      if (typingUsername === username) return;
-      setTypingUsers((prev) => {
-        if (!prev.includes(typingUsername)) {
-          return [...prev, typingUsername];
-        }
-        return prev;
-      });
-
-      setTimeout(() => {
-        setTypingUsers((prev) =>
-          prev.filter((u) => u !== typingUsername)
-        );
-      }, 2500);
-    });
-
-    socketRef.current.on("last-messages", (lastMessages) => {
+    socket.on("last-messages", (history) => {
       setMessages(
-        lastMessages.map((msg) => ({
+        history.map((msg) => ({
           id: uuidv4(),
-          text: msg.text,
-          sender: msg.sender,
-          timestamp: new Date(msg.timestamp).toLocaleTimeString(),
-          username: msg.username,
+          ...msg,
         }))
       );
     });
 
-    socketRef.current.on("message", (data) => {
-      if (data.username === username && data.sender === "user")
-        return;
-
+    socket.on("message", (msg) => {
+      if (msg.username === username && msg.sender === "user") return;
       setMessages((prev) => {
-        const newMessages = [
-          ...prev,
-          {
-            id: uuidv4(),
-            text: data.text,
-            sender: data.sender,
-            timestamp: new Date(data.timestamp).toLocaleTimeString(),
-            username: data.username,
-          },
-        ];
-        localStorage.setItem(
-          "chat_messages",
-          JSON.stringify(newMessages)
-        );
-        return newMessages;
+        const next = [...prev, { id: uuidv4(), ...msg }];
+        localStorage.setItem("chat_messages", JSON.stringify(next));
+        return next;
       });
-
       audioRef.current?.play();
     });
 
-    socketRef.current.on("user-joined", (user) => {
+    socket.on("user-joined", (u) =>
       setMessages((prev) => [
         ...prev,
         {
           id: uuidv4(),
-          text: `${user} приєднався до чату`,
           sender: "system",
+          text: `${u} приєднався`,
           timestamp: new Date().toLocaleTimeString(),
-          username: null,
         },
-      ]);
-    });
-
-    socketRef.current.on("user-left", (user) => {
+      ])
+    );
+    socket.on("user-left", (u) =>
       setMessages((prev) => [
         ...prev,
         {
           id: uuidv4(),
-          text: `${user} покинув чат`,
           sender: "system",
+          text: `${u} покинув`,
           timestamp: new Date().toLocaleTimeString(),
-          username: null,
         },
-      ]);
-    });
+      ])
+    );
 
-    return () => {
-      socketRef.current.disconnect();
-    };
-  }, [username]);
+    return () => socket.disconnect();
+  }, [username, avatar]);
 
+  // Auto-scroll
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  useEffect(() => {
-    localStorage.setItem("chat_username", username);
-  }, [username]);
-
+  // Persist theme
   useEffect(() => {
     localStorage.setItem(
       "chat_theme",
@@ -178,82 +167,80 @@ const ChatApp = () => {
     );
   }, [isDarkTheme]);
 
-  useEffect(() => {
-    if (username.trim() && isConnected) {
-      chatInputRef.current?.focus();
-    }
-  }, [username, isConnected]);
-
   const sendMessage = () => {
     if (!input.trim() || !isConnected) return;
-
-    const userMsg = {
-      id: uuidv4(),
-      text: input.trim(),
+    const msg = {
       sender: "user",
+      text: input.trim(),
       timestamp: new Date().toLocaleTimeString(),
       username,
+      avatar,
     };
-
     setMessages((prev) => {
-      const newMessages = [...prev, userMsg];
-      localStorage.setItem(
-        "chat_messages",
-        JSON.stringify(newMessages)
-      );
-      return newMessages;
+      const next = [...prev, { id: uuidv4(), ...msg }];
+      localStorage.setItem("chat_messages", JSON.stringify(next));
+      return next;
     });
-
-    socketRef.current.emit("message", {
-      text: input.trim(),
-      username,
-    });
-
+    socketRef.current.emit("message", msg);
     setInput("");
     chatInputRef.current?.focus();
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") sendMessage();
-  };
-
+  // Render
   return (
     <ChatContainer $dark={isDarkTheme}>
       <StatusBar $connected={isConnected} $dark={isDarkTheme}>
-        Статус:{" "}
-        <ConnectionStatus $connected={isConnected}>
-          {isConnected ? "🟢 Онлайн" : "🔴 Офлайн"}
-        </ConnectionStatus>
-        <ThemeToggle
-          onClick={() => setIsDarkTheme((prev) => !prev)}
-          $dark={isDarkTheme}
-          title="Перемкнути тему"
-          aria-label="Toggle theme"
-        >
-          <div className="slider">{isDarkTheme ? "🌙" : "🌞"}</div>
-        </ThemeToggle>
+        {username ? (
+          <>
+            Статус:{" "}
+            <ConnectionStatus $connected={isConnected}>
+              {isConnected ? "🟢 Онлайн" : "🔴 Офлайн"}
+            </ConnectionStatus>
+            <ThemeToggle
+              onClick={() => setIsDarkTheme((p) => !p)}
+              $dark={isDarkTheme}
+            >
+              {isDarkTheme ? "🌙" : "🌞"}
+            </ThemeToggle>
+          </>
+        ) : (
+          <span>Введіть ім'я і оберіть аватар</span>
+        )}
       </StatusBar>
 
-      {!username.trim() ? (
+      {!username ? (
         <UsernameInputWrapper>
+          <div style={{ marginBottom: 12 }}>
+            <strong>Оберіть аватар:</strong>
+            <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+              {avatarSeeds.map((s) => {
+                const url = `https://api.dicebear.com/7.x/avataaars/svg?seed=${s}`;
+                return (
+                  <AvatarImage
+                    key={s}
+                    src={url}
+                    onClick={() => setSelectedSeed(s)}
+                    style={{
+                      border:
+                        s === selectedSeed
+                          ? "2px solid #0088cc"
+                          : "2px solid transparent",
+                    }}
+                  />
+                );
+              })}
+            </div>
+          </div>
           <UsernameInput
-            autoFocus
             ref={usernameInputRef}
-            type="text"
-            placeholder="Введіть ваше ім'я..."
             value={tempUsername}
             onChange={(e) => setTempUsername(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && tempUsername.trim()) {
-                setUsername(tempUsername.trim());
-              }
-            }}
+            onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+            placeholder="Ваше ім'я"
             $dark={isDarkTheme}
           />
           <ChatButton
-            onClick={() =>
-              tempUsername.trim() && setUsername(tempUsername.trim())
-            }
+            onClick={handleLogin}
             disabled={!tempUsername.trim()}
           >
             Увійти
@@ -263,13 +250,12 @@ const ChatApp = () => {
         <>
           <OnlineList $dark={isDarkTheme}>
             <strong>Онлайн:</strong>
-            {onlineUsers.length === 0 ? (
-              <div>Немає користувачів</div>
-            ) : (
-              onlineUsers.map((username) => (
-                <OnlineUser key={username}>{username}</OnlineUser>
-              ))
-            )}
+            {onlineUsers.map((u) => (
+              <OnlineUser key={u.username}>
+                <AvatarImage src={u.avatar} alt={u.username} />
+                {u.username}
+              </OnlineUser>
+            ))}
           </OnlineList>
 
           <ChatMessages $dark={isDarkTheme}>
@@ -280,101 +266,74 @@ const ChatApp = () => {
                 $dark={isDarkTheme}
                 $system={msg.sender === "system"}
               >
-                {/* Ім'я користувача окремо, якщо це не системне повідомлення */}
                 {msg.sender !== "system" && (
                   <MessageUsername
                     $dark={isDarkTheme}
                     $isOwn={msg.username === username}
                   >
-                    {msg.username || "Користувач"}
+                    <AvatarImage
+                      src={msg.avatar}
+                      alt={msg.username}
+                    />
+                    {msg.username}
                   </MessageUsername>
                 )}
-
                 <MessageText $isOwn={msg.username === username}>
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>
                     {msg.text}
                   </ReactMarkdown>
                 </MessageText>
-
                 <MessageTime
                   $dark={isDarkTheme}
-                  $isOwn={msg.username === username} // <-- додай це!
-                  $delivered={msg.sender !== "system"}
+                  $isOwn={msg.username === username}
+                  $delivered
                 >
                   {msg.timestamp}
                 </MessageTime>
               </Message>
             ))}
-
-            {typingUsers.map((user) => (
-              <TypingIndicator key={user} $dark={isDarkTheme}>
-                <em>
-                  {user} друкує<span>.</span>
-                  <span>.</span>
-                  <span>.</span>
-                </em>
+            {typingUsers.map((u) => (
+              <TypingIndicator key={u} $dark={isDarkTheme}>
+                <em>{u} друкує...</em>
               </TypingIndicator>
             ))}
-
             <div ref={messagesEndRef} />
           </ChatMessages>
-          <ChatInputWrapper
-            $dark={isDarkTheme}
-            style={{ position: "relative" }}
-          >
+
+          <ChatInputWrapper $dark={isDarkTheme}>
             <ChatInput
               ref={chatInputRef}
-              type="text"
-              placeholder="Напишіть повідомлення..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              disabled={!isConnected}
+              onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+              placeholder="Напишіть повідомлення..."
               $dark={isDarkTheme}
-              autoComplete="off"
             />
-
             <EmojiButton
-              onClick={() => setShowEmojiPicker((prev) => !prev)}
-              title="Додати смайлик"
+              onClick={() => setShowEmojiPicker((p) => !p)}
               $dark={isDarkTheme}
-              aria-label="Toggle emoji picker"
             >
               😃
             </EmojiButton>
-
             <ChatButton
               onClick={sendMessage}
               disabled={!input.trim() || !isConnected}
             >
               Надіслати
             </ChatButton>
-
             <AnimatePresence>
               {showEmojiPicker && (
-                <div
-                  style={{
-                    position: "absolute",
-                    bottom: "60px",
-                    right: "20px",
-                    zIndex: 1000,
-                  }}
-                >
-                  <Picker
-                    data={data}
-                    onEmojiSelect={addEmoji}
-                    theme={isDarkTheme ? "dark" : "light"}
-                  />
-                </div>
+                <Picker
+                  data={data}
+                  onEmojiSelect={addEmoji}
+                  theme={isDarkTheme ? "dark" : "light"}
+                />
               )}
             </AnimatePresence>
           </ChatInputWrapper>
         </>
       )}
-
       <audio ref={audioRef} src={SOUND_URL} preload="auto" />
     </ChatContainer>
   );
-};
-
-export default ChatApp;
+}

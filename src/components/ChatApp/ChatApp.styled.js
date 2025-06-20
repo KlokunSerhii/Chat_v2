@@ -308,3 +308,11 @@ export const OnlineUser = styled.div`
     font-size: 10px;
   }
 `;
+
+export const AvatarImage = styled.img`
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  margin-right: 8px;
+  object-fit: cover;
+`;
