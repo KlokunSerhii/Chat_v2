@@ -158,11 +158,10 @@ export default function ChatApp() {
           sender: "system",
           text: `${u} покинув`,
           timestamp: formatTime(new Date()),
-          console.log(formatTime(new Date()))
-
         },
       ])
     );
+          console.log(formatTime(new Date()))
 
     return () => socket.disconnect();
   }, [username, avatar]);
