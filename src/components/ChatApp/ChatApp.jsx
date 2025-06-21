@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useMemo } from "react";More actions
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { io } from "socket.io-client";
@@ -28,9 +28,9 @@ import {
   AvatarImage,
   OnlineListModal,
   ModalOverlay,
-AttachedImagePreview,
-MessageImage,
-  AttachButton
+  AttachedImagePreview,
+  MessageImage,
+  AttachButton,
 } from "./ChatApp.styled.js";
 
 const SOCKET_SERVER_URL = "https://chat-v2-server-7.onrender.com";
@@ -38,10 +38,7 @@ const SOUND_URL = "./notification.mp3";
 
 export default function ChatApp() {
   // Avatar selection
-  const avatarSeeds = useMemo(
-    () => Array.from({ length: 5 }, () => uuidv4()),
-    []
-  );
+  const avatarSeeds = useMemo(() => Array.from({ length: 5 }, () => uuidv4()), []);
   const [selectedSeed, setSelectedSeed] = useState(avatarSeeds[0]);
   const [avatar, setAvatar] = useState(
     () =>
@@ -50,9 +47,7 @@ export default function ChatApp() {
   );
 
   // User state
-  const [username, setUsername] = useState(
-    () => localStorage.getItem("chat_username") || ""
-  );
+  const [username, setUsername] = useState(() => localStorage.getItem("chat_username") || "");
   const [tempUsername, setTempUsername] = useState(username);
 
   // Chat state
@@ -64,15 +59,13 @@ export default function ChatApp() {
   const [input, setInput] = useState("");
   const [typingUsers, setTypingUsers] = useState([]);
   const [isConnected, setIsConnected] = useState(false);
-  const [isDarkTheme, setIsDarkTheme] = useState(
-    () => localStorage.getItem("chat_theme") === "dark"
-  );
+  const [isDarkTheme, setIsDarkTheme] = useState(() => localStorage.getItem("chat_theme") === "dark");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   // Новий стан для показу бокової панелі онлайн користувачів
   const [isOnlineListOpen, setIsOnlineListOpen] = useState(false);
-const [attachedImage, setAttachedImage] = useState(null);
-const fileInputRef = useRef(null);
+  const [attachedImage, setAttachedImage] = useState(null);
+  const fileInputRef = useRef(null);
 
   const addEmoji = (emoji) => {
     setInput((prev) => prev + emoji.native);
@@ -86,7 +79,7 @@ const fileInputRef = useRef(null);
   const audioRef = useRef(null);
   const usernameInputRef = useRef(null);
 
-  // Форматування часу (з твого коду)
+  // Форматування часу
   const formatTime = (input) => {
     const d = new Date(input);
     if (isNaN(d.getTime())) return "??:??";
@@ -122,44 +115,33 @@ const fileInputRef = useRef(null);
     socket.on("disconnect", () => setIsConnected(false));
 
     socket.on("online-users", (users) => setOnlineUsers(users));
+
     socket.on("user-typing", (u) => {
       if (u === username) return;
-      setTypingUsers((prev) =>
-        prev.includes(u) ? prev : [...prev, u]
-      );
-      setTimeout(
-        () => setTypingUsers((prev) => prev.filter((x) => x !== u)),
-        2500
-      );
+      setTypingUsers((prev) => (prev.includes(u) ? prev : [...prev, u]));
+      setTimeout(() => setTypingUsers((prev) => prev.filter((x) => x !== u)), 2500);
     });
 
     socket.on("last-messages", (history) => {
-      setMessages(
-        history.map((msg) => ({
-          id: uuidv4(),
-          ...msg,
-        }))
-      );
+      const restored = history.map((msg) => ({
+        id: uuidv4(),
+        ...msg,
+      }));
+      setMessages(restored);
+      localStorage.setItem("chat_messages", JSON.stringify(restored));
     });
-  const restored = history.map((msg) => ({
-    id: uuidv4(),
-    ...msg,
-  }));
-  setMessages(restored);
-  localStorage.setItem("chat_messages", JSON.stringify(restored));
-});
 
-   socket.on("message", (msg) => {
-  if (msg.username === username && msg.sender === "user") return;
+    socket.on("message", (msg) => {
+      if (msg.username === username && msg.sender === "user") return;
 
-  setMessages((prev) => {
-    const next = [...prev, { id: uuidv4(), ...msg }];
-    localStorage.setItem("chat_messages", JSON.stringify(next));
-    return next;
-  });
+      setMessages((prev) => {
+        const next = [...prev, { id: uuidv4(), ...msg }];
+        localStorage.setItem("chat_messages", JSON.stringify(next));
+        return next;
+      });
 
-  audioRef.current?.play();
-});
+      audioRef.current?.play();
+    });
 
     socket.on("user-joined", (u) =>
       setMessages((prev) => [
@@ -172,6 +154,7 @@ const fileInputRef = useRef(null);
         },
       ])
     );
+
     socket.on("user-left", (u) =>
       setMessages((prev) => [
         ...prev,
@@ -194,73 +177,69 @@ const fileInputRef = useRef(null);
 
   // Persist theme
   useEffect(() => {
-    localStorage.setItem(
-      "chat_theme",
-      isDarkTheme ? "dark" : "light"
-    );
+    localStorage.setItem("chat_theme", isDarkTheme ? "dark" : "light");
   }, [isDarkTheme]);
 
-const sendMessage = () => {
-  if ((!input.trim() && !attachedImage) || !isConnected) return;
+  const sendMessage = () => {
+    if ((!input.trim() && !attachedImage) || !isConnected) return;
 
-  const msg = {
-    sender: "user",
-    text: input.trim(),
-    timestamp: new Date().toISOString(),
-    username,
-    avatar,
-    image: attachedImage || null, // тут додаємо картинку
+    const msg = {
+      sender: "user",
+      text: input.trim(),
+      timestamp: new Date().toISOString(),
+      username,
+      avatar,
+      image: attachedImage || null,
+    };
+
+    setMessages((prev) => {
+      const next = [...prev, { id: uuidv4(), ...msg }];
+      localStorage.setItem("chat_messages", JSON.stringify(next));
+      return next;
+    });
+
+    socketRef.current.emit("message", msg);
+
+    setInput("");
+    setAttachedImage(null);
+    chatInputRef.current?.focus();
   };
 
-  setMessages((prev) => {
-    const next = [...prev, { id: uuidv4(), ...msg }];
-    localStorage.setItem("chat_messages", JSON.stringify(next));
-    return next;
-  });
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
 
-  socketRef.current.emit("message", msg);
+    if (!file.type.startsWith("image/")) {
+      alert("Будь ласка, виберіть зображення");
+      return;
+    }
 
-  setInput("");
-  setAttachedImage(null);
-  chatInputRef.current?.focus();
-};
-const handleFileChange = (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setAttachedImage(reader.result);
+    };
+    reader.readAsDataURL(file);
 
-  // Перевірка розміру і типу (опційно)
-  if (!file.type.startsWith("image/")) {
-    alert("Будь ласка, виберіть зображення");
-    return;
-  }
-
-  // Зчитування файлу у base64
-  const reader = new FileReader();
-  reader.onload = () => {
-    setAttachedImage(reader.result);
+    e.target.value = null;
   };
-  reader.readAsDataURL(file);
-
-  // Очистити інпут, щоб можна було вибрати той самий файл знову
-  e.target.value = null;
-};
-const handleImageChange = (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = () => {
-    setAttachedImage(reader.result); // зберігає картинку як data URL
-  };
-  reader.readAsDataURL(file);
-};
 
   // Render
   return (
-@@ -270,180 +261,179 @@
+    <ChatContainer $dark={isDarkTheme}>
+      <StatusBar $dark={isDarkTheme}>
+        {username ? (
+          <>
+            <ConnectionStatus $connected={isConnected} />
+            <ThemeToggle
+              $dark={isDarkTheme}
+              onClick={() => setIsDarkTheme((d) => !d)}
+              title="Toggle theme"
             >
-              {isDarkTheme ? " " : " "}
+              {isDarkTheme ? "🌙" : "☀️"}
             </ThemeToggle>
+            <ChatButton onClick={() => setIsOnlineListOpen(true)} $dark={isDarkTheme}>
+              Онлайн: {onlineUsers.length}
+            </ChatButton>
           </>
         ) : (
           <span>Введіть ім'я і оберіть аватар</span>
@@ -280,10 +259,8 @@ const handleImageChange = (e) => {
                     src={url}
                     onClick={() => setSelectedSeed(s)}
                     style={{
-                      border:
-                        s === selectedSeed
-                          ? "2px solid #0088cc"
-                          : "2px solid transparent",
+                      border: s === selectedSeed ? "2px solid #0088cc" : "2px solid transparent",
+                      cursor: "pointer",
                     }}
                   />
                 );
@@ -298,26 +275,12 @@ const handleImageChange = (e) => {
             placeholder="Ваше ім'я"
             $dark={isDarkTheme}
           />
-          <ChatButton
-            onClick={handleLogin}
-            disabled={!tempUsername.trim()}
-          >
+          <ChatButton onClick={handleLogin} disabled={!tempUsername.trim()}>
             Увійти
           </ChatButton>
         </UsernameInputWrapper>
       ) : (
         <>
-          {/* ВИКЛЮЧАЄМО старий OnlineList */}
-          {/* <OnlineList $dark={isDarkTheme}>
-            <strong>Онлайн:</strong>
-            {onlineUsers.map((u) => (
-              <OnlineUser key={u.username}>
-                <AvatarImage src={u.avatar} alt={u.username} />
-                {u.username}
-              </OnlineUser>
-            ))}
-          </OnlineList> */}
-
           <ChatMessages $dark={isDarkTheme}>
             {messages.map((msg) => (
               <Message
@@ -327,30 +290,16 @@ const handleImageChange = (e) => {
                 $system={msg.sender === "system"}
               >
                 {msg.sender !== "system" && (
-                  <MessageUsername
-                    $dark={isDarkTheme}
-                    $isOwn={msg.username === username}
-                  >
-                    <AvatarImage
-                      src={msg.avatar}
-                      alt={msg.username}
-                    />
+                  <MessageUsername $dark={isDarkTheme} $isOwn={msg.username === username}>
+                    <AvatarImage src={msg.avatar} alt={msg.username} />
                     {msg.username}
                   </MessageUsername>
                 )}
-              <MessageText $isOwn={msg.username === username}>
-  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-    {msg.text}
-  </ReactMarkdown>
- {msg.image && (
-  <MessageImage src={msg.image} alt="attached" />
-)}
-</MessageText>
-                <MessageTime
-                  $dark={isDarkTheme}
-                  $isOwn={msg.username === username}
-                  $delivered
-                >
+                <MessageText $isOwn={msg.username === username}>
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.text}</ReactMarkdown>
+                  {msg.image && <MessageImage src={msg.image} alt="attached" />}
+                </MessageText>
+                <MessageTime $dark={isDarkTheme} $isOwn={msg.username === username} $delivered>
                   {formatTime(msg.timestamp)}
                 </MessageTime>
               </Message>
@@ -372,74 +321,67 @@ const handleImageChange = (e) => {
               placeholder="Напишіть повідомлення..."
               $dark={isDarkTheme}
             />
-            <EmojiButton
-              onClick={() => setShowEmojiPicker((p) => !p)}
-              $dark={isDarkTheme}
-            >
+            <EmojiButton onClick={() => setShowEmojiPicker((p) => !p)} $dark={isDarkTheme}>
               😃
             </EmojiButton>
             <input
-  type="file"
-  accept="image/*"
-  style={{ display: "none" }}
-  ref={fileInputRef}
-  onChange={handleFileChange}
-/>
-<AttachButton
-  onClick={() => fileInputRef.current.click()}
-  onChange={handleImageChange}
-  $dark={isDarkTheme}
->
-  📎
-</AttachButton>
-{attachedImage && (
-  <AttachedImagePreview>
-    <img src={attachedImage} alt="preview" />
-    <button onClick={() => setAttachedImage(null)}>✖</button>
-  </AttachedImagePreview>
-)}
+              type="file"
+              accept="image/*"
+              style={{ display: "none" }}
+              ref={fileInputRef}
+              onChange={handleFileChange}
+            />
+            <AttachButton onClick={() => fileInputRef.current.click()} $dark={isDarkTheme}>
+              📎
+            </AttachButton>
+            {attachedImage && (
+              <AttachedImagePreview src={attachedImage} alt="preview" onClick={() => setAttachedImage(null)} />
+            )}
             <ChatButton
               onClick={sendMessage}
-              disabled={!input.trim() || !isConnected}
+              disabled={(!input.trim() && !attachedImage) || !isConnected}
+              $dark={isDarkTheme}
             >
               Надіслати
             </ChatButton>
-  onClick={sendMessage}
-  disabled={(!input.trim() && !attachedImage) || !isConnected}
->
-  Надіслати
-</ChatButton>
-            <AnimatePresence>
-              {showEmojiPicker && (
-                <Picker
-                  data={data}
-                  onEmojiSelect={addEmoji}
-                  theme={isDarkTheme ? "dark" : "light"}
-                />
-              )}
-            </AnimatePresence>
           </ChatInputWrapper>
+
+          <AnimatePresence>
+            {showEmojiPicker && (
+              <Picker
+                data={data}
+                onEmojiSelect={addEmoji}
+                theme={isDarkTheme ? "dark" : "light"}
+                style={{ position: "absolute", bottom: 60, right: 20, zIndex: 1000 }}
+              />
+            )}
+          </AnimatePresence>
+
+          {isOnlineListOpen && (
+            <>
+              <ModalOverlay onClick={() => setIsOnlineListOpen(false)} />
+              <OnlineListModal $dark={isDarkTheme}>
+                <h3>Онлайн користувачі</h3>
+                {onlineUsers.length === 0 ? (
+                  <p>Немає користувачів онлайн</p>
+                ) : (
+                  onlineUsers.map((user) => (
+                    <OnlineUser key={user.username} $dark={isDarkTheme}>
+                      <AvatarImage src={user.avatar} alt={user.username} />
+                      {user.username}
+                    </OnlineUser>
+                  ))
+                )}
+                <ChatButton onClick={() => setIsOnlineListOpen(false)} $dark={isDarkTheme}>
+                  Закрити
+                </ChatButton>
+              </OnlineListModal>
+            </>
+          )}
+
+          <audio ref={audioRef} src={SOUND_URL} preload="auto" />
         </>
       )}
-
-      {/* Модалка списку онлайн */}
-      <ModalOverlay
-        $open={isOnlineListOpen}
-        onClick={() => setIsOnlineListOpen(false)}
-      />
-      <OnlineListModal $open={isOnlineListOpen} $dark={isDarkTheme}>
-        <h3>Онлайн користувачі</h3>
-        {onlineUsers.length === 0 && <p>Немає користувачів онлайн</p>}
-        {onlineUsers.map((u) => (
-          <OnlineUser key={u.username}>
-            <AvatarImage src={u.avatar} alt={u.username} />
-            {u.username}
-          </OnlineUser>
-        ))}
-        <ChatButton onClick={() => setIsOnlineListOpen(false)}>Закрити</ChatButton>
-      </OnlineListModal>
-
-      <audio ref={audioRef} src={SOUND_URL} preload="auto" />
     </ChatContainer>
   );
 }
