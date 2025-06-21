@@ -339,9 +339,9 @@ const handleFileChange = (e) => {
   <ReactMarkdown remarkPlugins={[remarkGfm]}>
     {msg.text}
   </ReactMarkdown>
-  {msg.image && (
-    <MessageImage src={msg.image} alt="attached" />
-  )}
+ {msg.image && (
+  <MessageImage src={msg.image} alt="attached" />
+)}
 </MessageText>
                 <MessageTime
                   $dark={isDarkTheme}
