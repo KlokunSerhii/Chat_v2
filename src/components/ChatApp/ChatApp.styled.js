@@ -1,381 +1,286 @@
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+
+const darkBg = "#1e1e1e";
+const lightBg = "#fafafa";
+
+const darkText = "#eee";
+const lightText = "#222";
+
+const primaryColor = "#0088cc";
+const errorColor = "#cc3300";
+
+const scrollbarStyle = css`
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(0,0,0,0.2);
+    border-radius: 4px;
+  }
+`;
 
 export const ChatContainer = styled.div`
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background-color: ${({ $dark }) => ($dark ? "#121212" : "#e5ddd5")};
-  color: ${({ $dark }) => ($dark ? "#e5ddd5" : "#222")};
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  background-color: ${({ $dark }) => ($dark ? darkBg : lightBg)};
+  color: ${({ $dark }) => ($dark ? darkText : lightText)};
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  position: relative;
 `;
 
 export const StatusBar = styled.div`
-  padding: 14px 20px;
-  background-color: ${({ $dark }) => ($dark ? "#1f1f1f" : "#f7f7f7")};
-  color: ${({ $dark }) => ($dark ? "#aaa" : "#555")};
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  font-weight: 600;
-  border-bottom: 1px solid ${({ $dark }) => ($dark ? "#333" : "#ddd")};
+  justify-content: flex-end;
+  background-color: ${({ $dark }) => ($dark ? "#121212" : "#e0e0e0")};
+  padding: 6px 12px;
+  font-size: 14px;
+  gap: 12px;
+`;
 
-  @media (max-width: 600px) {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-    font-size: 13px;
-    padding: 10px;
+export const ConnectionStatus = styled.div`
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: ${({ $connected }) => ($connected ? "#4caf50" : "#f44336")};
+  box-shadow: ${({ $connected }) =>
+    $connected ? "0 0 6px #4caf50" : "0 0 6px #f44336"};
+`;
+
+export const ChatButton = styled.button`
+  background-color: ${({ $dark }) => ($dark ? primaryColor : "#007acc")};
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 14px;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s ease;
+  &:disabled {
+    background-color: #999;
+    cursor: default;
+  }
+  &:hover:not(:disabled) {
+    background-color: ${({ $dark }) => ($dark ? "#006799" : "#005f99")};
   }
 `;
 
 export const ThemeToggle = styled.button`
-  position: relative;
-  width: 50px;
-  height: 24px;
-  border-radius: 12px;
+  background: transparent;
   border: none;
-  background: ${({ $dark }) => ($dark ? "#222" : "#ddd")};
+  color: ${({ $dark }) => ($dark ? darkText : lightText)};
   cursor: pointer;
-  transition: background 0.3s ease;
-
-  &:focus {
-    outline: none;
-  }
-
-  /* Бігунок */
-  &::before {
-    content: "";
-    position: absolute;
-    top: 2px;
-    left: ${({ $dark }) => ($dark ? "26px" : "2px")};
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: ${({ $dark }) => ($dark ? "#f1c40f" : "#444")};
-    box-shadow: 0 0 5px rgba(0,0,0,0.2);
-    transition: left 0.3s ease, background 0.3s ease;
-  }
+  font-size: 20px;
+  user-select: none;
+  padding: 0 6px;
 `;
-export const ChatMessages = styled.div`
+
+export const UsernameInputWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  padding: 16px;
+  padding: 20px 16px;
+  gap: 12px;
+`;
+
+export const UsernameInput = styled.input`
+  padding: 10px 12px;
+  font-size: 16px;
+  border: 1.5px solid ${({ $dark }) => ($dark ? "#444" : "#ccc")};
+  border-radius: 6px;
+  background-color: ${({ $dark }) => ($dark ? "#222" : "white")};
+  color: ${({ $dark }) => ($dark ? darkText : lightText)};
+  transition: border-color 0.2s ease;
+  &:focus {
+    outline: none;
+    border-color: ${primaryColor};
+  }
+`;
+
+export const AvatarImage = styled.img`
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  user-select: none;
+  object-fit: cover;
+`;
+
+export const ChatMessages = styled.div`
+  flex: 1;
   overflow-y: auto;
-  flex-grow: 1;
-  gap: 8px;
-  background-color: ${({ $dark }) => ($dark ? "#121212" : "#fff")};
-  scrollbar-width: thin;
-  scrollbar-color: ${({ $dark }) =>
-    $dark ? "#555 #222" : "#ccc #f1f1f1"};
-
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: ${({ $dark }) => ($dark ? "#222" : "#f1f1f1")};
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: ${({ $dark }) => ($dark ? "#555" : "#ccc")};
-    border-radius: 3px;
-  }
+  padding: 12px 16px;
+  ${scrollbarStyle}
 `;
 
 export const Message = styled.div`
-  flex-direction: column;
-  align-items: flex-start;
+  margin-bottom: 14px;
+  max-width: 70%;
   align-self: ${({ $isOwn }) => ($isOwn ? "flex-end" : "flex-start")};
-  min-width: 10%;
-  margin-bottom: 12px;
-  padding: 10px 14px;
-  border-radius: 20px;
-  font-size: 15px;
-  line-height: 1.4;
-  position: relative;
-  overflow-wrap: break-word;
-  word-break: break-word;
-  background-color: ${({ $dark, $isOwn, $system }) => {
-    if ($system) return $dark ? "#2f3136" : "#f0f0f0";
-    return $isOwn
+  background-color: ${({ $dark, $isOwn, $system }) =>
+    $system
+      ? "transparent"
+      : $isOwn
       ? $dark
-        ? "#054d40"
-        : "#dcf8c6"
+        ? "#004466"
+        : "#bbdefb"
       : $dark
-      ? "#262626"
-      : "#b8f57f";
-  }};
-  color: ${({ $dark, $isOwn, $system }) => {
-    if ($system) return $dark ? "#999" : "#666";
-    return $isOwn
-      ? $dark
-        ? "#b9f6ca"
-        : "#202020"
-      : $dark
-      ? "#ddd"
-      : "#222";
-  }};
-  box-shadow: ${({ $isOwn, $dark }) =>
-    $isOwn
-      ? $dark
-        ? "0 1px 3px rgba(5, 77, 64, 0.7)"
-        : "0 1px 3px rgba(0, 92, 75, 0.5)"
-      : "0 1px 1px rgba(0,0,0,0.1)"};
-
-  @media (max-width: 600px) {
-    max-width: 90%;
-  }
+      ? "#333"
+      : "#e0e0e0"};
+  color: ${({ $dark, $isOwn, $system }) =>
+    $system ? ( $dark ? "#888" : "#666") : $isOwn ? ($dark ? "#b9e1ff" : "#222") : $dark ? "#ddd" : "#222"};
+  padding: ${({ $system }) => ($system ? "0" : "10px 14px")};
+  border-radius: ${({ $system }) => ($system ? "0" : "12px")};
+  font-size: 14px;
+  box-shadow: ${({ $system }) => ($system ? "none" : "0 2px 6px rgba(0,0,0,0.15)")};
 `;
 
 export const MessageUsername = styled.div`
-  display: block;
-  text-align: ${({ $isOwn }) => ($isOwn ? "right" : "left")};
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-weight: 700;
   font-size: 13px;
-  line-height: 1.2;
   margin-bottom: 4px;
-  color: ${({ $dark }) => ($dark ? "#8ab4f8" : "#0088cc")};
+  color: ${({ $dark, $isOwn }) => ($isOwn ? primaryColor : $dark ? "#aaa" : "#444")};
   user-select: none;
 `;
 
 export const MessageText = styled.div`
   white-space: pre-wrap;
+  word-break: break-word;
+
+  a {
+    color: ${({ $isOwn }) => ($isOwn ? "#004477" : "#0055aa")};
+    text-decoration: underline;
+    cursor: pointer;
+  }
+`;
+
+export const MessageTime = styled.div`
+  font-size: 11px;
+  margin-top: 4px;
+  color: ${({ $dark, $isOwn }) =>
+    $isOwn ? ($dark ? "#a8c8ff" : "#555") : $dark ? "#999" : "#666"};
   text-align: ${({ $isOwn }) => ($isOwn ? "right" : "left")};
-  align-self: ${({ $isOwn }) => ($isOwn ? "flex-end" : "flex-start")};
-`;
-export const MessageTime = styled.span`
-  position: absolute;
-  bottom: 6px;
-  ${({ $isOwn }) => ($isOwn ? "right: 12px;" : "left: 12px;")}
-  font-size: 10px;
-  color: ${({ $dark }) =>
-    $dark ? "rgba(255, 255, 255, 0.4)" : "#999"};
   user-select: none;
-`;
-
-export const ChatInputWrapper = styled.div`
-  display: flex;
-  padding: 12px 20px;
-  background-color: ${({ $dark }) => ($dark ? "#1f1f1f" : "#f7f7f7")};
-  border-top: 1px solid ${({ $dark }) => ($dark ? "#333" : "#ddd")};
-
-  @media (max-width: 600px) {
-    flex-direction: column;
-    padding: 10px;
-    gap: 10px;
-  }
-`;
-
-export const ChatInput = styled.input`
-  flex-grow: 1;
-  padding: 12px 16px;
-  border: none;
-  border-radius: 20px;
-  font-size: 15px;
-  background-color: ${({ $dark }) => ($dark ? "#262626" : "#fff")};
-  color: ${({ $dark }) => ($dark ? "#eee" : "#222")};
-  outline: none;
-  box-shadow: inset 0 0 5px
-    ${({ $dark }) =>
-      $dark ? "rgba(255, 255, 255, 0.1)" : "rgba(0,0,0,0.1)"};
-
-  &::placeholder {
-    color: ${({ $dark }) => ($dark ? "#999" : "#aaa")};
-  }
-`;
-
-export const ChatButton = styled.button`
-  background-color: ${({ disabled }) =>
-    disabled ? "#9e9e9e" : "#0088cc"};
-  border: none;
-  color: white;
-  font-weight: 600;
-  padding: 0 20px;
-  margin-left: 12px;
-  border-radius: 20px;
-  cursor: ${({ disabled }) => (disabled ? "default" : "pointer")};
-  transition: background-color 0.3s ease;
-
-  &:hover {
-    background-color: ${({ disabled }) =>
-      disabled ? "#9e9e9e" : "#006699"};
-  }
-
-  @media (max-width: 600px) {
-    width: 100%;
-    margin-left: 0;
-  }
-`;
-
-export const UsernameInputWrapper = styled.div`
-  display: flex;
-  padding: 40px 20px;
-  justify-content: center;
-  background-color: ${({ $dark }) => ($dark ? "#121212" : "#f0f0f0")};
-
-  @media (max-width: 600px) {
-    flex-direction: column;
-    align-items: center;
-    padding: 20px 10px;
-  }
-`;
-
-export const UsernameInput = styled.input`
-  padding: 12px 16px;
-  border-radius: 20px;
-  border: 1px solid ${({ $dark }) => ($dark ? "#444" : "#ccc")};
-  font-size: 16px;
-  width: 320px;
-  margin-right: 12px;
-  outline: none;
-  background-color: ${({ $dark }) => ($dark ? "#222" : "#fff")};
-  color: ${({ $dark }) => ($dark ? "#eee" : "#222")};
-
-  &::placeholder {
-    color: ${({ $dark }) => ($dark ? "#999" : "#aaa")};
-  }
-
-  @media (max-width: 600px) {
-    width: 100%;
-    margin-right: 0;
-    margin-bottom: 10px;
-  }
 `;
 
 export const TypingIndicator = styled.div`
   font-style: italic;
-  font-size: 14px;
-  margin: 0 0 10px 8px;
+  font-size: 13px;
+  margin-bottom: 8px;
   color: ${({ $dark }) => ($dark ? "#bbb" : "#555")};
 `;
-export const ConnectionStatus = styled.span`
-  color: ${({ $connected }) =>
-    $connected ? "#4caf50" : "#f44336"}; // зелений або червоний
-  font-weight: 700;
-`;
-export const EmojiButton = styled.button`
-  font-size: 22px;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  margin-left: 8px;
-  transition: transform 0.2s ease, color 0.2s ease;
-  color: ${({ $dark }) => ($dark ? "#ffd740" : "#0088cc")};
 
-  &:hover {
-    color: ${({ $dark }) => ($dark ? "#fff176" : "#005577")};
-    transform: scale(1.2);
-  }
-`;
-
-export const OnlineList = styled.div`
-  padding: 10px 20px;
-  font-size: 14px;
-  background: ${({ $dark }) => ($dark ? "#1f1f1f" : "#f0f0f0")};
-  border-bottom: 1px solid ${({ $dark }) => ($dark ? "#333" : "#ddd")};
-  color: ${({ $dark }) => ($dark ? "#bbb" : "#333")};
-`;
-
-export const OnlineUser = styled.div`
-  margin-bottom: 4px;
+export const ChatInputWrapper = styled.div`
   display: flex;
   align-items: center;
-  gap: 6px;
+  padding: 12px 16px;
+  background-color: ${({ $dark }) => ($dark ? "#121212" : "#fafafa")};
+  gap: 8px;
+  position: relative;
+`;
 
-  &::before {
-    content: "🟢";
-    font-size: 10px;
+export const ChatInput = styled.textarea`
+  flex-grow: 1;
+  min-height: 40px;
+  max-height: 100px;
+  resize: vertical;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1.5px solid ${({ $dark }) => ($dark ? "#444" : "#ccc")};
+  background-color: ${({ $dark }) => ($dark ? "#222" : "white")};
+  color: ${({ $dark }) => ($dark ? darkText : lightText)};
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  &:focus {
+    border-color: ${primaryColor};
   }
 `;
 
-export const AvatarImage = styled.img`
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  margin-right: 8px;
+export const EmojiButton = styled.button`
+  background: transparent;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  user-select: none;
+  color: ${({ $dark }) => ($dark ? "#ddd" : "#444")};
+  padding: 4px 6px;
+  border-radius: 6px;
+  &:hover {
+    background-color: ${({ $dark }) => ($dark ? "#333" : "#eee")};
+  }
+`;
+
+export const AttachButton = styled(EmojiButton)`
+  font-size: 20px;
+`;
+
+export const AttachedImagePreview = styled.img`
+  max-width: 80px;
+  max-height: 80px;
+  border-radius: 8px;
   object-fit: cover;
+  cursor: pointer;
+  border: 2px solid ${primaryColor};
+`;
+
+export const MessageImage = styled.img`
+  margin-top: 6px;
+  max-width: 220px;
+  border-radius: 8px;
+  object-fit: contain;
+  user-select: none;
 `;
 
 export const OnlineListModal = styled.div`
   position: fixed;
-  top: 0;
-  left: ${({ $open }) => ($open ? "0" : "-320px")};
-  width: 300px;
-  height: 100vh;
-  background: ${({ theme, $dark }) => ($dark ? "#222" : "#fff")};
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.3);
-  transition: left 0.3s ease;
-  z-index: 1000;
-  padding: 1rem;
+  top: 50%;
+  left: 50%;
+  width: 280px;
+  max-height: 400px;
   overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-
+  background-color: ${({ $dark }) => ($dark ? darkBg : "white")};
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  padding: 20px 16px;
+  transform: translate(-50%, -50%);
+  z-index: 1500;
+  color: ${({ $dark }) => ($dark ? darkText : lightText)};
   h3 {
-    margin: 0 0 1rem 0;
-    color: ${({ $dark }) => ($dark ? "#ddd" : "#111")};
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-weight: 700;
+    user-select: none;
   }
+  p {
+    user-select: none;
+  }
+`;
+
+export const OnlineUser = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  font-weight: 600;
+  user-select: none;
+  color: ${({ $dark }) => ($dark ? "#ddd" : "#222")};
 `;
 
 export const ModalOverlay = styled.div`
-  display: ${({ $open }) => ($open ? "block" : "none")};
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.4);
-  z-index: 999;
+  inset: 0;
+  background-color: rgba(0,0,0,0.35);
+  z-index: 1400;
 `;
 
-export const MessageImage = styled.img`
-  max-width: 200px;
-  margin-top: 6px;
-  border-radius: 8px;
-  cursor: pointer;
-  &:hover {
-    opacity: 0.8;
-  }
-`;
-
-export const AttachedImagePreview = styled.div`
-  position: relative;
-  margin-bottom: 8px;
-  img {
-    max-height: 100px;
-    border-radius: 8px;
-    display: block;
-  }
-  button {
-    position: absolute;
-    top: 2px;
-    right: 2px;
-    background: rgba(0,0,0,0.5);
-    border: none;
-    color: white;
-    border-radius: 50%;
-    cursor: pointer;
-    width: 22px;
-    height: 22px;
-  }
-`;
-export const AttachButton = styled.button`
-  background: transparent;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  padding: 4px 8px;
-  color: ${({ $dark }) => ($dark ? "#ccc" : "#444")};
-  transition: color 0.3s ease;
-
-  &:hover {
-    color: ${({ $dark }) => ($dark ? "#fff" : "#000")};
-  }
-
-  &:focus {
-    outline: 2px solid ${({ $dark }) => ($dark ? "#66aaff" : "#005fcc")};
-    outline-offset: 2px;
-  }
-`;
