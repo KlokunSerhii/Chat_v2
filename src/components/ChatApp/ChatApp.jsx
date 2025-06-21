@@ -74,13 +74,19 @@ export default function ChatApp() {
   const chatInputRef = useRef(null);
   const audioRef = useRef(null);
   const usernameInputRef = useRef(null);
+
   const formatTime = (date) => {
-  const d = new Date(date);
-  const hh = String(d.getHours()).padStart(2, "0");
-  const mm = String(d.getMinutes()).padStart(2, "0");
-  const ss = String(d.getSeconds()).padStart(2, "0");
-  return `${hh}:${mm}:${ss}`;
-}
+ const formatTime = (input) => {
+  const d = new Date(input);
+  if (isNaN(d.getTime())) return "??:??";
+  return new Intl.DateTimeFormat("uk-UA", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  }).format(d);
+};
+
   // Login handler
   const handleLogin = () => {
     const name = tempUsername.trim();
