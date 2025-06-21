@@ -1,7 +1,5 @@
-// ChatApp.styled.js
 import styled, { css } from "styled-components";
 
-// Базова тема Telegram
 const lightTheme = {
   background: "#ffffff",
   text: "#000000",
@@ -24,7 +22,7 @@ const darkTheme = {
 
 const getTheme = ($dark) => ($dark ? darkTheme : lightTheme);
 
-// Контейнер
+// -------- Контейнер --------
 export const ChatContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -32,9 +30,17 @@ export const ChatContainer = styled.div`
   background-color: ${({ $dark }) => getTheme($dark).background};
   color: ${({ $dark }) => getTheme($dark).text};
   font-family: 'Segoe UI', sans-serif;
+
+  @media (max-width: 768px) {
+    font-size: 14px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 13px;
+  }
 `;
 
-// Верхня панель
+// -------- Верхня панель --------
 export const StatusBar = styled.div`
   display: flex;
   align-items: center;
@@ -44,7 +50,7 @@ export const StatusBar = styled.div`
   background-color: ${({ $dark }) => getTheme($dark).input};
 `;
 
-// Перемикач теми як слайдер
+// -------- Перемикач теми --------
 export const ThemeToggle = styled.button`
   appearance: none;
   border: none;
@@ -69,7 +75,7 @@ export const ThemeToggle = styled.button`
   }
 `;
 
-// Введення повідомлення
+// -------- Інпут --------
 export const ChatInputWrapper = styled.div`
   display: flex;
   align-items: center;
@@ -90,27 +96,30 @@ export const ChatInput = styled.textarea`
   outline: none;
 `;
 
-// Кнопки
+// -------- Кнопки --------
 export const ChatButton = styled.button`
   margin-left: 8px;
   padding: 6px 12px;
   font-weight: bold;
   background-color: ${({ $dark }) => ($dark ? "#444" : "#0088cc")};
-  color: ${({ $dark }) => ($dark ? "#fff" : "#fff")};
+  color: #fff;
   border: none;
   border-radius: 8px;
   cursor: pointer;
   transition: background 0.3s;
+
   &:hover {
     background-color: ${({ $dark }) => ($dark ? "#555" : "#007ab8")};
   }
 `;
 
-// Повідомлення
+// -------- Повідомлення --------
 export const ChatMessages = styled.div`
   flex: 1;
   overflow-y: auto;
   padding: 10px;
+  display: flex;
+  flex-direction: column;
 `;
 
 export const Message = styled.div`
@@ -123,6 +132,23 @@ export const Message = styled.div`
   border-radius: 10px;
   max-width: 70%;
   position: relative;
+
+  ${({ $isOwn }) =>
+    $isOwn &&
+    css`
+      border-top-right-radius: 0;
+    `}
+
+  ${({ $isOwn }) =>
+    !$isOwn &&
+    css`
+      border-top-left-radius: 0;
+    `}
+
+  @media (max-width: 480px) {
+    max-width: 90%;
+    font-size: 14px;
+  }
 `;
 
 export const MessageText = styled.div`
@@ -157,7 +183,7 @@ export const TypingIndicator = styled.div`
   margin: 5px 10px;
 `;
 
-// Emoji / attach
+// -------- Emoji / attach --------
 export const EmojiButton = styled.button`
   background: none;
   border: none;
@@ -177,7 +203,7 @@ export const AttachedImagePreview = styled.img`
   cursor: pointer;
 `;
 
-// Онлайн модальне вікно
+// -------- Модальне вікно --------
 export const ModalOverlay = styled.div`
   position: fixed;
   inset: 0;
@@ -188,15 +214,30 @@ export const ModalOverlay = styled.div`
 export const OnlineListModal = styled.div`
   position: fixed;
   top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  left: 0;
+  transform: translateY(-50%);
   background-color: ${({ $dark }) => getTheme($dark).background};
   color: ${({ $dark }) => getTheme($dark).text};
   padding: 20px;
-  border-radius: 12px;
+  border-radius: 0 12px 12px 0;
   z-index: 1000;
-  min-width: 280px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  min-width: 260px;
+  max-width: 90vw;
+  box-shadow: 2px 0 16px rgba(0, 0, 0, 0.25);
+
+  @media (max-width: 768px) {
+    min-width: 220px;
+  }
+
+  @media (max-width: 480px) {
+    width: 100%;
+    max-width: unset;
+    border-radius: 0;
+    top: 0;
+    transform: none;
+    height: 100vh;
+    overflow-y: auto;
+  }
 `;
 
 export const OnlineUser = styled.div`
@@ -236,6 +277,7 @@ export const ConnectionStatus = styled.div`
   margin-right: 10px;
 `;
 
+// -------- Картинка в повідомленні --------
 export const MessageImage = styled.img`
   max-width: 100%;
   max-height: 300px;
@@ -244,7 +286,12 @@ export const MessageImage = styled.img`
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   cursor: pointer;
   transition: transform 0.2s;
+
   &:hover {
     transform: scale(1.02);
+  }
+
+  @media (max-width: 480px) {
+    max-height: 200px;
   }
 `;
