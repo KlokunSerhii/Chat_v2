@@ -225,7 +225,7 @@ export default function ChatApp() {
               onClick={() => setIsDarkTheme((p) => !p)}
               $dark={isDarkTheme}
             >
-              {isDarkTheme ? "🌙" : "🌞"}
+              {isDarkTheme ? " " : " "}
             </ThemeToggle>
           </>
         ) : (
