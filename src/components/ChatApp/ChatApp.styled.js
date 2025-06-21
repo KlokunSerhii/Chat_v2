@@ -213,32 +213,29 @@ export const ModalOverlay = styled.div`
 
 export const OnlineListModal = styled.div`
   position: fixed;
-  top: 50%;
+  top: 0;
   left: 0;
-  transform: translateY(-50%);
+  height: 100vh;
+  width: 300px;
+  max-width: 90vw;
   background-color: ${({ $dark }) => getTheme($dark).background};
   color: ${({ $dark }) => getTheme($dark).text};
   padding: 20px;
   border-radius: 0 12px 12px 0;
   z-index: 1000;
-  min-width: 260px;
-  max-width: 90vw;
   box-shadow: 2px 0 16px rgba(0, 0, 0, 0.25);
+  overflow-y: auto;
 
   @media (max-width: 768px) {
-    min-width: 220px;
+    width: 260px;
   }
 
   @media (max-width: 480px) {
     width: 100%;
-    max-width: unset;
     border-radius: 0;
-    top: 0;
-    transform: none;
-    height: 100vh;
-    overflow-y: auto;
   }
 `;
+
 
 export const OnlineUser = styled.div`
   display: flex;
