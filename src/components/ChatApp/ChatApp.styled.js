@@ -235,3 +235,16 @@ export const ConnectionStatus = styled.div`
   background: ${({ $connected }) => ($connected ? "#4caf50" : "#f44336")};
   margin-right: 10px;
 `;
+
+export const MessageImage = styled.img`
+  max-width: 100%;
+  max-height: 300px;
+  margin-top: 8px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: transform 0.2s;
+  &:hover {
+    transform: scale(1.02);
+  }
+`;
