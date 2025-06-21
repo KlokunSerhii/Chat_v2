@@ -130,6 +130,7 @@ export default function ChatApp() {
       }));
       setMessages(restored);
       localStorage.setItem("chat_messages", JSON.stringify(restored));
+      trimChatMessages(100);
     });
 
     socket.on("message", (msg) => {
@@ -138,6 +139,7 @@ export default function ChatApp() {
       setMessages((prev) => {
         const next = [...prev, { id: uuidv4(), ...msg }];
         localStorage.setItem("chat_messages", JSON.stringify(next));
+        trimChatMessages(100);
         return next;
       });
 
@@ -196,6 +198,7 @@ export default function ChatApp() {
     setMessages((prev) => {
       const next = [...prev, { id: uuidv4(), ...msg }];
       localStorage.setItem("chat_messages", JSON.stringify(next));
+      trimChatMessages(100);
       return next;
     });
 
@@ -223,6 +226,32 @@ export default function ChatApp() {
 
     e.target.value = null;
   };
+
+// Функція обрізання повідомлень до maxMessages (100 за замовчуванням)
+function trimChatMessages(maxMessages = 100) {
+  const messagesJson = localStorage.getItem("chat_messages");
+  if (!messagesJson) return;
+
+  let messages;
+  try {
+    messages = JSON.parse(messagesJson);
+  } catch (e) {
+    console.error("Помилка парсингу chat_messages:", e);
+    return;
+  }
+
+  if (!Array.isArray(messages)) {
+    console.error("chat_messages не є масивом");
+    return;
+  }
+
+  if (messages.length > maxMessages) {
+    messages = messages.slice(-maxMessages);
+    localStorage.setItem("chat_messages", JSON.stringify(messages));
+    console.log(`chat_messages обрізано до останніх ${maxMessages} повідомлень`);
+  }
+}
+
 
   // Render
   return (
