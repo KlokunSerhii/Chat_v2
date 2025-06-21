@@ -75,7 +75,6 @@ export default function ChatApp() {
   const audioRef = useRef(null);
   const usernameInputRef = useRef(null);
 
-  const formatTime = (date) => {
  const formatTime = (input) => {
   const d = new Date(input);
   if (isNaN(d.getTime())) return "??:??";
@@ -85,7 +84,7 @@ export default function ChatApp() {
     second: "2-digit",
     hour12: false,
   }).format(d);
-};
+  };
 
   // Login handler
   const handleLogin = () => {
