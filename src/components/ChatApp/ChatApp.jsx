@@ -142,15 +142,17 @@ const fileInputRef = useRef(null);
       );
     });
 
-    socket.on("message", (msg) => {
-      if (msg.username === username && msg.sender === "user") return;
-      setMessages((prev) => {
-        const next = [...prev, { id: uuidv4(), ...msg }];
-        localStorage.setItem("chat_messages", JSON.stringify(next));
-        return next;
-      });
-      audioRef.current?.play();
-    });
+   socket.on("message", (msg) => {
+  if (msg.username === username && msg.sender === "user") return;
+
+  setMessages((prev) => {
+    const next = [...prev, { id: uuidv4(), ...msg }];
+    localStorage.setItem("chat_messages", JSON.stringify(next));
+    return next;
+  });
+
+  audioRef.current?.play();
+});
 
     socket.on("user-joined", (u) =>
       setMessages((prev) => [
@@ -191,7 +193,7 @@ const fileInputRef = useRef(null);
     );
   }, [isDarkTheme]);
 
- const sendMessage = () => {
+const sendMessage = () => {
   if ((!input.trim() && !attachedImage) || !isConnected) return;
 
   const msg = {
@@ -200,7 +202,7 @@ const fileInputRef = useRef(null);
     timestamp: new Date().toISOString(),
     username,
     avatar,
-    image: attachedImage || null, // додаємо сюди
+    image: attachedImage || null, // тут додаємо картинку
   };
 
   setMessages((prev) => {
@@ -234,6 +236,16 @@ const handleFileChange = (e) => {
 
   // Очистити інпут, щоб можна було вибрати той самий файл знову
   e.target.value = null;
+};
+const handleImageChange = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    setAttachedImage(reader.result); // зберігає картинку як data URL
+  };
+  reader.readAsDataURL(file);
 };
 
   // Render
@@ -384,6 +396,7 @@ const handleFileChange = (e) => {
 />
 <AttachButton
   onClick={() => fileInputRef.current.click()}
+  onChange={handleImageChange}
   $dark={isDarkTheme}
 >
   📎
