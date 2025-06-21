@@ -29,53 +29,33 @@ export const StatusBar = styled.div`
 `;
 
 export const ThemeToggle = styled.button`
-  width: 60px;
-  height: 32px;
-  border: none;
-  border-radius: 50px;
-  background-color: ${({ $dark }) => ($dark ? "#4b5563" : "#fbbf24")};
   position: relative;
+  width: 50px;
+  height: 24px;
+  border-radius: 12px;
+  border: none;
+  background: ${({ $dark }) => ($dark ? "#222" : "#ddd")};
   cursor: pointer;
-  transition: background-color 0.3s ease;
-  display: flex;
-  align-items: center;
-  padding: 4px;
+  transition: background 0.3s ease;
 
-  .slider {
-    width: 24px;
-    height: 24px;
+  &:focus {
+    outline: none;
+  }
+
+  /* Бігунок */
+  &::before {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: ${({ $dark }) => ($dark ? "26px" : "2px")};
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
-    background-color: ${({ $dark }) =>
-      $dark ? "#4b5563" : "#fbbf24"};
-    position: absolute;
-    top: 4px;
-    left: ${({ $dark }) => ($dark ? "32px" : "4px")};
-    transition: left 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-  }
-
-  .sun,
-  .moon {
-    opacity: 0;
-    position: absolute;
-    transition: opacity 0.3s ease;
-    pointer-events: none;
-  }
-
-  .sun {
-    opacity: ${({ $dark }) => ($dark ? 0 : 1)};
-    left: 8px;
-  }
-
-  .moon {
-    opacity: ${({ $dark }) => ($dark ? 1 : 0)};
-    right: 8px;
+    background: ${({ $dark }) => ($dark ? "#f1c40f" : "#444")};
+    box-shadow: 0 0 5px rgba(0,0,0,0.2);
+    transition: left 0.3s ease, background 0.3s ease;
   }
 `;
-
 export const ChatMessages = styled.div`
   display: flex;
   flex-direction: column;
