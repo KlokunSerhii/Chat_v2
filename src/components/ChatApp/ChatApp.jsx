@@ -68,6 +68,8 @@ export default function ChatApp() {
 
   // Новий стан для показу бокової панелі онлайн користувачів
   const [isOnlineListOpen, setIsOnlineListOpen] = useState(false);
+const [attachedImage, setAttachedImage] = useState(null);
+const fileInputRef = useRef(null);
 
   const addEmoji = (emoji) => {
     setInput((prev) => prev + emoji.native);
@@ -186,24 +188,50 @@ export default function ChatApp() {
     );
   }, [isDarkTheme]);
 
-  const sendMessage = () => {
-    if (!input.trim() || !isConnected) return;
-    const msg = {
-      sender: "user",
-      text: input.trim(),
-      timestamp: new Date().toISOString(),
-      username,
-      avatar,
-    };
-    setMessages((prev) => {
-      const next = [...prev, { id: uuidv4(), ...msg }];
-      localStorage.setItem("chat_messages", JSON.stringify(next));
-      return next;
-    });
-    socketRef.current.emit("message", msg);
-    setInput("");
-    chatInputRef.current?.focus();
+ const sendMessage = () => {
+  if ((!input.trim() && !attachedImage) || !isConnected) return;
+
+  const msg = {
+    sender: "user",
+    text: input.trim(),
+    timestamp: new Date().toISOString(),
+    username,
+    avatar,
+    image: attachedImage || null, // додаємо сюди
   };
+
+  setMessages((prev) => {
+    const next = [...prev, { id: uuidv4(), ...msg }];
+    localStorage.setItem("chat_messages", JSON.stringify(next));
+    return next;
+  });
+
+  socketRef.current.emit("message", msg);
+
+  setInput("");
+  setAttachedImage(null);
+  chatInputRef.current?.focus();
+};
+const handleFileChange = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  // Перевірка розміру і типу (опційно)
+  if (!file.type.startsWith("image/")) {
+    alert("Будь ласка, виберіть зображення");
+    return;
+  }
+
+  // Зчитування файлу у base64
+  const reader = new FileReader();
+  reader.onload = () => {
+    setAttachedImage(reader.result);
+  };
+  reader.readAsDataURL(file);
+
+  // Очистити інпут, щоб можна було вибрати той самий файл знову
+  e.target.value = null;
+};
 
   // Render
   return (
@@ -304,11 +332,14 @@ export default function ChatApp() {
                     {msg.username}
                   </MessageUsername>
                 )}
-                <MessageText $isOwn={msg.username === username}>
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {msg.text}
-                  </ReactMarkdown>
-                </MessageText>
+              <MessageText $isOwn={msg.username === username}>
+  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+    {msg.text}
+  </ReactMarkdown>
+  {msg.image && (
+    <MessageImage src={msg.image} alt="attached" />
+  )}
+</MessageText>
                 <MessageTime
                   $dark={isDarkTheme}
                   $isOwn={msg.username === username}
@@ -341,6 +372,25 @@ export default function ChatApp() {
             >
               😃
             </EmojiButton>
+            <input
+  type="file"
+  accept="image/*"
+  style={{ display: "none" }}
+  ref={fileInputRef}
+  onChange={handleFileChange}
+/>
+<AttachButton
+  onClick={() => fileInputRef.current.click()}
+  $dark={isDarkTheme}
+>
+  📎
+</AttachButton>
+{attachedImage && (
+  <AttachedImagePreview>
+    <img src={attachedImage} alt="preview" />
+    <button onClick={() => setAttachedImage(null)}>✖</button>
+  </AttachedImagePreview>
+)}
             <ChatButton
               onClick={sendMessage}
               disabled={!input.trim() || !isConnected}
