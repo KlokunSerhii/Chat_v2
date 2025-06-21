@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
 import { v4 as uuidv4 } from "uuid";
-import EmojiPicker from "emoji-picker-react";
+import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
 import {
