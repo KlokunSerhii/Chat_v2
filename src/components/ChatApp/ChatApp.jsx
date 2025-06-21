@@ -164,7 +164,7 @@ export default function ChatApp() {
 
     return () => socket.disconnect();
   }, [username, avatar]);
-
+console.log(timestamp)
   // Auto-scroll
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
