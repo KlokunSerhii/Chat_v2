@@ -361,3 +361,21 @@ export const AttachedImagePreview = styled.div`
     height: 22px;
   }
 `;
+export const AttachButton = styled.button`
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 4px 8px;
+  color: ${({ $dark }) => ($dark ? "#ccc" : "#444")};
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: ${({ $dark }) => ($dark ? "#fff" : "#000")};
+  }
+
+  &:focus {
+    outline: 2px solid ${({ $dark }) => ($dark ? "#66aaff" : "#005fcc")};
+    outline-offset: 2px;
+  }
+`;
