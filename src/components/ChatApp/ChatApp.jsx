@@ -75,18 +75,18 @@ export default function ChatApp() {
   const audioRef = useRef(null);
   const usernameInputRef = useRef(null);
 
- const formatTime = (input) => {
-  const d = new Date(input);
-  if (isNaN(d.getTime())) return "??:??";
-
-  return new Intl.DateTimeFormat("uk-UA", {
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: false,
-    timeZone: "Europe/Kiev",  // або просто видалити, щоб брати локальний час
-  }).format(d);
-};
+  // Оновлена функція форматування часу з часовою зоною Europe/Kiev
+  const formatTime = (input) => {
+    const d = new Date(input);
+    if (isNaN(d.getTime())) return "??:??";
+    return new Intl.DateTimeFormat("uk-UA", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+      timeZone: "Europe/Kiev",
+    }).format(d);
+  };
 
   // Login handler
   const handleLogin = () => {
@@ -163,10 +163,10 @@ export default function ChatApp() {
         },
       ])
     );
-          console.log(formatTime(new Date()))
 
     return () => socket.disconnect();
   }, [username, avatar]);
+
   // Auto-scroll
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
