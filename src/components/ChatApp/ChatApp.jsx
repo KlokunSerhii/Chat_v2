@@ -74,7 +74,13 @@ export default function ChatApp() {
   const chatInputRef = useRef(null);
   const audioRef = useRef(null);
   const usernameInputRef = useRef(null);
-
+  const formatTime = (date) => {
+  const d = new Date(date);
+  const hh = String(d.getHours()).padStart(2, "0");
+  const mm = String(d.getMinutes()).padStart(2, "0");
+  const ss = String(d.getSeconds()).padStart(2, "0");
+  return `${hh}:${mm}:${ss}`;
+}
   // Login handler
   const handleLogin = () => {
     const name = tempUsername.trim();
@@ -135,7 +141,7 @@ export default function ChatApp() {
           id: uuidv4(),
           sender: "system",
           text: `${u} приєднався`,
-          timestamp: new Date().toLocaleTimeString(),
+          timestamp: formatTime(new Date()),
         },
       ])
     );
@@ -146,7 +152,7 @@ export default function ChatApp() {
           id: uuidv4(),
           sender: "system",
           text: `${u} покинув`,
-          timestamp: new Date().toLocaleTimeString(),
+          timestamp: formatTime(new Date()),
         },
       ])
     );
@@ -172,7 +178,7 @@ export default function ChatApp() {
     const msg = {
       sender: "user",
       text: input.trim(),
-      timestamp: new Date().toLocaleTimeString(),
+      timestamp: formatTime(new Date()),
       username,
       avatar,
     };
