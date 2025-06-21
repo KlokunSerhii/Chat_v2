@@ -50,6 +50,45 @@ function saveChatMessages(messages, maxMessages = 100) {
   return trimmed;
 }
 
+// Функція стиснення зображення
+function compressImage(file, maxWidth = 800, maxHeight = 800, quality = 0.7) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      image.src = e.target.result;
+    };
+
+    image.onload = () => {
+      let { width, height } = image;
+
+      // Зберігаємо пропорції і масштаб до maxWidth/maxHeight
+      if (width > maxWidth || height > maxHeight) {
+        const ratio = Math.min(maxWidth / width, maxHeight / height);
+        width = width * ratio;
+        height = height * ratio;
+      }
+
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(image, 0, 0, width, height);
+
+      // Отримуємо стиснене base64 (jpeg, quality 0.7)
+      const compressedDataUrl = canvas.toDataURL("image/jpeg", quality);
+      resolve(compressedDataUrl);
+    };
+
+    reader.onerror = (err) => reject(err);
+    image.onerror = (err) => reject(err);
+
+    reader.readAsDataURL(file);
+  });
+}
+
 export default function ChatApp() {
   // Avatar selection
   const avatarSeeds = useMemo(() => Array.from({ length: 5 }, () => uuidv4()), []);
@@ -218,7 +257,7 @@ export default function ChatApp() {
     chatInputRef.current?.focus();
   };
 
-  const handleFileChange = (e) => {
+  const handleFileChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
@@ -227,11 +266,13 @@ export default function ChatApp() {
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      setAttachedImage(reader.result);
-    };
-    reader.readAsDataURL(file);
+    try {
+      const compressedImage = await compressImage(file);
+      setAttachedImage(compressedImage);
+    } catch (err) {
+      alert("Помилка обробки зображення");
+      console.error(err);
+    }
 
     e.target.value = null;
   };
@@ -374,25 +415,17 @@ export default function ChatApp() {
             <>
               <ModalOverlay onClick={() => setIsOnlineListOpen(false)} />
               <OnlineListModal $dark={isDarkTheme}>
-                <h3>Онлайн користувачі</h3>
-                {onlineUsers.length === 0 ? (
-                  <p>Немає користувачів онлайн</p>
-                ) : (
-                  onlineUsers.map((user) => (
-                    <OnlineUser key={user.username} $dark={isDarkTheme}>
-                      <AvatarImage src={user.avatar} alt={user.username} />
-                      {user.username}
-                    </OnlineUser>
-                  ))
-                )}
-                <ChatButton onClick={() => setIsOnlineListOpen(false)} $dark={isDarkTheme}>
-                  Закрити
-                </ChatButton>
+                <h3>Користувачі онлайн</h3>
+                {onlineUsers.map((user) => (
+                  <OnlineUser key={user.username} $dark={isDarkTheme}>
+                    <AvatarImage src={user.avatar} alt={user.username} />
+                    {user.username}
+                  </OnlineUser>
+                ))}
               </OnlineListModal>
             </>
           )}
-
-          <audio ref={audioRef} src={SOUND_URL} preload="auto" />
+          <audio ref={audioRef} src={SOUND_URL} />
         </>
       )}
     </ChatContainer>
