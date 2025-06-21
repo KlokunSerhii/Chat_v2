@@ -24,9 +24,10 @@ import {
   MessageUsername,
   ConnectionStatus,
   EmojiButton,
-  OnlineList,
   OnlineUser,
   AvatarImage,
+  OnlineListModal,
+  ModalOverlay,
 } from "./ChatApp.styled.js";
 
 const SOCKET_SERVER_URL = "https://chat-v2-server-7.onrender.com";
@@ -64,10 +65,15 @@ export default function ChatApp() {
     () => localStorage.getItem("chat_theme") === "dark"
   );
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
+  // Новий стан для показу бокової панелі онлайн користувачів
+  const [isOnlineListOpen, setIsOnlineListOpen] = useState(false);
+
   const addEmoji = (emoji) => {
     setInput((prev) => prev + emoji.native);
     setShowEmojiPicker(false);
   };
+
   // Refs and socket
   const socketRef = useRef(null);
   const messagesEndRef = useRef(null);
@@ -75,7 +81,7 @@ export default function ChatApp() {
   const audioRef = useRef(null);
   const usernameInputRef = useRef(null);
 
-  // Оновлена функція форматування часу з часовою зоною Europe/Kiev
+  // Форматування часу (з твого коду)
   const formatTime = (input) => {
     const d = new Date(input);
     if (isNaN(d.getTime())) return "??:??";
@@ -99,7 +105,7 @@ export default function ChatApp() {
     localStorage.setItem("chat_avatar", url);
   };
 
-  // Chat socket logic
+  // Socket logic
   useEffect(() => {
     if (!username) return;
     const socket = io(SOCKET_SERVER_URL, {
@@ -181,23 +187,23 @@ export default function ChatApp() {
   }, [isDarkTheme]);
 
   const sendMessage = () => {
-  if (!input.trim() || !isConnected) return;
-  const msg = {
-    sender: "user",
-    text: input.trim(),
-    timestamp: new Date().toISOString(),  // <-- ось тут зміна
-    username,
-    avatar,
+    if (!input.trim() || !isConnected) return;
+    const msg = {
+      sender: "user",
+      text: input.trim(),
+      timestamp: new Date().toISOString(),
+      username,
+      avatar,
+    };
+    setMessages((prev) => {
+      const next = [...prev, { id: uuidv4(), ...msg }];
+      localStorage.setItem("chat_messages", JSON.stringify(next));
+      return next;
+    });
+    socketRef.current.emit("message", msg);
+    setInput("");
+    chatInputRef.current?.focus();
   };
-  setMessages((prev) => {
-    const next = [...prev, { id: uuidv4(), ...msg }];
-    localStorage.setItem("chat_messages", JSON.stringify(next));
-    return next;
-  });
-  socketRef.current.emit("message", msg);
-  setInput("");
-  chatInputRef.current?.focus();
-};
 
   // Render
   return (
@@ -209,6 +215,12 @@ export default function ChatApp() {
             <ConnectionStatus $connected={isConnected}>
               {isConnected ? "🟢 Онлайн" : "🔴 Офлайн"}
             </ConnectionStatus>
+
+            {/* Кнопка для відкриття бокової панелі онлайн */}
+            <ChatButton onClick={() => setIsOnlineListOpen(true)}>
+              Онлайн користувачі
+            </ChatButton>
+
             <ThemeToggle
               onClick={() => setIsDarkTheme((p) => !p)}
               $dark={isDarkTheme}
@@ -261,7 +273,8 @@ export default function ChatApp() {
         </UsernameInputWrapper>
       ) : (
         <>
-          <OnlineList $dark={isDarkTheme}>
+          {/* ВИКЛЮЧАЄМО старий OnlineList */}
+          {/* <OnlineList $dark={isDarkTheme}>
             <strong>Онлайн:</strong>
             {onlineUsers.map((u) => (
               <OnlineUser key={u.username}>
@@ -269,7 +282,7 @@ export default function ChatApp() {
                 {u.username}
               </OnlineUser>
             ))}
-          </OnlineList>
+          </OnlineList> */}
 
           <ChatMessages $dark={isDarkTheme}>
             {messages.map((msg) => (
@@ -297,12 +310,12 @@ export default function ChatApp() {
                   </ReactMarkdown>
                 </MessageText>
                 <MessageTime
-  $dark={isDarkTheme}
-  $isOwn={msg.username === username}
-  $delivered
->
-  {formatTime(msg.timestamp)}  {/* Форматуємо ISO рядок */}
-</MessageTime>
+                  $dark={isDarkTheme}
+                  $isOwn={msg.username === username}
+                  $delivered
+                >
+                  {formatTime(msg.timestamp)}
+                </MessageTime>
               </Message>
             ))}
             {typingUsers.map((u) => (
@@ -346,6 +359,24 @@ export default function ChatApp() {
           </ChatInputWrapper>
         </>
       )}
+
+      {/* Модалка списку онлайн */}
+      <ModalOverlay
+        $open={isOnlineListOpen}
+        onClick={() => setIsOnlineListOpen(false)}
+      />
+      <OnlineListModal $open={isOnlineListOpen} $dark={isDarkTheme}>
+        <h3>Онлайн користувачі</h3>
+        {onlineUsers.length === 0 && <p>Немає користувачів онлайн</p>}
+        {onlineUsers.map((u) => (
+          <OnlineUser key={u.username}>
+            <AvatarImage src={u.avatar} alt={u.username} />
+            {u.username}
+          </OnlineUser>
+        ))}
+        <ChatButton onClick={() => setIsOnlineListOpen(false)}>Закрити</ChatButton>
+      </OnlineListModal>
+
       <audio ref={audioRef} src={SOUND_URL} preload="auto" />
     </ChatContainer>
   );
