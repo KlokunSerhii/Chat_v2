@@ -181,23 +181,23 @@ export default function ChatApp() {
   }, [isDarkTheme]);
 
   const sendMessage = () => {
-    if (!input.trim() || !isConnected) return;
-    const msg = {
-      sender: "user",
-      text: input.trim(),
-      timestamp: formatTime(new Date()),
-      username,
-      avatar,
-    };
-    setMessages((prev) => {
-      const next = [...prev, { id: uuidv4(), ...msg }];
-      localStorage.setItem("chat_messages", JSON.stringify(next));
-      return next;
-    });
-    socketRef.current.emit("message", msg);
-    setInput("");
-    chatInputRef.current?.focus();
+  if (!input.trim() || !isConnected) return;
+  const msg = {
+    sender: "user",
+    text: input.trim(),
+    timestamp: new Date().toISOString(),  // <-- ось тут зміна
+    username,
+    avatar,
   };
+  setMessages((prev) => {
+    const next = [...prev, { id: uuidv4(), ...msg }];
+    localStorage.setItem("chat_messages", JSON.stringify(next));
+    return next;
+  });
+  socketRef.current.emit("message", msg);
+  setInput("");
+  chatInputRef.current?.focus();
+};
 
   // Render
   return (
@@ -297,12 +297,12 @@ export default function ChatApp() {
                   </ReactMarkdown>
                 </MessageText>
                 <MessageTime
-                  $dark={isDarkTheme}
-                  $isOwn={msg.username === username}
-                  $delivered
-                >
-                  {msg.timestamp}
-                </MessageTime>
+  $dark={isDarkTheme}
+  $isOwn={msg.username === username}
+  $delivered
+>
+  {formatTime(msg.timestamp)}  {/* Форматуємо ISO рядок */}
+</MessageTime>
               </Message>
             ))}
             {typingUsers.map((u) => (
