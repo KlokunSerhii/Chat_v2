@@ -164,7 +164,6 @@ export default function ChatApp() {
 
     return () => socket.disconnect();
   }, [username, avatar]);
-console.log(timestamp)
   // Auto-scroll
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -194,6 +193,7 @@ console.log(timestamp)
     });
     socketRef.current.emit("message", msg);
     setInput("");
+    console.log(timestamp)
     chatInputRef.current?.focus();
   };
 
