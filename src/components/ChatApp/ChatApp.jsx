@@ -33,6 +33,7 @@ import {
   AttachButton,
 } from "./ChatApp.styled.js";
 
+
 const SOCKET_SERVER_URL = "https://chat-v2-server-7.onrender.com";
 const SOUND_URL = "./notification.mp3";
 
