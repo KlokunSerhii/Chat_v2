@@ -158,6 +158,8 @@ export default function ChatApp() {
           sender: "system",
           text: `${u} покинув`,
           timestamp: formatTime(new Date()),
+          console.log(formatTime(new Date()))
+
         },
       ])
     );
@@ -193,7 +195,6 @@ export default function ChatApp() {
     });
     socketRef.current.emit("message", msg);
     setInput("");
-    console.log(timestamp)
     chatInputRef.current?.focus();
   };
 
