@@ -33,9 +33,22 @@ import {
   AttachButton,
 } from "./ChatApp.styled.js";
 
-
 const SOCKET_SERVER_URL = "https://chat-v2-server-7.onrender.com";
 const SOUND_URL = "./notification.mp3";
+
+// Функція обрізання та безпечного збереження повідомлень у localStorage
+function saveChatMessages(messages, maxMessages = 100) {
+  let trimmed = messages;
+  if (messages.length > maxMessages) {
+    trimmed = messages.slice(-maxMessages);
+  }
+  try {
+    localStorage.setItem("chat_messages", JSON.stringify(trimmed));
+  } catch (e) {
+    console.error("Помилка запису chat_messages у localStorage:", e);
+  }
+  return trimmed;
+}
 
 export default function ChatApp() {
   // Avatar selection
@@ -63,7 +76,6 @@ export default function ChatApp() {
   const [isDarkTheme, setIsDarkTheme] = useState(() => localStorage.getItem("chat_theme") === "dark");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
-  // Новий стан для показу бокової панелі онлайн користувачів
   const [isOnlineListOpen, setIsOnlineListOpen] = useState(false);
   const [attachedImage, setAttachedImage] = useState(null);
   const fileInputRef = useRef(null);
@@ -73,14 +85,12 @@ export default function ChatApp() {
     setShowEmojiPicker(false);
   };
 
-  // Refs and socket
   const socketRef = useRef(null);
   const messagesEndRef = useRef(null);
   const chatInputRef = useRef(null);
   const audioRef = useRef(null);
   const usernameInputRef = useRef(null);
 
-  // Форматування часу
   const formatTime = (input) => {
     const d = new Date(input);
     if (isNaN(d.getTime())) return "??:??";
@@ -93,7 +103,6 @@ export default function ChatApp() {
     }).format(d);
   };
 
-  // Login handler
   const handleLogin = () => {
     const name = tempUsername.trim();
     if (!name) return;
@@ -104,7 +113,6 @@ export default function ChatApp() {
     localStorage.setItem("chat_avatar", url);
   };
 
-  // Socket logic
   useEffect(() => {
     if (!username) return;
     const socket = io(SOCKET_SERVER_URL, {
@@ -128,9 +136,8 @@ export default function ChatApp() {
         id: uuidv4(),
         ...msg,
       }));
-      setMessages(restored);
-      localStorage.setItem("chat_messages", JSON.stringify(restored));
-      trimChatMessages(100);
+      const trimmed = saveChatMessages(restored, 100);
+      setMessages(trimmed);
     });
 
     socket.on("message", (msg) => {
@@ -138,47 +145,50 @@ export default function ChatApp() {
 
       setMessages((prev) => {
         const next = [...prev, { id: uuidv4(), ...msg }];
-        localStorage.setItem("chat_messages", JSON.stringify(next));
-        trimChatMessages(100);
-        return next;
+        const trimmed = saveChatMessages(next, 100);
+        return trimmed;
       });
 
       audioRef.current?.play();
     });
 
     socket.on("user-joined", (u) =>
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: uuidv4(),
-          sender: "system",
-          text: `${u} приєднався`,
-          timestamp: formatTime(new Date()),
-        },
-      ])
+      setMessages((prev) => {
+        const next = [
+          ...prev,
+          {
+            id: uuidv4(),
+            sender: "system",
+            text: `${u} приєднався`,
+            timestamp: formatTime(new Date()),
+          },
+        ];
+        return saveChatMessages(next, 100);
+      })
     );
 
     socket.on("user-left", (u) =>
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: uuidv4(),
-          sender: "system",
-          text: `${u} покинув`,
-          timestamp: formatTime(new Date()),
-        },
-      ])
+      setMessages((prev) => {
+        const next = [
+          ...prev,
+          {
+            id: uuidv4(),
+            sender: "system",
+            text: `${u} покинув`,
+            timestamp: formatTime(new Date()),
+          },
+        ];
+        return saveChatMessages(next, 100);
+      })
     );
 
     return () => socket.disconnect();
   }, [username, avatar]);
 
-  // Auto-scroll
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Persist theme
   useEffect(() => {
     localStorage.setItem("chat_theme", isDarkTheme ? "dark" : "light");
   }, [isDarkTheme]);
@@ -197,9 +207,8 @@ export default function ChatApp() {
 
     setMessages((prev) => {
       const next = [...prev, { id: uuidv4(), ...msg }];
-      localStorage.setItem("chat_messages", JSON.stringify(next));
-      trimChatMessages(100);
-      return next;
+      const trimmed = saveChatMessages(next, 100);
+      return trimmed;
     });
 
     socketRef.current.emit("message", msg);
@@ -227,33 +236,7 @@ export default function ChatApp() {
     e.target.value = null;
   };
 
-// Функція обрізання повідомлень до maxMessages (100 за замовчуванням)
-function trimChatMessages(maxMessages = 100) {
-  const messagesJson = localStorage.getItem("chat_messages");
-  if (!messagesJson) return;
-
-  let messages;
-  try {
-    messages = JSON.parse(messagesJson);
-  } catch (e) {
-    console.error("Помилка парсингу chat_messages:", e);
-    return;
-  }
-
-  if (!Array.isArray(messages)) {
-    console.error("chat_messages не є масивом");
-    return;
-  }
-
-  if (messages.length > maxMessages) {
-    messages = messages.slice(-maxMessages);
-    localStorage.setItem("chat_messages", JSON.stringify(messages));
-    console.log(`chat_messages обрізано до останніх ${maxMessages} повідомлень`);
-  }
-}
-
-
-  // Render
+  // Рендер
   return (
     <ChatContainer $dark={isDarkTheme}>
       <StatusBar $dark={isDarkTheme}>
