@@ -236,7 +236,7 @@ export default function ChatApp() {
               onClick={() => setIsDarkTheme((d) => !d)}
               title="Toggle theme"
             >
-              {isDarkTheme ? "🌙" : "☀️"}
+              {isDarkTheme ? " " : " "}
             </ThemeToggle>
             <ChatButton onClick={() => setIsOnlineListOpen(true)} $dark={isDarkTheme}>
               Онлайн: {onlineUsers.length}
