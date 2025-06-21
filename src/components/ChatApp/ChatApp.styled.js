@@ -316,3 +316,36 @@ export const AvatarImage = styled.img`
   margin-right: 8px;
   object-fit: cover;
 `;
+
+export const OnlineListModal = styled.div`
+  position: fixed;
+  top: 0;
+  left: ${({ $open }) => ($open ? "0" : "-320px")};
+  width: 300px;
+  height: 100vh;
+  background: ${({ theme, $dark }) => ($dark ? "#222" : "#fff")};
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.3);
+  transition: left 0.3s ease;
+  z-index: 1000;
+  padding: 1rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  h3 {
+    margin: 0 0 1rem 0;
+    color: ${({ $dark }) => ($dark ? "#ddd" : "#111")};
+  }
+`;
+
+export const ModalOverlay = styled.div`
+  display: ${({ $open }) => ($open ? "block" : "none")};
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 999;
+`;
