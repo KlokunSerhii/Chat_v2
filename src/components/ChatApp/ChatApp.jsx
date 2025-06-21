@@ -134,13 +134,13 @@ const fileInputRef = useRef(null);
     });
 
     socket.on("last-messages", (history) => {
-      setMessages(
-        history.map((msg) => ({
-          id: uuidv4(),
-          ...msg,
-        }))
-      );
-    });
+  const restored = history.map((msg) => ({
+    id: uuidv4(),
+    ...msg,
+  }));
+  setMessages(restored);
+  localStorage.setItem("chat_messages", JSON.stringify(restored));
+});
 
    socket.on("message", (msg) => {
   if (msg.username === username && msg.sender === "user") return;
@@ -237,16 +237,7 @@ const handleFileChange = (e) => {
   // Очистити інпут, щоб можна було вибрати той самий файл знову
   e.target.value = null;
 };
-const handleImageChange = (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
 
-  const reader = new FileReader();
-  reader.onload = () => {
-    setAttachedImage(reader.result); // зберігає картинку як data URL
-  };
-  reader.readAsDataURL(file);
-};
 
   // Render
   return (
@@ -396,7 +387,6 @@ const handleImageChange = (e) => {
 />
 <AttachButton
   onClick={() => fileInputRef.current.click()}
-  onChange={handleImageChange}
   $dark={isDarkTheme}
 >
   📎
@@ -408,11 +398,11 @@ const handleImageChange = (e) => {
   </AttachedImagePreview>
 )}
             <ChatButton
-              onClick={sendMessage}
-              disabled={!input.trim() || !isConnected}
-            >
-              Надіслати
-            </ChatButton>
+  onClick={sendMessage}
+  disabled={(!input.trim() && !attachedImage) || !isConnected}
+>
+  Надіслати
+</ChatButton>
             <AnimatePresence>
               {showEmojiPicker && (
                 <Picker
