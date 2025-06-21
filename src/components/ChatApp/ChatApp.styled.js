@@ -329,3 +329,35 @@ export const ModalOverlay = styled.div`
   background: rgba(0, 0, 0, 0.4);
   z-index: 999;
 `;
+
+export const MessageImage = styled.img`
+  max-width: 200px;
+  margin-top: 6px;
+  border-radius: 8px;
+  cursor: pointer;
+  &:hover {
+    opacity: 0.8;
+  }
+`;
+
+export const AttachedImagePreview = styled.div`
+  position: relative;
+  margin-bottom: 8px;
+  img {
+    max-height: 100px;
+    border-radius: 8px;
+    display: block;
+  }
+  button {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background: rgba(0,0,0,0.5);
+    border: none;
+    color: white;
+    border-radius: 50%;
+    cursor: pointer;
+    width: 22px;
+    height: 22px;
+  }
+`;
