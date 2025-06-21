@@ -1,199 +1,209 @@
-import styled from "styled-components";
-import { motion } from "framer-motion";
+// ChatApp.styled.js
+import styled, { css } from "styled-components";
 
-// Базові кольори
-const light = {
+// Базова тема Telegram
+const lightTheme = {
   background: "#ffffff",
   text: "#000000",
+  input: "#f5f5f5",
+  border: "#ccc",
   messageOwn: "#dcf8c6",
   messageOther: "#ffffff",
-  system: "#999",
+  username: "#0088cc",
 };
 
-const dark = {
+const darkTheme = {
   background: "#1e1e1e",
-  text: "#ffffff",
-  messageOwn: "#054640",
+  text: "#e0e0e0",
+  input: "#2a2a2a",
+  border: "#444",
+  messageOwn: "#056162",
   messageOther: "#262d31",
-  system: "#777",
+  username: "#34b7f1",
 };
 
+const getTheme = ($dark) => ($dark ? darkTheme : lightTheme);
+
+// Контейнер
 export const ChatContainer = styled.div`
-  background: ${({ $dark }) => ($dark ? dark.background : light.background)};
-  color: ${({ $dark }) => ($dark ? dark.text : light.text)};
-  height: 100vh;
   display: flex;
   flex-direction: column;
+  height: 100vh;
+  background-color: ${({ $dark }) => getTheme($dark).background};
+  color: ${({ $dark }) => getTheme($dark).text};
   font-family: 'Segoe UI', sans-serif;
-  position: relative;
 `;
 
+// Верхня панель
 export const StatusBar = styled.div`
-  padding: 10px 16px;
-  background: ${({ $dark }) => ($dark ? "#2a2f32" : "#f5f5f5")};
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  font-weight: bold;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-bottom: 1px solid ${({ $dark }) => getTheme($dark).border};
+  background-color: ${({ $dark }) => getTheme($dark).input};
 `;
 
-export const ThemeToggle = styled.label`
+// Перемикач теми як слайдер
+export const ThemeToggle = styled.button`
+  appearance: none;
+  border: none;
+  cursor: pointer;
+  background: ${({ $dark }) => ($dark ? "#444" : "#ddd")};
+  border-radius: 20px;
+  width: 40px;
+  height: 20px;
   position: relative;
-  display: inline-block;
-  width: 46px;
-  height: 24px;
-
-  input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-  }
+  transition: background 0.3s;
 
   &::before {
-    content: "";
+    content: '';
     position: absolute;
-    left: 0;
-    top: 0;
-    width: 46px;
-    height: 24px;
-    background-color: ${({ $dark }) => ($dark ? "#444" : "#ccc")};
-    border-radius: 24px;
-    transition: background-color 0.3s ease;
-  }
-
-  &::after {
-    content: "";
-    position: absolute;
-    left: ${({ $dark }) => ($dark ? "22px" : "2px")};
     top: 2px;
-    width: 20px;
-    height: 20px;
-    background: #fff;
+    left: ${({ $dark }) => ($dark ? "20px" : "2px")};
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
-    transition: left 0.3s ease;
+    background: ${({ $dark }) => ($dark ? "#fff" : "#333")};
+    transition: left 0.3s;
   }
 `;
 
+// Введення повідомлення
+export const ChatInputWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  border-top: 1px solid ${({ $dark }) => getTheme($dark).border};
+  background-color: ${({ $dark }) => getTheme($dark).input};
+`;
+
+export const ChatInput = styled.textarea`
+  flex-grow: 1;
+  resize: none;
+  border: none;
+  padding: 10px;
+  border-radius: 12px;
+  font-size: 14px;
+  background-color: ${({ $dark }) => ($dark ? "#333" : "#fff")};
+  color: ${({ $dark }) => getTheme($dark).text};
+  outline: none;
+`;
+
+// Кнопки
+export const ChatButton = styled.button`
+  margin-left: 8px;
+  padding: 6px 12px;
+  font-weight: bold;
+  background-color: ${({ $dark }) => ($dark ? "#444" : "#0088cc")};
+  color: ${({ $dark }) => ($dark ? "#fff" : "#fff")};
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+  &:hover {
+    background-color: ${({ $dark }) => ($dark ? "#555" : "#007ab8")};
+  }
+`;
+
+// Повідомлення
 export const ChatMessages = styled.div`
   flex: 1;
-  padding: 12px;
   overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  padding: 10px;
 `;
 
 export const Message = styled.div`
-  max-width: 80%;
+  margin-bottom: 12px;
   align-self: ${({ $isOwn }) => ($isOwn ? "flex-end" : "flex-start")};
   background-color: ${({ $isOwn, $dark }) =>
-    $isOwn
-      ? $dark
-        ? dark.messageOwn
-        : light.messageOwn
-      : $dark
-      ? dark.messageOther
-      : light.messageOther};
-  color: ${({ $dark }) => ($dark ? dark.text : light.text)};
-  padding: 8px 12px;
-  border-radius: 14px;
-  border-bottom-right-radius: ${({ $isOwn }) => ($isOwn ? "0" : "14px")};
-  border-bottom-left-radius: ${({ $isOwn }) => ($isOwn ? "14px" : "0")};
-  word-break: break-word;
+    $isOwn ? getTheme($dark).messageOwn : getTheme($dark).messageOther};
+  color: ${({ $dark }) => getTheme($dark).text};
+  padding: 10px;
+  border-radius: 10px;
+  max-width: 70%;
+  position: relative;
+`;
+
+export const MessageText = styled.div`
+  white-space: pre-wrap;
+`;
+
+export const MessageTime = styled.div`
+  font-size: 10px;
+  text-align: right;
+  margin-top: 4px;
+  color: ${({ $dark }) => ($dark ? "#aaa" : "#666")};
 `;
 
 export const MessageUsername = styled.div`
   display: flex;
   align-items: center;
-  font-size: 0.85rem;
-  margin-bottom: 4px;
-  gap: 6px;
-`;
-
-export const MessageText = styled.div`
-  font-size: 1rem;
-`;
-
-export const MessageTime = styled.div`
-  font-size: 0.7rem;
-  color: ${({ $dark }) => ($dark ? "#aaa" : "#888")};
-  margin-top: 4px;
-  text-align: right;
-`;
-
-export const ChatInputWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 8px;
-  background: ${({ $dark }) => ($dark ? "#2a2f32" : "#f0f0f0")};
-  gap: 8px;
-`;
-
-export const ChatInput = styled.input`
-  flex: 1;
-  padding: 10px;
-  border-radius: 20px;
-  border: none;
-  background: ${({ $dark }) => ($dark ? "#3c3c3c" : "#fff")};
-  color: ${({ $dark }) => ($dark ? "#fff" : "#000")};
-  outline: none;
-`;
-
-export const ChatButton = styled.button`
-  padding: 8px 16px;
-  border-radius: 20px;
-  background-color: #0088cc;
-  color: white;
-  border: none;
   font-weight: bold;
-  cursor: pointer;
-`;
+  color: ${({ $dark }) => getTheme($dark).username};
+  margin-bottom: 4px;
 
-export const EmojiButton = styled.button`
-  background: transparent;
-  border: none;
-  font-size: 20px;
-  cursor: pointer;
-`;
-
-export const AttachButton = styled.button`
-  background: transparent;
-  border: none;
-  font-size: 18px;
-  cursor: pointer;
-`;
-
-export const UsernameInputWrapper = styled.div`
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  align-items: center;
-`;
-
-export const UsernameInput = styled.input`
-  padding: 10px;
-  border-radius: 20px;
-  border: 1px solid #ccc;
-  background: ${({ $dark }) => ($dark ? "#2c2c2c" : "#fff")};
-  color: ${({ $dark }) => ($dark ? "#fff" : "#000")};
+  img {
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    margin-right: 6px;
+  }
 `;
 
 export const TypingIndicator = styled.div`
-  font-size: 0.85rem;
-  color: ${({ $dark }) => ($dark ? "#aaa" : "#444")};
+  font-style: italic;
+  color: ${({ $dark }) => ($dark ? "#aaa" : "#555")};
+  margin: 5px 10px;
 `;
 
-export const ConnectionStatus = styled.div`
-  font-size: 0.85rem;
-  color: ${({ connected }) => (connected ? "green" : "red")};
+// Emoji / attach
+export const EmojiButton = styled.button`
+  background: none;
+  border: none;
+  font-size: 20px;
+  margin: 0 5px;
+  cursor: pointer;
+`;
+
+export const AttachButton = styled(EmojiButton)``;
+
+export const AttachedImagePreview = styled.img`
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin: 0 5px;
+  cursor: pointer;
+`;
+
+// Онлайн модальне вікно
+export const ModalOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 900;
+`;
+
+export const OnlineListModal = styled.div`
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: ${({ $dark }) => getTheme($dark).background};
+  color: ${({ $dark }) => getTheme($dark).text};
+  padding: 20px;
+  border-radius: 12px;
+  z-index: 1000;
+  min-width: 280px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
 `;
 
 export const OnlineUser = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 0;
+  margin-bottom: 10px;
 `;
 
 export const AvatarImage = styled.img`
@@ -202,52 +212,26 @@ export const AvatarImage = styled.img`
   border-radius: 50%;
 `;
 
-export const OnlineListModal = styled(motion.div)`
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  width: 90%;
-  max-width: 360px;
-  transform: translate(-50%, -50%);
-  background: ${({ $dark }) => ($dark ? "#2a2a2a" : "#fff")};
-  color: ${({ $dark }) => ($dark ? "#fff" : "#000")};
-  border-radius: 16px;
-  padding: 20px;
-  z-index: 1001;
-  box-shadow: 0 0 20px rgba(0,0,0,0.3);
+export const UsernameInputWrapper = styled.div`
+  padding: 32px;
+  text-align: center;
 `;
 
-export const ModalOverlay = styled.div`
-  display: ${({ $open }) => ($open ? "block" : "none")};
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  z-index: 1000;
+export const UsernameInput = styled.input`
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid ${({ $dark }) => getTheme($dark).border};
+  background-color: ${({ $dark }) => getTheme($dark).input};
+  color: ${({ $dark }) => getTheme($dark).text};
+  font-size: 16px;
+  margin-top: 12px;
+  width: 80%;
 `;
 
-export const AttachedImagePreview = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-left: 8px;
-
-  img {
-    max-width: 40px;
-    max-height: 40px;
-    border-radius: 4px;
-  }
-
-  button {
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    font-size: 14px;
-  }
+export const ConnectionStatus = styled.div`
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: ${({ $connected }) => ($connected ? "#4caf50" : "#f44336")};
+  margin-right: 10px;
 `;
-
-export const MessageImage = styled.img`
-  max-width: 100%;
-  border-radius: 12px;
-  margin-top: 8px;
-`;
-
