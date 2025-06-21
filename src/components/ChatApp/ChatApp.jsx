@@ -78,13 +78,15 @@ export default function ChatApp() {
  const formatTime = (input) => {
   const d = new Date(input);
   if (isNaN(d.getTime())) return "??:??";
+
   return new Intl.DateTimeFormat("uk-UA", {
     hour: "2-digit",
     minute: "2-digit",
     second: "2-digit",
     hour12: false,
+    timeZone: "Europe/Kiev",  // або просто видалити, щоб брати локальний час
   }).format(d);
-  };
+};
 
   // Login handler
   const handleLogin = () => {
