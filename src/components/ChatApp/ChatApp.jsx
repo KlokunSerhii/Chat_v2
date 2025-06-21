@@ -133,11 +133,13 @@ const fileInputRef = useRef(null);
       );
     });
 
-    socket.on("last-messages", (history) => {
-  const restored = history.map((msg) => ({
+  const restored = history.map((msg) => {
+  console.log("Restoring message:", msg); // DEBUG
+  return {
     id: uuidv4(),
     ...msg,
-  }));
+  };
+});
   setMessages(restored);
   localStorage.setItem("chat_messages", JSON.stringify(restored));
 });
