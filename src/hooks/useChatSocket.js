@@ -73,12 +73,12 @@ export function useChatSocket(username, avatar) {
       setMessages((prev) => {
         const next = [
           ...prev,
-          {
-            id: uuidv4(),
-            sender: "system",
-            text: `${u} приєднався`,
-            timestamp: formatTime(new Date()),
-          },
+          // {
+          //   id: uuidv4(),
+          //   sender: "system",
+          //   text: `${u} приєднався`,
+          //   timestamp: formatTime(new Date()),
+          // },
         ];
         return saveChatMessages(next, 100);
       })
@@ -88,12 +88,12 @@ export function useChatSocket(username, avatar) {
       setMessages((prev) => {
         const next = [
           ...prev,
-          {
-            id: uuidv4(),
-            sender: "system",
-            text: `${u} покинув`,
-            timestamp: formatTime(new Date()),
-          },
+          // {
+          //   id: uuidv4(),
+          //   sender: "system",
+          //   text: `${u} покинув`,
+          //   timestamp: formatTime(new Date()),
+          // },
         ];
         return saveChatMessages(next, 100);
       })

@@ -2,7 +2,6 @@ import styled, { css } from "styled-components";
 import { getTheme } from "../../utils/theme";
 
 export const Message = styled.div`
-  display: flex;
   margin-bottom: 12px;
   align-self: ${({ $isOwn }) => ($isOwn ? "flex-end" : "flex-start")};
   background-color: ${({ $isOwn, $dark }) =>
@@ -10,7 +9,8 @@ export const Message = styled.div`
       ? getTheme($dark).messageOwn
       : getTheme($dark).messageOther};
   color: ${({ $dark }) => getTheme($dark).text};
-  padding: 8px;
+  padding: 5px 10px 5px 10px;
+  box-shadow: 0 5px 9px rgba(0, 0, 0, 0.95);
   border-radius: 10px;
   max-width: 70%;
   position: relative;
@@ -46,7 +46,9 @@ export const MessageTime = styled.div`
 
 export const MessageUsername = styled.div`
   display: flex;
+
   align-items: center;
+  font-size: 12px;
   font-weight: bold;
   color: ${({ $dark }) => getTheme($dark).username};
   margin-bottom: 4px;
@@ -56,8 +58,10 @@ export const MessageUsername = styled.div`
     width: 24px;
     height: 24px;
     margin-right: 6px;
+    margin-left: 6px;
   }
 `;
+
 export const MessageImage = styled.img`
   max-width: 100%;
   max-height: 300px;

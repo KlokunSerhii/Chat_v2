@@ -19,10 +19,17 @@ export default function MessageItem({ msg, isOwn, isDarkTheme }) {
       $dark={isDarkTheme}
       $system={msg.sender === "system"}
     >
-      <MessageUsername $dark={isDarkTheme} $isOwn={isOwn}>
-        <AvatarImage src={msg.avatar} alt={msg.username} />
-        {msg.username}
-      </MessageUsername>
+      {isOwn ? (
+        <MessageUsername $dark={isDarkTheme} $isOwn={isOwn}>
+          {msg.username}
+          <AvatarImage src={msg.avatar} alt={msg.username} />
+        </MessageUsername>
+      ) : (
+        <MessageUsername $dark={isDarkTheme} $isOwn={isOwn}>
+          <AvatarImage src={msg.avatar} alt={msg.username} />
+          {msg.username}
+        </MessageUsername>
+      )}
 
       <MessageText $isOwn={isOwn}>
         <StyledMarkdown>
