@@ -17,7 +17,9 @@ export const UsernameInput = styled.input`
   width: 80%;
 `;
 export const AvatarImage = styled.img`
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
+  width: 80px; // задаємо фіксовану ширину
+  height: 80px; // задаємо фіксовану висоту
+  border-radius: 50%; // округляємо зображення
+  object-fit: cover; // дозволяє зберегти пропорції зображення та заповнити контейнер
+  object-position: center; // центрируемо зображення
 `;

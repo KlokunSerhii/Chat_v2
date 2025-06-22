@@ -2,6 +2,7 @@ import styled, { css } from "styled-components";
 import { getTheme } from "../../utils/theme";
 
 export const Message = styled.div`
+  display: flex;
   margin-bottom: 12px;
   align-self: ${({ $isOwn }) => ($isOwn ? "flex-end" : "flex-start")};
   background-color: ${({ $isOwn, $dark }) =>
@@ -9,7 +10,7 @@ export const Message = styled.div`
       ? getTheme($dark).messageOwn
       : getTheme($dark).messageOther};
   color: ${({ $dark }) => getTheme($dark).text};
-  padding: 10px;
+  padding: 8px;
   border-radius: 10px;
   max-width: 70%;
   position: relative;
@@ -37,7 +38,7 @@ export const MessageText = styled.div`
 `;
 
 export const MessageTime = styled.div`
-  font-size: 10px;
+  font-size: 8px;
   text-align: right;
   margin-top: 4px;
   color: ${({ $dark }) => ($dark ? "#aaa" : "#666")};
@@ -73,4 +74,7 @@ export const MessageImage = styled.img`
   @media (max-width: 480px) {
     max-height: 200px;
   }
+`;
+export const StyledMarkdown = styled.div`
+  margin-block-start: 0;
 `;

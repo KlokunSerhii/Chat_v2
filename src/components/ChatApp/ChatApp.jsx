@@ -3,7 +3,6 @@ import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
 import { v4 as uuidv4 } from "uuid";
 import { AnimatePresence } from "framer-motion";
-
 import {
   ChatContainer,
   StatusBar,
@@ -13,16 +12,15 @@ import {
   ChatMessages,
   TypingIndicator,
 } from "./ChatApp.styled.js";
-
 import { compressImage } from "../../utils/utils.js";
 import { useLocalStorage } from "../../hooks/useLocalStorage.js";
 import { useChatSocket } from "../../hooks/useChatSocket.js";
 import { saveChatMessages } from "../../utils/utils.js";
-
 import LoginSection from "../LoginSection/LoginSection.jsx";
 import MessageItem from "../MessageItem/MessageItem.jsx";
 import ChatInputSection from "../ChatInputSection/ChatInputSection.jsx";
 import OnlineUsersModal from "../OnlineUsersModal/OnlineUsersModal.jsx";
+import AvatarUploader from "../AvatarUploader/AvatarUploader.jsx";
 
 const SOUND_URL = "./notification.mp3";
 
@@ -31,7 +29,6 @@ export default function ChatApp() {
     () => Array.from({ length: 5 }, () => uuidv4()),
     []
   );
-
   const [selectedSeed, setSelectedSeed] = useState(avatarSeeds[0]);
   const [username, setUsername] = useLocalStorage(
     "chat_username",
@@ -41,9 +38,7 @@ export default function ChatApp() {
     "chat_avatar",
     `https://api.dicebear.com/7.x/avataaars/svg?seed=${avatarSeeds[0]}`
   );
-
   const [tempUsername, setTempUsername] = useState(username);
-
   const [input, setInput] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [isOnlineListOpen, setIsOnlineListOpen] = useState(false);
@@ -52,7 +47,6 @@ export default function ChatApp() {
     "chat_theme",
     false
   );
-
   const fileInputRef = useRef(null);
   const messagesEndRef = useRef(null);
   const audioRef = useRef(null);
@@ -65,62 +59,25 @@ export default function ChatApp() {
     typingUsers,
     isConnected,
     sendMessage: sendSocketMessage,
+    socketRef,
   } = useChatSocket(username, avatar);
 
-  // Звукове сповіщення при новому повідомленні
-  const [hasUserInteracted, setHasUserInteracted] = useState(false);
+  // Реакція на нове повідомлення
 
-  // Відслідковуємо першу взаємодію користувача
   useEffect(() => {
-    const handleUserInteraction = () => {
-      setHasUserInteracted(true);
-      window.removeEventListener("click", handleUserInteraction);
-      window.removeEventListener("keydown", handleUserInteraction);
-    };
-
-    window.addEventListener("click", handleUserInteraction);
-    window.addEventListener("keydown", handleUserInteraction);
-
-    return () => {
-      window.removeEventListener("click", handleUserInteraction);
-      window.removeEventListener("keydown", handleUserInteraction);
-    };
-  }, []);
-
-  // Відтворюємо звук при новому повідомленні, якщо була взаємодія
-  useEffect(() => {
-    if (!hasUserInteracted || messages.length === 0) return;
-
-    const lastMessage = messages[messages.length - 1];
-
-    // Умови для звукового сповіщення:
-    const isFromOtherUser =
-      lastMessage.sender === "user" &&
-      lastMessage.username !== username;
-    const isRealMessage =
-      lastMessage.text?.trim().length > 0 || lastMessage.image;
-
-    if (isFromOtherUser && isRealMessage) {
-      audioRef.current?.play().catch(() => {});
+    if (messages.length > 0) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages, hasUserInteracted, username]);
-
-  // Скрол до останнього повідомлення
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
-
-  const addEmoji = (emoji) => {
-    setInput((prev) => prev + emoji.native);
-    setShowEmojiPicker(false);
-  };
 
   const handleLogin = () => {
     const name = tempUsername.trim();
     if (!name) return;
-    const url = `https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedSeed}`;
-    setAvatar(url);
     setUsername(name);
+    const avatarUrl = avatar.startsWith("http")
+      ? avatar
+      : `https://chat-v2-server-7.onrender.com${avatar}`;
+    setAvatar(avatarUrl);
   };
 
   const sendMessage = () => {
@@ -141,7 +98,6 @@ export default function ChatApp() {
     });
 
     sendSocketMessage(msg);
-
     setInput("");
     setAttachedImage(null);
   };
@@ -192,16 +148,23 @@ export default function ChatApp() {
       </StatusBar>
 
       {!username ? (
-        <LoginSection
-          avatarSeeds={avatarSeeds}
-          selectedSeed={selectedSeed}
-          setSelectedSeed={setSelectedSeed}
-          tempUsername={tempUsername}
-          setTempUsername={setTempUsername}
-          handleLogin={handleLogin}
-          isDarkTheme={isDarkTheme}
-          usernameInputRef={usernameInputRef}
-        />
+        <>
+          <LoginSection
+            avatarSeeds={avatarSeeds}
+            selectedSeed={selectedSeed}
+            setSelectedSeed={setSelectedSeed}
+            tempUsername={tempUsername}
+            setTempUsername={setTempUsername}
+            handleLogin={handleLogin}
+            isDarkTheme={isDarkTheme}
+            usernameInputRef={usernameInputRef}
+            avatar={avatar}
+          />
+          <AvatarUploader
+            onUpload={(url) => setAvatar(url)}
+            isDarkTheme={isDarkTheme}
+          />
+        </>
       ) : (
         <>
           <ChatMessages $dark={isDarkTheme}>
@@ -228,7 +191,6 @@ export default function ChatApp() {
             isDarkTheme={isDarkTheme}
             showEmojiPicker={showEmojiPicker}
             setShowEmojiPicker={setShowEmojiPicker}
-            addEmoji={addEmoji}
             fileInputRef={fileInputRef}
             handleFileChange={handleFileChange}
             attachedImage={attachedImage}
@@ -240,7 +202,9 @@ export default function ChatApp() {
             {showEmojiPicker && (
               <Picker
                 data={data}
-                onEmojiSelect={addEmoji}
+                onEmojiSelect={(emoji) =>
+                  setInput((prev) => prev + emoji.native)
+                }
                 theme={isDarkTheme ? "dark" : "light"}
                 style={{
                   position: "absolute",
@@ -259,10 +223,10 @@ export default function ChatApp() {
               isDarkTheme={isDarkTheme}
             />
           )}
-
-          <audio ref={audioRef} src={SOUND_URL} />
         </>
       )}
+
+      <audio ref={audioRef} src={SOUND_URL} />
     </ChatContainer>
   );
 }

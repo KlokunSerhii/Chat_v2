@@ -15,6 +15,11 @@ export function useChatSocket(username, avatar) {
   useEffect(() => {
     if (!username) return;
 
+    // Якщо вже є сокет — відключити перед створенням нового
+    if (socketRef.current) {
+      socketRef.current.disconnect();
+    }
+
     const socket = io(SOCKET_SERVER_URL, {
       query: { username, avatar },
     });
@@ -43,6 +48,14 @@ export function useChatSocket(username, avatar) {
       }));
       const trimmed = saveChatMessages(restored, 100);
       setMessages(trimmed);
+    });
+
+    socket.on("message", (msg) => {
+      // додаємо реакції до кожного повідомлення
+      setMessages((prev) => {
+        const next = [...prev, msg];
+        return next;
+      });
     });
 
     socket.on("message", (msg) => {
@@ -86,8 +99,11 @@ export function useChatSocket(username, avatar) {
       })
     );
 
-    return () => socket.disconnect();
-  }, [username, avatar]);
+    // Очистка при виході або зміні username/avatar
+    return () => {
+      socket.disconnect();
+    };
+  }, [username, avatar]); // avatar тепер тригерить перепідключення
 
   const sendMessage = (msg) => {
     socketRef.current?.emit("message", msg);

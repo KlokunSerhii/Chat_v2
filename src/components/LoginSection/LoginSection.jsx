@@ -1,3 +1,4 @@
+import React from "react";
 import { ChatButton } from "../ChatApp/ChatApp.styled";
 import {
   UsernameInputWrapper,
@@ -13,7 +14,7 @@ export default function LoginSection({
   setTempUsername,
   handleLogin,
   isDarkTheme,
-  usernameInputRef,
+  avatar,
 }) {
   return (
     <UsernameInputWrapper>
@@ -40,13 +41,13 @@ export default function LoginSection({
         </div>
       </div>
       <UsernameInput
-        ref={usernameInputRef}
         value={tempUsername}
         onChange={(e) => setTempUsername(e.target.value)}
         onKeyDown={(e) => e.key === "Enter" && handleLogin()}
         placeholder="Ваше ім'я"
         $dark={isDarkTheme}
       />
+      {avatar && <AvatarImage src={avatar} alt="Вибраний аватар" />}
       <ChatButton
         onClick={handleLogin}
         disabled={!tempUsername.trim()}
