@@ -40,7 +40,6 @@ export function useChatSocket(username, avatar) {
         2500
       );
     });
-
     socket.on("last-messages", (history) => {
       const restored = history.map((msg) => ({
         id: uuidv4(),
@@ -48,14 +47,6 @@ export function useChatSocket(username, avatar) {
       }));
       const trimmed = saveChatMessages(restored, 100);
       setMessages(trimmed);
-    });
-
-    socket.on("message", (msg) => {
-      // додаємо реакції до кожного повідомлення
-      setMessages((prev) => {
-        const next = [...prev, msg];
-        return next;
-      });
     });
 
     socket.on("message", (msg) => {
@@ -69,35 +60,36 @@ export function useChatSocket(username, avatar) {
       });
     });
 
-    socket.on("user-joined", (u) =>
-      setMessages((prev) => {
-        const next = [
-          ...prev,
-          // {
-          //   id: uuidv4(),
-          //   sender: "system",
-          //   text: `${u} приєднався`,
-          //   timestamp: formatTime(new Date()),
-          // },
-        ];
-        return saveChatMessages(next, 100);
-      })
-    );
+    // socket.on("user-joined", (u) =>
+    //   setMessages((prev) => {
+    //     const next = [
+    //       ...prev,
+    //       {
+    //         id: uuidv4(),
+    //         sender: "system",
+    //         text: `${u} приєднався`,
+    //         timestamp: formatTime(new Date()),
+    //       },
+    //     ];
 
-    socket.on("user-left", (u) =>
-      setMessages((prev) => {
-        const next = [
-          ...prev,
-          // {
-          //   id: uuidv4(),
-          //   sender: "system",
-          //   text: `${u} покинув`,
-          //   timestamp: formatTime(new Date()),
-          // },
-        ];
-        return saveChatMessages(next, 100);
-      })
-    );
+    //     return saveChatMessages(next, 100);
+    //   })
+    // );
+
+    // socket.on("user-left", (u) =>
+    //   setMessages((prev) => {
+    //     const next = [
+    //       ...prev,
+    //       {
+    //         id: uuidv4(),
+    //         sender: "system",
+    //         text: `${u} покинув`,
+    //         timestamp: formatTime(new Date()),
+    //       },
+    //     ];
+    //     return saveChatMessages(next, 100);
+    //   })
+    // );
 
     // Очистка при виході або зміні username/avatar
     return () => {
