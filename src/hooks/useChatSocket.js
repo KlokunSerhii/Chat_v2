@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 import { saveChatMessages, formatTime } from "../utils/utils.js";
 
 const SOCKET_SERVER_URL = "https://chat-v2-server-7.onrender.com";
+// const SOCKET_SERVER_URL = "http://localhost:3001";
 
 export function useChatSocket(username, avatar) {
   const [messages, setMessages] = useState([]);
@@ -11,7 +12,6 @@ export function useChatSocket(username, avatar) {
   const [typingUsers, setTypingUsers] = useState([]);
   const [isConnected, setIsConnected] = useState(false);
   const socketRef = useRef(null);
-
   useEffect(() => {
     if (!username) return;
 

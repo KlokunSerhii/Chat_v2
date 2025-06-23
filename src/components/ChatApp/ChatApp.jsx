@@ -80,7 +80,8 @@ export default function ChatApp() {
     setUsername(name);
     const avatarUrl = avatar.startsWith("http")
       ? avatar
-      : `https://chat-v2-server-7.onrender.com${avatar}`;
+			: `https://chat-v2-server-7.onrender.com${avatar}`;
+		
     setAvatar(avatarUrl);
   };
 
