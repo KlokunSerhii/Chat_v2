@@ -21,7 +21,7 @@ export const ChatContainer = styled.div`
 export const StatusBar = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   padding: 10px 16px;
   border-bottom: 1px solid ${({ $dark }) => getTheme($dark).border};
   background-color: ${({ $dark }) => getTheme($dark).input};
@@ -94,4 +94,11 @@ export const EmojiPickerContainer = styled.div`
   bottom: 70px;
   right: 20px;
   z-index: 1000;
+`;
+export const Header = styled.span`
+  text-align: center;
+  font-size: 50px;
+  font-weight: bold;
+  color: ${({ $dark }) => getTheme($dark).text};
+  margin-bottom: 12px;
 `;

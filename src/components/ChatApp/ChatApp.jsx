@@ -12,6 +12,7 @@ import {
   ChatMessages,
   TypingIndicator,
   EmojiPickerContainer,
+  Header,
 } from "./ChatApp.styled.js";
 import { compressImage } from "../../utils/utils.js";
 import { useLocalStorage } from "../../hooks/useLocalStorage.js";
@@ -156,7 +157,7 @@ export default function ChatApp() {
             </ChatButton>
           </>
         ) : (
-          <span>Введіть ім'я і оберіть аватар</span>
+          <Header>Ласкаво просимо!</Header>
         )}
       </StatusBar>
 

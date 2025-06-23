@@ -1,8 +1,5 @@
 // MessageItem.jsx
-import React from "react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import { AvatarImage } from "../LoginSection/LoginSection.styled";
+
 import {
   Message,
   MessageUsername,
@@ -10,6 +7,7 @@ import {
   MessageImage,
   MessageTime,
   StyledMarkdown,
+  AvatarImageChat,
 } from "./MessageItem.styled";
 import { formatTime } from "../../utils/utils";
 
@@ -26,13 +24,17 @@ export default function MessageItem({
       $system={msg.sender === "system"}
     >
       {isOwn ? (
-        <MessageUsername $dark={isDarkTheme} $isOwn={isOwn}>
+        <MessageUsername
+          $dark={isDarkTheme}
+          $isOwn={isOwn}
+          style={{ justifyContent: "flex-end" }}
+        >
           {msg.username}
-          <AvatarImage src={msg.avatar} alt={msg.username} />
+          <AvatarImageChat src={msg.avatar} alt={msg.username} />
         </MessageUsername>
       ) : (
         <MessageUsername $dark={isDarkTheme} $isOwn={isOwn}>
-          <AvatarImage src={msg.avatar} alt={msg.username} />
+          <AvatarImageChat src={msg.avatar} alt={msg.username} />
           {msg.username}
         </MessageUsername>
       )}

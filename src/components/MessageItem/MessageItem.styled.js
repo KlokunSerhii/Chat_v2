@@ -53,13 +53,13 @@ export const MessageUsername = styled.div`
   color: ${({ $dark }) => getTheme($dark).username};
   margin-bottom: 4px;
 
-  img {
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    margin-right: 6px;
-    margin-left: 6px;
-  }
+  // img {
+  //   border-radius: 50%;
+  //   width: 30px;
+  //   height: 30px;
+  //   margin-right: 6px;
+  //   margin-left: 6px;
+  // }
 `;
 
 export const MessageImage = styled.img`
@@ -81,4 +81,16 @@ export const MessageImage = styled.img`
 `;
 export const StyledMarkdown = styled.div`
   margin-block-start: 0;
+`;
+export const AvatarImageChat = styled.img`
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  margin-right: 6px;
+  margin-left: 6px;
+  object-fit: cover;
+  object-position: center;
+  border: 1px solid ${({ $dark }) => getTheme($dark).border};
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
 `;
