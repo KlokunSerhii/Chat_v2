@@ -11,6 +11,7 @@ import {
   ChatButton,
   ChatMessages,
   TypingIndicator,
+  EmojiPickerContainer,
 } from "./ChatApp.styled.js";
 import { compressImage } from "../../utils/utils.js";
 import { useLocalStorage } from "../../hooks/useLocalStorage.js";
@@ -21,6 +22,7 @@ import MessageItem from "../MessageItem/MessageItem.jsx";
 import ChatInputSection from "../ChatInputSection/ChatInputSection.jsx";
 import OnlineUsersModal from "../OnlineUsersModal/OnlineUsersModal.jsx";
 import AvatarUploader from "../AvatarUploader/AvatarUploader.jsx";
+import ImageModal from "../ImageModal/ImageModal.jsx"; // Імпортуємо компонент ImageModal
 
 const SOUND_URL = "./notification.mp3";
 
@@ -47,6 +49,8 @@ export default function ChatApp() {
     "chat_theme",
     false
   );
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false); // Стан для модального вікна
+  const [modalImageSrc, setModalImageSrc] = useState(null); // Стан для зображення модального вікна
   const fileInputRef = useRef(null);
   const messagesEndRef = useRef(null);
   const audioRef = useRef(null);
@@ -63,7 +67,6 @@ export default function ChatApp() {
   } = useChatSocket(username, avatar);
 
   // Реакція на нове повідомлення
-
   useEffect(() => {
     if (messages.length > 0) {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -122,6 +125,16 @@ export default function ChatApp() {
     e.target.value = null;
   };
 
+  const openImageModal = (src) => {
+    setModalImageSrc(src);
+    setIsImageModalOpen(true);
+  };
+
+  const closeImageModal = () => {
+    setIsImageModalOpen(false);
+    setModalImageSrc(null);
+  };
+
   return (
     <ChatContainer $dark={isDarkTheme}>
       <StatusBar $dark={isDarkTheme}>
@@ -149,6 +162,10 @@ export default function ChatApp() {
 
       {!username ? (
         <>
+          <AvatarUploader
+            onUpload={(url) => setAvatar(url)}
+            isDarkTheme={isDarkTheme}
+          />
           <LoginSection
             avatarSeeds={avatarSeeds}
             selectedSeed={selectedSeed}
@@ -159,10 +176,7 @@ export default function ChatApp() {
             isDarkTheme={isDarkTheme}
             usernameInputRef={usernameInputRef}
             avatar={avatar}
-          />
-          <AvatarUploader
-            onUpload={(url) => setAvatar(url)}
-            isDarkTheme={isDarkTheme}
+            setIsDarkTheme={setIsDarkTheme}
           />
         </>
       ) : (
@@ -174,6 +188,7 @@ export default function ChatApp() {
                 msg={msg}
                 isOwn={msg.username === username}
                 isDarkTheme={isDarkTheme}
+                onImageClick={openImageModal} // Передаємо функцію для відкриття модального вікна
               />
             ))}
             {typingUsers.map((u) => (
@@ -200,19 +215,15 @@ export default function ChatApp() {
 
           <AnimatePresence>
             {showEmojiPicker && (
-              <Picker
-                data={data}
-                onEmojiSelect={(emoji) =>
-                  setInput((prev) => prev + emoji.native)
-                }
-                theme={isDarkTheme ? "dark" : "light"}
-                style={{
-                  position: "absolute",
-                  bottom: 60,
-                  right: 20,
-                  zIndex: 1000,
-                }}
-              />
+              <EmojiPickerContainer>
+                <Picker
+                  data={data}
+                  onEmojiSelect={(emoji) =>
+                    setInput((prev) => prev + emoji.native)
+                  }
+                  theme={isDarkTheme ? "dark" : "light"}
+                />
+              </EmojiPickerContainer>
             )}
           </AnimatePresence>
 
@@ -227,6 +238,13 @@ export default function ChatApp() {
       )}
 
       <audio ref={audioRef} src={SOUND_URL} />
+
+      {/* Модальне вікно для перегляду зображень */}
+      <ImageModal
+        isOpen={isImageModalOpen}
+        imageSrc={modalImageSrc}
+        onClose={closeImageModal}
+      />
     </ChatContainer>
   );
 }

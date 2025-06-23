@@ -89,3 +89,9 @@ export const ConnectionStatus = styled.div`
     $connected ? "#4caf50" : "#f44336"};
   margin-right: 10px;
 `;
+export const EmojiPickerContainer = styled.div`
+  position: absolute;
+  bottom: 70px;
+  right: 20px;
+  z-index: 1000;
+`;

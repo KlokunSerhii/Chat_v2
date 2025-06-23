@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+// MessageItem.jsx
+import React from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { AvatarImage } from "../LoginSection/LoginSection.styled";
@@ -12,7 +13,12 @@ import {
 } from "./MessageItem.styled";
 import { formatTime } from "../../utils/utils";
 
-export default function MessageItem({ msg, isOwn, isDarkTheme }) {
+export default function MessageItem({
+  msg,
+  isOwn,
+  isDarkTheme,
+  onImageClick, // Передаємо функцію для відкриття зображення
+}) {
   return (
     <Message
       $isOwn={isOwn}
@@ -39,7 +45,15 @@ export default function MessageItem({ msg, isOwn, isDarkTheme }) {
             msg.text
           )}
         </StyledMarkdown>
-        {msg.image && <MessageImage src={msg.image} alt="attached" />}
+
+        {msg.image && (
+          <MessageImage
+            src={msg.image}
+            alt="attached"
+            onClick={() => onImageClick(msg.image)} // Викликаємо onImageClick при натисканні на зображення
+            style={{ cursor: "pointer" }}
+          />
+        )}
       </MessageText>
 
       <MessageTime $dark={isDarkTheme} $isOwn={isOwn} $delivered>

@@ -1,10 +1,11 @@
 import React from "react";
-import { ChatButton } from "../ChatApp/ChatApp.styled";
 import {
   UsernameInputWrapper,
   UsernameInput,
   AvatarImage,
+  AvatarImageButton,
 } from "./LoginSection.styled";
+import { ThemeToggle } from "../ChatApp/ChatApp.styled";
 
 export default function LoginSection({
   avatarSeeds,
@@ -15,11 +16,18 @@ export default function LoginSection({
   handleLogin,
   isDarkTheme,
   avatar,
+  setIsDarkTheme,
 }) {
   return (
     <UsernameInputWrapper>
+      <ThemeToggle
+        $dark={isDarkTheme}
+        onClick={() => setIsDarkTheme((d) => !d)}
+        title="Toggle theme"
+      >
+        {isDarkTheme ? " " : " "}
+      </ThemeToggle>
       <div style={{ marginBottom: 12 }}>
-        <strong>Оберіть аватар:</strong>
         <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
           {avatarSeeds.map((s) => {
             const url = `https://api.dicebear.com/7.x/avataaars/svg?seed=${s}`;
@@ -48,12 +56,12 @@ export default function LoginSection({
         $dark={isDarkTheme}
       />
       {avatar && <AvatarImage src={avatar} alt="Вибраний аватар" />}
-      <ChatButton
+      <AvatarImageButton
         onClick={handleLogin}
         disabled={!tempUsername.trim()}
       >
         Увійти
-      </ChatButton>
+      </AvatarImageButton>
     </UsernameInputWrapper>
   );
 }
