@@ -115,12 +115,30 @@ export default function ChatApp() {
       alert("Будь ласка, виберіть зображення");
       return;
     }
-
     try {
-      const compressedImage = await compressImage(file);
-      setAttachedImage(compressedImage);
+      // Стискаємо зображення локально
+      // const compressedImage = await compressImage(file);
+      // // Завантажуємо на сервер
+      const formData = new FormData();
+      formData.append("image", file);
+      const res = await fetch(
+        "https://chat-v2-server-7.onrender.com/send-image",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const data = await res.json();
+      console.log(data);
+      if (data.imageUrl) {
+        // Зберігаємо URL, який прийшов з сервера
+        setAttachedImage(data.imageUrl);
+      } else {
+        alert("Помилка завантаження зображення");
+      }
     } catch (err) {
-      alert("Помилка обробки зображення");
+      alert("Помилка обробки або завантаження зображення");
       console.error(err);
     }
 
