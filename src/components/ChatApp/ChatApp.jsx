@@ -98,7 +98,7 @@ export default function ChatApp() {
     };
 
     setMessages((prev) => {
-      const next = [...prev, { id: uuidv4(), ...msg }];
+      const next = [...prev, { id:msg._id, ...msg }];
       return saveChatMessages(next, 100);
     });
 
@@ -144,6 +144,52 @@ export default function ChatApp() {
 
     e.target.value = null;
   };
+
+const handleReact = (messageId, emoji, isRemoving) => {
+  console.log("📤 Надсилаю реакцію:", messageId, emoji, isRemoving);
+  socketRef.current.emit("react", {
+    messageId,
+    emoji,
+    username,
+    remove: isRemoving,
+  });
+
+  setMessages((prevMessages) =>
+    prevMessages.map((msg) => {
+      if (msg._id !== messageId) return msg;
+
+      const currentReactions = msg.reactions || {};
+      const users = currentReactions[emoji] || [];
+
+      let updatedReactions;
+      if (isRemoving) {
+        const updatedUsers = users.filter((u) => u !== username);
+        if (updatedUsers.length === 0) {
+          const { [emoji]: _, ...rest } = currentReactions;
+          updatedReactions = rest;
+        } else {
+          updatedReactions = { ...currentReactions, [emoji]: updatedUsers };
+        }
+      } else {
+        if (users.includes(username)) return msg; // вже є така реакція
+        updatedReactions = {
+          ...currentReactions,
+          [emoji]: [...users, username],
+        };
+      }
+
+      return {
+        ...msg,
+        reactions: updatedReactions,
+      };
+    })
+  );
+};
+
+
+
+
+
 
   const openImageModal = (src) => {
     setModalImageSrc(src);
@@ -204,11 +250,15 @@ export default function ChatApp() {
           <ChatMessages $dark={isDarkTheme}>
             {messages.map((msg) => (
               <MessageItem
-                key={msg.id}
+                key={msg._id}
                 msg={msg}
                 isOwn={msg.username === username}
                 isDarkTheme={isDarkTheme}
-                onImageClick={openImageModal} // Передаємо функцію для відкриття модального вікна
+                onImageClick={openImageModal}
+                username={username}
+                onReact={(emoji, isRemoving) => {
+                  console.log("🔁 Обробка реакції:", msg._id, emoji, isRemoving);
+                  handleReact(msg._id, emoji, isRemoving)}}
               />
             ))}
             {typingUsers.map((u) => (

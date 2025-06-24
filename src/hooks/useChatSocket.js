@@ -42,7 +42,7 @@ export function useChatSocket(username, avatar) {
     });
     socket.on("last-messages", (history) => {
       const restored = history.map((msg) => ({
-        id: uuidv4(),
+        id: msg._id,
         ...msg,
       }));
       const trimmed = saveChatMessages(restored, 100);
@@ -54,11 +54,20 @@ export function useChatSocket(username, avatar) {
       if (isOwnMessage) return;
 
       setMessages((prev) => {
-        const next = [...prev, { id: uuidv4(), ...msg }];
+        const next = [...prev, { id:msg._id, ...msg }];
         const trimmed = saveChatMessages(next, 100);
         return trimmed;
       });
     });
+
+    socket.on("reaction-updated", ({ messageId, reactions }) => {
+      console.log("✅ Подія reaction-updated прийшла", messageId, reactions);
+  setMessages((prev) =>
+    prev.map((msg) =>
+      msg.id === messageId ? { ...msg, reactions } : msg
+    )
+  );
+});
 
     // socket.on("user-joined", (u) =>
     //   setMessages((prev) => {
@@ -108,5 +117,6 @@ export function useChatSocket(username, avatar) {
     typingUsers,
     isConnected,
     sendMessage,
+    socketRef
   };
 }
