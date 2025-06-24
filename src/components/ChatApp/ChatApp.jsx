@@ -146,10 +146,11 @@ export default function ChatApp() {
   const handleReact = async (messageId, emoji, isRemoving) => {
     try {
       socketRef.current.emit("react", {
-        messageId,
-        emoji,
-        remove: isRemoving,
-      });
+  messageId,
+  emoji,
+  remove: isRemoving,
+  username, // 👈 ДОДАЙ ЦЕ
+});
       const response = await fetch(
         `https://chat-v2-server-7.onrender.com/api/messages/${messageId}/react`,
         {
