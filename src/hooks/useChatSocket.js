@@ -54,54 +54,59 @@ export function useChatSocket(username, avatar) {
       if (isOwnMessage) return;
 
       setMessages((prev) => {
-        const next = [...prev, { id:msg._id, ...msg }];
+        const next = [...prev, { id: msg._id, ...msg }];
         const trimmed = saveChatMessages(next, 100);
         return trimmed;
       });
     });
 
     socket.on("reaction-updated", ({ messageId, reactions }) => {
-      console.log("✅ Подія reaction-updated прийшла", messageId, reactions);
-  setMessages((prev) =>
-    prev.map((msg) =>
-      msg.id === messageId ? { ...msg, reactions } : msg
-    )
-  );
-});
+      console.log("🔥 Оновлено реакції:", messageId, reactions);
+      setMessages((prevMessages) =>
+        prevMessages.map((msg) =>
+          msg.id === messageId || msg._id === messageId
+            ? { ...msg, reactions }
+            : msg
+        )
+      );
+    });
+    socket.on("react", ({ messageId, emoji, username, remove }) => {
+      setMessages((prevMessages) =>
+        prevMessages.map((msg) => {
+          if (msg._id !== messageId && msg.id !== messageId)
+            return msg;
 
-    // socket.on("user-joined", (u) =>
-    //   setMessages((prev) => {
-    //     const next = [
-    //       ...prev,
-    //       {
-    //         id: uuidv4(),
-    //         sender: "system",
-    //         text: `${u} приєднався`,
-    //         timestamp: formatTime(new Date()),
-    //       },
-    //     ];
+          const prevReactions = msg.reactions || {};
+          const updatedReactions = { ...prevReactions };
 
-    //     return saveChatMessages(next, 100);
-    //   })
-    // );
+          if (!updatedReactions[emoji]) {
+            updatedReactions[emoji] = [];
+          }
 
-    // socket.on("user-left", (u) =>
-    //   setMessages((prev) => {
-    //     const next = [
-    //       ...prev,
-    //       {
-    //         id: uuidv4(),
-    //         sender: "system",
-    //         text: `${u} покинув`,
-    //         timestamp: formatTime(new Date()),
-    //       },
-    //     ];
-    //     return saveChatMessages(next, 100);
-    //   })
-    // );
+          if (remove) {
+            updatedReactions[emoji] = updatedReactions[emoji].filter(
+              (u) => u !== username
+            );
+            if (updatedReactions[emoji].length === 0) {
+              delete updatedReactions[emoji];
+            }
+          } else {
+            if (!updatedReactions[emoji].includes(username)) {
+              updatedReactions[emoji].push(username);
+            }
+          }
 
-    // Очистка при виході або зміні username/avatar
+          return {
+            ...msg,
+            reactions: updatedReactions,
+          };
+        })
+      );
+    });
+
     return () => {
+      socket.off("reaction-updated");
+      socket.off("react");
       socket.disconnect();
     };
   }, [username, avatar]); // avatar тепер тригерить перепідключення
@@ -117,6 +122,37 @@ export function useChatSocket(username, avatar) {
     typingUsers,
     isConnected,
     sendMessage,
-    socketRef
+    socketRef,
   };
 }
+
+// socket.on("user-joined", (u) =>
+//   setMessages((prev) => {
+//     const next = [
+//       ...prev,
+//       {
+//         id: uuidv4(),
+//         sender: "system",
+//         text: `${u} приєднався`,
+//         timestamp: formatTime(new Date()),
+//       },
+//     ];
+
+//     return saveChatMessages(next, 100);
+//   })
+// );
+
+// socket.on("user-left", (u) =>
+//   setMessages((prev) => {
+//     const next = [
+//       ...prev,
+//       {
+//         id: uuidv4(),
+//         sender: "system",
+//         text: `${u} покинув`,
+//         timestamp: formatTime(new Date()),
+//       },
+//     ];
+//     return saveChatMessages(next, 100);
+//   })
+// );

@@ -1,4 +1,4 @@
-export  function ReactionsDisplay({ reactions, username, onReact }) {
+export function ReactionsDisplay({ reactions, username, onReact }) {
   if (!reactions || Object.keys(reactions).length === 0) return null;
 
   return (
@@ -7,9 +7,9 @@ export  function ReactionsDisplay({ reactions, username, onReact }) {
         const reactedByMe = users.includes(username);
 
         const handleClick = () => {
-          onReact(emoji, reactedByMe);
+          onReact(emoji, reactedByMe); // ✅ виклик onReact
         };
-        console.log("ReactionsDisplay рендериться", reactions);
+
         return (
           <div
             key={`${emoji}-${users.join(",")}`}

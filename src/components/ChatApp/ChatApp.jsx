@@ -26,6 +26,7 @@ import AvatarUploader from "../AvatarUploader/AvatarUploader.jsx";
 import ImageModal from "../ImageModal/ImageModal.jsx"; // Імпортуємо компонент ImageModal
 
 const SOUND_URL = "./notification.mp3";
+const SERVER_URL = "https://chat-v2-server-7.onrender.com";
 
 export default function ChatApp() {
   const avatarSeeds = useMemo(
@@ -98,7 +99,7 @@ export default function ChatApp() {
     };
 
     setMessages((prev) => {
-      const next = [...prev, { id:msg._id, ...msg }];
+      const next = [...prev, { id: msg._id, ...msg }];
       return saveChatMessages(next, 100);
     });
 
@@ -121,13 +122,10 @@ export default function ChatApp() {
       // // Завантажуємо на сервер
       const formData = new FormData();
       formData.append("image", file);
-      const res = await fetch(
-        "https://chat-v2-server-7.onrender.com/send-image",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
+      const res = await fetch(`${SERVER_URL}/send-image`, {
+        method: "POST",
+        body: formData,
+      });
 
       const data = await res.json();
       console.log(data);
@@ -145,51 +143,47 @@ export default function ChatApp() {
     e.target.value = null;
   };
 
-const handleReact = (messageId, emoji, isRemoving) => {
-  console.log("📤 Надсилаю реакцію:", messageId, emoji, isRemoving);
-  socketRef.current.emit("react", {
-    messageId,
-    emoji,
-    username,
-    remove: isRemoving,
-  });
-
-  setMessages((prevMessages) =>
-    prevMessages.map((msg) => {
-      if (msg._id !== messageId) return msg;
-
-      const currentReactions = msg.reactions || {};
-      const users = currentReactions[emoji] || [];
-
-      let updatedReactions;
-      if (isRemoving) {
-        const updatedUsers = users.filter((u) => u !== username);
-        if (updatedUsers.length === 0) {
-          const { [emoji]: _, ...rest } = currentReactions;
-          updatedReactions = rest;
-        } else {
-          updatedReactions = { ...currentReactions, [emoji]: updatedUsers };
+  const handleReact = async (messageId, emoji, isRemoving) => {
+    try {
+      socketRef.current.emit("react", {
+        messageId,
+        emoji,
+        remove: isRemoving,
+      });
+      const response = await fetch(
+        `https://chat-v2-server-7.onrender.com/api/messages/${messageId}/react`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            emoji,
+            username, // обов'язково має бути оголошений або переданий у функцію
+            isRemoving,
+          }),
         }
-      } else {
-        if (users.includes(username)) return msg; // вже є така реакція
-        updatedReactions = {
-          ...currentReactions,
-          [emoji]: [...users, username],
-        };
+      );
+      if (response.ok) {
+        const { messageId, reactions } = await response.json();
+
+        setMessages((prevMessages) =>
+          prevMessages.map((msg) =>
+            msg.id === messageId || msg._id === messageId
+              ? { ...msg, reactions }
+              : msg
+          )
+        );
       }
 
-      return {
-        ...msg,
-        reactions: updatedReactions,
-      };
-    })
-  );
-};
-
-
-
-
-
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("❌ Сервер повернув помилку:", errorData);
+      }
+    } catch (error) {
+      console.error("❌ Помилка запиту:", error);
+    }
+  };
 
   const openImageModal = (src) => {
     setModalImageSrc(src);
@@ -256,9 +250,7 @@ const handleReact = (messageId, emoji, isRemoving) => {
                 isDarkTheme={isDarkTheme}
                 onImageClick={openImageModal}
                 username={username}
-                onReact={(emoji, isRemoving) => {
-                  console.log("🔁 Обробка реакції:", msg._id, emoji, isRemoving);
-                  handleReact(msg._id, emoji, isRemoving)}}
+                onReact={handleReact}
               />
             ))}
             {typingUsers.map((u) => (
