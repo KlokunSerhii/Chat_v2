@@ -64,7 +64,7 @@ export function useChatSocket(username, avatar) {
       console.log("🔥 Оновлено реакції:", messageId, reactions);
       setMessages((prevMessages) =>
         prevMessages.map((msg) =>
-          msg.id === messageId || msg._id === messageId
+          msg.id === messageId 
             ? { ...msg, reactions }
             : msg
         )
@@ -73,7 +73,7 @@ export function useChatSocket(username, avatar) {
     socket.on("react", ({ messageId, emoji, username, remove }) => {
       setMessages((prevMessages) =>
         prevMessages.map((msg) => {
-          if (msg._id !== messageId && msg.id !== messageId)
+          if (msg.id !== messageId)
             return msg;
 
           const prevReactions = msg.reactions || {};
