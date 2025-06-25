@@ -107,29 +107,32 @@ useEffect(() => {
   };
 
   const sendMessage = () => {
-    if ((!input.trim() && !attachedImage) || !isConnected) return;
+  if ((!input.trim() && !attachedImage) || !isConnected) return;
 
-    // const tempId = uuidv4();
-const msg = {
-  sender: "user",
-  text: input.trim(),
-  timestamp: new Date().toISOString(),
-  username,
-  avatar,
-  image: attachedImage || null,
-//   id: tempId,
-};
+  const tempId = uuidv4(); // тимчасовий id лише для React
 
-setMessages((prev) => {
-  const next = [...prev, msg]; // вже є id
-  return saveChatMessages(next, 100);
-});
-
-
-    sendSocketMessage(msg);
-    setInput("");
-    setAttachedImage(null);
+  const localMsg = {
+    sender: "user",
+    text: input.trim(),
+    timestamp: new Date().toISOString(),
+    username,
+    avatar,
+    image: attachedImage || null,
+    id: tempId,
+    local: true, // позначка локального повідомлення
   };
+
+  setMessages((prev) => saveChatMessages([...prev, localMsg], 100));
+
+  // Надсилаємо без id (або в іншому форматі)
+  sendSocketMessage({
+    ...localMsg,
+    id: undefined, // не потрібно серверу
+  });
+
+  setInput("");
+  setAttachedImage(null);
+};
 
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
@@ -226,7 +229,7 @@ setMessages((prev) => {
             {messages.map((msg) => (
               <MessageItem
                 key={msg._id}
-                msg={msg}
+                msg={{ ...msg, id: msg.id || msg._id }}
                 isOwn={msg.username === username}
                 isDarkTheme={isDarkTheme}
                 onImageClick={openImageModal}

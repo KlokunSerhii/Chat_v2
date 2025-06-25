@@ -18,7 +18,7 @@ export default function MessageItem({
   username,
   onToggleReaction
 }) {
-
+console.log("MessageItem msg:", msg);
   return (
     <Message
       $isOwn={isOwn}
@@ -70,7 +70,12 @@ export default function MessageItem({
     return (
       <span
         key={emoji}
-        onClick={() => onToggleReaction({ messageId: msg.id, emoji })}
+          onClick={() => {
+    console.log("reacting to", msg.id); // msg.id повинен бути валідним _id
+    if (msg.id) {
+      onToggleReaction({ messageId: msg.id, emoji });
+    }
+  }}
         style={{
           cursor: 'pointer',
           background: reactedByUser ? '#ffd54f' : 'transparent',

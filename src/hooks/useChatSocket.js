@@ -41,32 +41,49 @@ export function useChatSocket(username, avatar) {
         2500
       );
     });
-    socket.on("last-messages", (history) => {
-      const restored = history.map((msg) => ({
-        id: msg._id,
-        ...msg,
-      }));
-      const trimmed = saveChatMessages(restored, 100);
-      setMessages(trimmed);
-    });
 
-    socket.on("message", (msg) => {
-      const isOwnMessage = msg.username === username;
-      if (isOwnMessage) return;
 
-      setMessages((prev) => {
-        const next = [...prev, { id: msg._id, ...msg }];
-        return saveChatMessages(next, 100);
-      });
-    });
-
-   socket.on("reaction-update", ({ messageId, reactions }) => {
-    setMessages((prevMessages) =>
-    prevMessages.map((msg) =>
-      msg.id === messageId ? { ...msg, reactions } : msg
-    )
-  );
+  socket.on("last-messages", (history) => {
+  const restored = history.map((msg) => ({
+    ...msg,
+    id: msg._id,
+  }));
+  const trimmed = saveChatMessages(restored, 100);
+  setMessages(trimmed);
 });
+
+
+socket.on("message", (msg) => {
+  const isOwnMessage = msg.username === username;
+
+  setMessages((prev) => {
+    const newMsg = { ...msg, id: msg._id };
+
+    if (isOwnMessage) {
+      // замінюємо локальне повідомлення тим, яке надіслав сервер
+      return saveChatMessages(
+        prev.map((m) =>
+          m.local && m.text === msg.text && !m._id
+            ? newMsg
+            : m
+        ),
+        100
+      );
+    } else {
+      return saveChatMessages([...prev, newMsg], 100);
+    }
+  });
+});
+
+socket.on("reaction-update", ({ messageId, reactions }) => {
+    setMessages((prev) =>
+      prev.map((msg) =>
+        msg.id === messageId
+          ? { ...msg, reactions }
+          : msg
+      )
+    );
+  });
 
 
     return () => {
