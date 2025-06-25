@@ -1,4 +1,6 @@
 // MessageItem.jsx
+import AudioPlayer from "react-h5-audio-player";
+import "react-h5-audio-player/lib/styles.css";
 import {
   Message,
   MessageUsername,
@@ -18,6 +20,7 @@ export default function MessageItem({
   username,
   onToggleReaction,
 }) {
+  console.log("MessageItem rendered", msg);
   return (
     <Message
       $isOwn={isOwn}
@@ -67,10 +70,20 @@ export default function MessageItem({
         )}
 
         {msg.audio && (
-          <audio controls style={{ marginTop: "8px", width: "100%" }}>
-            <source src={msg.audio} type="audio/mpeg" />
-            Ваш браузер не підтримує аудіо.
-          </audio>
+          <div style={{ marginTop: "8px" }}>
+            <AudioPlayer
+              src={msg.audio}
+              layout="horizontal"
+              showJumpControls={false}
+              customAdditionalControls={[]}
+              customVolumeControls={[]}
+              style={{
+                borderRadius: "12px",
+                backgroundColor: isDarkTheme ? "#000" : "#f1f1f1",
+                color: isDarkTheme ? "#f1f1f1" : "#000",
+              }}
+            />
+          </div>
         )}
       </MessageText>
       <div style={{ display: "flex", gap: "6px", marginTop: "5px" }}>

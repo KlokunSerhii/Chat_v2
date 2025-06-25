@@ -60,7 +60,9 @@ export default function ChatApp() {
   const messagesEndRef = useRef(null);
   const audioRef = useRef(null);
   const usernameInputRef = useRef(null);
-
+  const [imageLoading, setImageLoading] = useState(false);
+  const [videoLoading, setVideoLoading] = useState(false);
+  const [audioLoading, setAudioLoading] = useState(false);
   const {
     messages,
     setMessages,
@@ -183,17 +185,19 @@ export default function ChatApp() {
       });
 
       const data = await response.json();
-      console.log("uploaded video URL:", data.url);
       // Визначаємо тип файлу
       if (fileType.startsWith("image/")) {
+        setImageLoading(true);
         setAttachedImage(data.url);
         setAttachedAudio(null);
         setAttachedVideo(null);
       } else if (fileType.startsWith("audio/")) {
+        setAudioLoading(true);
         setAttachedAudio(data.url);
         setAttachedImage(null);
         setAttachedVideo(null);
       } else if (fileType.startsWith("video/")) {
+        setVideoLoading(true);
         setAttachedVideo(data.url);
         setAttachedImage(null);
         setAttachedAudio(null);
@@ -296,6 +300,12 @@ export default function ChatApp() {
             attachedImage={attachedImage}
             attachedVideo={attachedVideo}
             attachedAudio={attachedAudio}
+            setAudioLoading={setAudioLoading}
+            setImageLoading={setImageLoading}
+            setVideoLoading={setVideoLoading}
+            audioLoading={audioLoading}
+            imageLoading={imageLoading}
+            videoLoading={videoLoading}
             isConnected={isConnected}
           />
 

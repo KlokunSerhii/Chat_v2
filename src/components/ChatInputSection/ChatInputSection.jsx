@@ -9,7 +9,7 @@ import {
   AttachedVideoPreview,
   AttachedAudioPreview,
 } from "./ChatInputSection.styled";
-
+import FancyLoader from "../FancyLoader/FancyLoader.jsx";
 export default function ChatInputSection({
   input,
   setInput,
@@ -26,6 +26,12 @@ export default function ChatInputSection({
   attachedImage, // ✅ ДОДАТИ
   attachedVideo, // ✅ ДОДАТИ
   attachedAudio, // ✅ ДОДАТИ
+  setAudioLoading,
+  setImageLoading,
+  setVideoLoading,
+  imageLoading,
+  videoLoading,
+  audioLoading,
   isConnected,
 }) {
   const chatInputRef = useRef(null);
@@ -64,25 +70,43 @@ export default function ChatInputSection({
         📎
       </AttachButton>
       {attachedImage && (
-        <AttachedImagePreview
-          src={attachedImage}
-          alt="preview"
-          onClick={() => setAttachedImage(null)}
-        />
+        <>
+          {imageLoading && <FancyLoader isDarkTheme={isDarkTheme} />}
+          <AttachedImagePreview
+            src={attachedImage}
+            alt="preview"
+            onLoad={() => setImageLoading(false)}
+            style={{ display: imageLoading ? "none" : "block" }}
+            onClick={() => setAttachedImage(null)}
+          />
+        </>
       )}
       {attachedVideo && (
-        <AttachedVideoPreview
-          src={attachedVideo}
-          alt="preview"
-          onClick={() => setAttachedVideo(null)}
-        />
+        <>
+          {videoLoading && <FancyLoader isDarkTheme={isDarkTheme} />}
+          <AttachedVideoPreview
+            src={attachedVideo}
+            alt="preview"
+            controls
+            onLoadedData={() => setVideoLoading(false)}
+            style={{ display: videoLoading ? "none" : "block" }}
+            onClick={() => setAttachedVideo(null)}
+          />
+        </>
       )}
+
       {attachedAudio && (
-        <AttachedAudioPreview
-          src={attachedAudio}
-          alt="preview"
-          onClick={() => setAttachedAudio(null)}
-        />
+        <>
+          {audioLoading && <FancyLoader isDarkTheme={isDarkTheme} />}
+          <AttachedAudioPreview
+            src={attachedAudio}
+            alt="preview"
+            controls
+            onLoadedData={() => setAudioLoading(false)}
+            style={{ display: audioLoading ? "none" : "block" }}
+            onClick={() => setAttachedAudio(null)}
+          />
+        </>
       )}
       <ChatButton
         onClick={sendMessage}
