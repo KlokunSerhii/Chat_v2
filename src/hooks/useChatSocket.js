@@ -55,58 +55,13 @@ export function useChatSocket(username, avatar) {
 
       setMessages((prev) => {
         const next = [...prev, { id: msg._id, ...msg }];
-        const trimmed = saveChatMessages(next, 100);
-        return trimmed;
+        return saveChatMessages(next, 100);
       });
     });
 
-    socket.on("reaction-updated", ({ messageId, reactions }) => {
-      console.log("🔥 Оновлено реакції:", messageId, reactions);
-      setMessages((prevMessages) =>
-        prevMessages.map((msg) =>
-          msg.id === messageId 
-            ? { ...msg, reactions }
-            : msg
-        )
-      );
-    });
-    socket.on("react", ({ messageId, emoji, username, remove }) => {
-      setMessages((prevMessages) =>
-        prevMessages.map((msg) => {
-          if (msg.id !== messageId)
-            return msg;
-
-          const prevReactions = msg.reactions || {};
-          const updatedReactions = { ...prevReactions };
-
-          if (!updatedReactions[emoji]) {
-            updatedReactions[emoji] = [];
-          }
-
-          if (remove) {
-            updatedReactions[emoji] = updatedReactions[emoji].filter(
-              (u) => u !== username
-            );
-            if (updatedReactions[emoji].length === 0) {
-              delete updatedReactions[emoji];
-            }
-          } else {
-            if (!updatedReactions[emoji].includes(username)) {
-              updatedReactions[emoji].push(username);
-            }
-          }
-
-          return {
-            ...msg,
-            reactions: updatedReactions,
-          };
-        })
-      );
-    });
-
+   
     return () => {
-      socket.off("reaction-updated");
-      socket.off("react");
+
       socket.disconnect();
     };
   }, [username, avatar]); // avatar тепер тригерить перепідключення

@@ -1,8 +1,4 @@
 // MessageItem.jsx
-import { useState } from "react";
-import Picker from "@emoji-mart/react";
-import data from "@emoji-mart/data";
-import { ReactionsDisplay } from "../ReactionsDisplay/ReactionsDisplay.jsx";
 import {
   Message,
   MessageUsername,
@@ -20,9 +16,7 @@ export default function MessageItem({
   isDarkTheme,
   onImageClick,
   username,
-  onReact,
 }) {
-  const [showPicker, setShowPicker] = useState(false);
 
   return (
     <Message
@@ -63,43 +57,8 @@ export default function MessageItem({
             style={{ cursor: "pointer" }}
           />
         )}
+       
       </MessageText>
-      <ReactionsDisplay
-        reactions={msg.reactions || {}}
-        username={username}
-        onReact={(emoji, isRemoving) =>
-          onReact(msg._id, emoji, isRemoving)
-        }
-      />
-      <div style={{ position: "relative" }}>
-        <button
-          onClick={() => setShowPicker((prev) => !prev)}
-          style={{
-            marginTop: "4px",
-            fontSize: "1rem",
-            padding: "2px 6px",
-            cursor: "pointer",
-            backgroundColor: "#eee",
-            border: "none",
-            borderRadius: "4px",
-          }}
-        >
-          😊
-        </button>
-
-        {showPicker && (
-          <div style={{ position: "absolute", zIndex: 100 }}>
-            <Picker
-              data={data}
-              onEmojiSelect={(emoji) => {
-                setShowPicker(false);
-                onReact(msg._id, emoji.native, false); // ✅ додаємо реакцію
-              }}
-              theme={isDarkTheme ? "dark" : "light"}
-            />
-          </div>
-        )}
-      </div>
 
       <MessageTime $dark={isDarkTheme} $isOwn={isOwn} $delivered>
         {formatTime(msg.timestamp)}

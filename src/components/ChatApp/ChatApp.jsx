@@ -89,19 +89,22 @@ export default function ChatApp() {
   const sendMessage = () => {
     if ((!input.trim() && !attachedImage) || !isConnected) return;
 
-    const msg = {
-      sender: "user",
-      text: input.trim(),
-      timestamp: new Date().toISOString(),
-      username,
-      avatar,
-      image: attachedImage || null,
-    };
+    const tempId = uuidv4(); // або просто Date.now() як фолбек
+const msg = {
+  sender: "user",
+  text: input.trim(),
+  timestamp: new Date().toISOString(),
+  username,
+  avatar,
+  image: attachedImage || null,
+  id: tempId, // локальний id
+};
 
-    setMessages((prev) => {
-      const next = [...prev, { id: msg._id, ...msg }];
-      return saveChatMessages(next, 100);
-    });
+setMessages((prev) => {
+  const next = [...prev, msg]; // вже є id
+  return saveChatMessages(next, 100);
+});
+
 
     sendSocketMessage(msg);
     setInput("");
@@ -117,9 +120,7 @@ export default function ChatApp() {
       return;
     }
     try {
-      // Стискаємо зображення локально
-      // const compressedImage = await compressImage(file);
-      // // Завантажуємо на сервер
+
       const formData = new FormData();
       formData.append("image", file);
       const res = await fetch(`${SERVER_URL}/send-image`, {
@@ -143,48 +144,7 @@ export default function ChatApp() {
     e.target.value = null;
   };
 
-  const handleReact = async (messageId, emoji, isRemoving) => {
-    try {
-      socketRef.current.emit("react", {
-  messageId,
-  emoji,
-  remove: isRemoving,
-  username, // 👈 ДОДАЙ ЦЕ
-});
-      const response = await fetch(
-        `https://chat-v2-server-7.onrender.com/api/messages/${messageId}/react`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            emoji,
-            username, // обов'язково має бути оголошений або переданий у функцію
-            isRemoving,
-          }),
-        }
-      );
-      if (response.ok) {
-        const { messageId, reactions } = await response.json();
 
-        setMessages((prevMessages) =>
-          prevMessages.map((msg) =>
-            msg.id === messageId || msg._id === messageId
-              ? { ...msg, reactions }
-              : msg
-          )
-        );
-      }
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error("❌ Сервер повернув помилку:", errorData);
-      }
-    } catch (error) {
-      console.error("❌ Помилка запиту:", error);
-    }
-  };
 
   const openImageModal = (src) => {
     setModalImageSrc(src);
@@ -251,7 +211,6 @@ export default function ChatApp() {
                 isDarkTheme={isDarkTheme}
                 onImageClick={openImageModal}
                 username={username}
-                onReact={handleReact}
               />
             ))}
             {typingUsers.map((u) => (

@@ -2,26 +2,35 @@ import styled from "styled-components";
 
 export const ModalOverlay = styled.div`
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   background-color: rgba(0, 0, 0, 0.95);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
+
+  /* Забезпечити правильну поведінку на iOS */
+  width: 100vw;
+  height: 100vh;
+  overscroll-behavior: none;
+  touch-action: none;
 `;
 
 export const ModalContent = styled.div`
-  position: relative;
-  max-width: 90%;
-  max-height: 90%;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  /* Уникнути зміщення через padding, borders, etc */
+  box-sizing: border-box;
 `;
 
 export const ModalImage = styled.img`
+  max-width: 100%;
+  max-height: 100%;
   object-fit: contain;
-  width: 80%;
-  height: 80%;
   display: block;
+  margin: 0 auto;
 `;
