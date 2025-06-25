@@ -109,7 +109,7 @@ useEffect(() => {
   const sendMessage = () => {
     if ((!input.trim() && !attachedImage) || !isConnected) return;
 
-    const tempId = uuidv4(); // або просто Date.now() як фолбек
+    // const tempId = uuidv4();
 const msg = {
   sender: "user",
   text: input.trim(),
@@ -117,7 +117,7 @@ const msg = {
   username,
   avatar,
   image: attachedImage || null,
-  id: tempId, // локальний id
+//   id: tempId,
 };
 
 setMessages((prev) => {
