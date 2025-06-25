@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 import { v4 as uuidv4 } from "uuid";
+import toast from "react-hot-toast";
+
 import { saveChatMessages, formatTime } from "../utils/utils.js";
 import { SERVER_URL } from "../utils/url.js";
 // const SOCKET_SERVER_URL = "https://chat-v2-server-7.onrender.com";
@@ -24,6 +26,7 @@ export function useChatSocket(username, avatar) {
     const socket = io(SERVER_URL, {
       query: { username, avatar },
     });
+
     socketRef.current = socket;
 
     socket.on("connect", () => setIsConnected(true));
@@ -53,7 +56,6 @@ export function useChatSocket(username, avatar) {
 
     socket.on("message", (msg) => {
       const isOwnMessage = msg.username === username;
-      console.log("📨 Message from server:", msg);
       setMessages((prev) => {
         const newMsg = { ...msg, id: msg._id };
 
@@ -79,6 +81,48 @@ export function useChatSocket(username, avatar) {
       );
     });
 
+    socket.on("user-joined", ({ username, avatar, timestamp }) => {
+      toast.success(`${username} приєднався до чату`, {
+        duration: 3000,
+        position: "top-center",
+      });
+      setMessages((prev) => {
+        const next = [
+          ...prev,
+          {
+            id: uuidv4(),
+            sender: "system",
+            username,
+            avatar,
+            text: `${username} приєднався`,
+            timestamp,
+          },
+        ];
+        return saveChatMessages(next, 100);
+      });
+    });
+
+    socket.on("user-left", ({ username, avatar, timestamp }) => {
+      toast.success(`${username} вийшов із чату`, {
+        duration: 3000,
+        position: "top-center",
+      });
+      setMessages((prev) => {
+        const next = [
+          ...prev,
+          {
+            id: uuidv4(),
+            sender: "system",
+            username,
+            avatar,
+            text: `${username} покинув`,
+            timestamp,
+          },
+        ];
+        return saveChatMessages(next, 100);
+      });
+    });
+
     return () => {
       socket.off();
       socket.disconnect();
@@ -102,34 +146,3 @@ export function useChatSocket(username, avatar) {
     toggleReaction,
   };
 }
-
-// socket.on("user-joined", (u) =>
-//   setMessages((prev) => {
-//     const next = [
-//       ...prev,
-//       {
-//         id: uuidv4(),
-//         sender: "system",
-//         text: `${u} приєднався`,
-//         timestamp: formatTime(new Date()),
-//       },
-//     ];
-
-//     return saveChatMessages(next, 100);
-//   })
-// );
-
-// socket.on("user-left", (u) =>
-//   setMessages((prev) => {
-//     const next = [
-//       ...prev,
-//       {
-//         id: uuidv4(),
-//         sender: "system",
-//         text: `${u} покинув`,
-//         timestamp: formatTime(new Date()),
-//       },
-//     ];
-//     return saveChatMessages(next, 100);
-//   })
-// );

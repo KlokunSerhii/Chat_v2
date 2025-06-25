@@ -74,13 +74,25 @@ export default function ChatApp() {
   const hasInteracted = useRef(false);
   // Реакція на нове повідомлення
   useEffect(() => {
-    if (messages.length > 0) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }
+    if (!hasInteracted.current || messages.length === 0) return;
+
     const lastMsg = messages[messages.length - 1];
-    if (lastMsg && lastMsg.username !== username) {
-      audioRef.current?.play();
+
+    const isIncomingUserMsg =
+      lastMsg &&
+      lastMsg.sender !== "system" &&
+      lastMsg.username &&
+      lastMsg.username !== username;
+
+    if (isIncomingUserMsg) {
+      audioRef.current?.play().catch((err) => {
+        console.warn("🔇 Audio playback failed:", err);
+      });
     }
+  }, [messages, username]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   useEffect(() => {
@@ -138,14 +150,9 @@ export default function ChatApp() {
 
     setMessages((prev) => {
       const newMessages = [...prev, localMsg];
-      console.log("💬 New local message:", localMsg);
+
       return saveChatMessages(newMessages, 100);
     });
-    console.log("=== SEND MESSAGE ===");
-    console.log("input:", input);
-    console.log("attachedImage:", attachedImage);
-    console.log("attachedVideo:", attachedVideo);
-    console.log("attachedAudio:", attachedAudio);
     // Надсилаємо без id (або в іншому форматі)
     sendSocketMessage({
       ...localMsg,
@@ -253,17 +260,19 @@ export default function ChatApp() {
       ) : (
         <>
           <ChatMessages $dark={isDarkTheme}>
-            {messages.map((msg) => (
-              <MessageItem
-                key={msg._id}
-                msg={{ ...msg, id: msg.id || msg._id }}
-                isOwn={msg.username === username}
-                isDarkTheme={isDarkTheme}
-                onImageClick={openImageModal}
-                username={username}
-                onToggleReaction={toggleReaction}
-              />
-            ))}
+            {messages
+              .filter((msg) => msg.sender !== "system")
+              .map((msg) => (
+                <MessageItem
+                  key={msg._id}
+                  msg={{ ...msg, id: msg.id || msg._id }}
+                  isOwn={msg.username === username}
+                  isDarkTheme={isDarkTheme}
+                  onImageClick={openImageModal}
+                  username={username}
+                  onToggleReaction={toggleReaction}
+                />
+              ))}
             {typingUsers.map((u) => (
               <TypingIndicator key={u} $dark={isDarkTheme}>
                 <em>{u} друкує...</em>

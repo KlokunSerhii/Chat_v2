@@ -41,15 +41,7 @@ export default function MessageItem({
       )}
 
       <MessageText $isOwn={isOwn}>
-        {(msg.text || msg.sender === "system") && (
-          <StyledMarkdown>
-            {msg.sender === "system" ? (
-              <span style={{ fontStyle: "italic" }}>{msg.text}</span>
-            ) : (
-              msg.text || "\u200B" // zero-width space
-            )}
-          </StyledMarkdown>
-        )}
+        <StyledMarkdown>{msg.text || "\u200B"}</StyledMarkdown>
 
         {msg.image && (
           <MessageImage

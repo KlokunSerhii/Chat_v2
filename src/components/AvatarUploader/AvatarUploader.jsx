@@ -28,7 +28,7 @@ export default function AvatarUploader({
     formData.append("avatar", file);
 
     try {
-      const res = await fetch(`${SERVER_URL}/upload-avatar`, {
+      const res = await fetch(`${SERVER_URL}/api/upload-avatar`, {
         method: "POST",
         body: formData,
       });
