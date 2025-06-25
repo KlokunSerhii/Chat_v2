@@ -6,6 +6,8 @@ import {
   EmojiButton,
   AttachButton,
   AttachedImagePreview,
+  AttachedVideoPreview,
+  AttachedAudioPreview,
 } from "./ChatInputSection.styled";
 
 export default function ChatInputSection({
@@ -18,8 +20,12 @@ export default function ChatInputSection({
   addEmoji,
   fileInputRef,
   handleFileChange,
-  attachedImage,
+  setAttachedVideo,
+  setAttachedAudio,
   setAttachedImage,
+  attachedImage, // ✅ ДОДАТИ
+  attachedVideo, // ✅ ДОДАТИ
+  attachedAudio, // ✅ ДОДАТИ
   isConnected,
 }) {
   const chatInputRef = useRef(null);
@@ -64,9 +70,29 @@ export default function ChatInputSection({
           onClick={() => setAttachedImage(null)}
         />
       )}
+      {attachedVideo && (
+        <AttachedVideoPreview
+          src={attachedVideo}
+          alt="preview"
+          onClick={() => setAttachedVideo(null)}
+        />
+      )}
+      {attachedAudio && (
+        <AttachedAudioPreview
+          src={attachedAudio}
+          alt="preview"
+          onClick={() => setAttachedAudio(null)}
+        />
+      )}
       <ChatButton
         onClick={sendMessage}
-        disabled={(!input.trim() && !attachedImage) || !isConnected}
+        disabled={
+          (!input.trim() &&
+            !attachedImage &&
+            !attachedVideo &&
+            !attachedAudio) ||
+          !isConnected
+        }
         $dark={isDarkTheme}
       >
         Надіслати

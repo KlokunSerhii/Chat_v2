@@ -39,3 +39,19 @@ export const AttachedImagePreview = styled.img`
   margin: 0 5px;
   cursor: pointer;
 `;
+export const AttachedVideoPreview = styled.video`
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin: 0 5px;
+  cursor: pointer;
+`;
+export const AttachedAudioPreview = styled.audio`
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin: 0 5px;
+  cursor: pointer;
+`;

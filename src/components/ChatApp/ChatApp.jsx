@@ -24,9 +24,10 @@ import ChatInputSection from "../ChatInputSection/ChatInputSection.jsx";
 import OnlineUsersModal from "../OnlineUsersModal/OnlineUsersModal.jsx";
 import AvatarUploader from "../AvatarUploader/AvatarUploader.jsx";
 import ImageModal from "../ImageModal/ImageModal.jsx"; // Імпортуємо компонент ImageModal
+import { SERVER_URL } from "../../utils/url.js";
 
 const SOUND_URL = "./notification.mp3";
-const SERVER_URL = "https://chat-v2-server-7.onrender.com";
+// const SERVER_URL = "https://chat-v2-server-7.onrender.com";
 
 export default function ChatApp() {
   const avatarSeeds = useMemo(
@@ -70,37 +71,34 @@ export default function ChatApp() {
     socketRef,
     toggleReaction,
   } = useChatSocket(username, avatar);
-const hasInteracted = useRef(false);
+  const hasInteracted = useRef(false);
   // Реакція на нове повідомлення
   useEffect(() => {
     if (messages.length > 0) {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }
-      const lastMsg = messages[messages.length - 1];
-  if (lastMsg && lastMsg.username !== username) {
-    audioRef.current?.play();
-  }
+    const lastMsg = messages[messages.length - 1];
+    if (lastMsg && lastMsg.username !== username) {
+      audioRef.current?.play();
+    }
   }, [messages]);
 
+  useEffect(() => {
+    const handleInteraction = () => {
+      hasInteracted.current = true;
+      window.removeEventListener("click", handleInteraction);
+    };
 
-useEffect(() => {
-  const handleInteraction = () => {
-    hasInteracted.current = true;
-    window.removeEventListener("click", handleInteraction);
-  };
+    window.addEventListener("click", handleInteraction);
 
-  window.addEventListener("click", handleInteraction);
+    return () => {
+      window.removeEventListener("click", handleInteraction);
+    };
+  }, []);
 
-  return () => {
-    window.removeEventListener("click", handleInteraction);
-  };
-}, []);
-
-
-
-useEffect(() => {
-  usernameInputRef.current?.focus();
-}, []);
+  useEffect(() => {
+    usernameInputRef.current?.focus();
+  }, []);
 
   const handleLogin = () => {
     const name = tempUsername.trim();
@@ -108,81 +106,95 @@ useEffect(() => {
     setUsername(name);
     const avatarUrl = avatar.startsWith("http")
       ? avatar
-      : `https://chat-v2-server-7.onrender.com${avatar}`;
+      : `${SERVER_URL}${avatar}`;
 
     setAvatar(avatarUrl);
   };
 
   const sendMessage = () => {
-  if ((!input.trim() && !attachedImage) || !isConnected) return;
+    if (
+      !input.trim() &&
+      !attachedImage &&
+      !attachedAudio &&
+      !attachedVideo
+    )
+      return;
+    if (!isConnected) return;
 
-  const tempId = uuidv4(); // тимчасовий id лише для React
+    const tempId = uuidv4(); // тимчасовий id лише для React
 
-  const localMsg = {
-    sender: "user",
-    text: input.trim(),
-    timestamp: new Date().toISOString(),
-    username,
-    avatar,
-    image: attachedImage || null,
-    audio: attachedAudio || null,
-    video: attachedVideo || null,
-    id: tempId,
-    local: true, // позначка локального повідомлення
+    const localMsg = {
+      sender: "user",
+      text: input.trim(),
+      timestamp: new Date().toISOString(),
+      username,
+      avatar,
+      image: attachedImage || null,
+      audio: attachedAudio || null,
+      video: attachedVideo || null,
+      id: tempId,
+      local: true, // позначка локального повідомлення
+    };
+
+    setMessages((prev) => {
+      const newMessages = [...prev, localMsg];
+      console.log("💬 New local message:", localMsg);
+      return saveChatMessages(newMessages, 100);
+    });
+    console.log("=== SEND MESSAGE ===");
+    console.log("input:", input);
+    console.log("attachedImage:", attachedImage);
+    console.log("attachedVideo:", attachedVideo);
+    console.log("attachedAudio:", attachedAudio);
+    // Надсилаємо без id (або в іншому форматі)
+    sendSocketMessage({
+      ...localMsg,
+      id: undefined, // не потрібно серверу
+    });
+
+    setInput("");
+    setAttachedImage(null);
+    setAttachedVideo(null);
+    setAttachedAudio(null);
+    setAttachedImage(null);
   };
 
-  setMessages((prev) => saveChatMessages([...prev, localMsg], 100));
-
-  // Надсилаємо без id (або в іншому форматі)
-  sendSocketMessage({
-    ...localMsg,
-    id: undefined, // не потрібно серверу
-  });
-
-  setInput("");
-  setAttachedImage(null);
-};
-
   const handleFileChange = async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
+    const file = e.target.files[0];
+    if (!file) return;
 
-  const fileType = file.type;
+    const fileType = file.type;
 
-  try {
-    // Завантаження на Cloudinary або інший сервіс
-    const formData = new FormData();
-    formData.append("file", file);
+    try {
+      // Завантаження на Cloudinary або інший сервіс
+      const formData = new FormData();
+      formData.append("file", file);
 
-    
-    
-    const response = await fetch(`https://chat-v2-server-7.onrender.com/api/send-file`, {
-  method: "POST",
-  body: formData,
-});
+      const response = await fetch(`${SERVER_URL}/api/send-file`, {
+        method: "POST",
+        body: formData,
+      });
 
-    const data = await response.json();
-
-    // Визначаємо тип файлу
-    if (fileType.startsWith("image/")) {
-      setAttachedImage(data.url);
-      setAttachedAudio(null);
-      setAttachedVideo(null);
-    } else if (fileType.startsWith("audio/")) {
-      setAttachedAudio(data.url);
-      setAttachedImage(null);
-      setAttachedVideo(null);
-    } else if (fileType.startsWith("video/")) {
-      setAttachedVideo(data.url);
-      setAttachedImage(null);
-      setAttachedAudio(null);
+      const data = await response.json();
+      console.log("uploaded video URL:", data.url);
+      // Визначаємо тип файлу
+      if (fileType.startsWith("image/")) {
+        setAttachedImage(data.url);
+        setAttachedAudio(null);
+        setAttachedVideo(null);
+      } else if (fileType.startsWith("audio/")) {
+        setAttachedAudio(data.url);
+        setAttachedImage(null);
+        setAttachedVideo(null);
+      } else if (fileType.startsWith("video/")) {
+        setAttachedVideo(data.url);
+        setAttachedImage(null);
+        setAttachedAudio(null);
+      }
+    } catch (err) {
+      console.error("File upload error:", err);
     }
-  } catch (err) {
-    console.error("File upload error:", err);
-  }
-};
-
-
+  };
 
   const openImageModal = (src) => {
     setModalImageSrc(src);
@@ -269,8 +281,12 @@ useEffect(() => {
             setShowEmojiPicker={setShowEmojiPicker}
             fileInputRef={fileInputRef}
             handleFileChange={handleFileChange}
-            attachedImage={attachedImage}
+            setAttachedAudio={setAttachedAudio}
+            setAttachedVideo={setAttachedVideo}
             setAttachedImage={setAttachedImage}
+            attachedImage={attachedImage}
+            attachedVideo={attachedVideo}
+            attachedAudio={attachedAudio}
             isConnected={isConnected}
           />
 

@@ -2,8 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 import { v4 as uuidv4 } from "uuid";
 import { saveChatMessages, formatTime } from "../utils/utils.js";
-
-const SOCKET_SERVER_URL = "https://chat-v2-server-7.onrender.com";
+import { SERVER_URL } from "../utils/url.js";
+// const SOCKET_SERVER_URL = "https://chat-v2-server-7.onrender.com";
 // const SOCKET_SERVER_URL = "http://localhost:3001";
 
 export function useChatSocket(username, avatar) {
@@ -21,7 +21,7 @@ export function useChatSocket(username, avatar) {
       socketRef.current.disconnect();
     }
 
-    const socket = io(SOCKET_SERVER_URL, {
+    const socket = io(SERVER_URL, {
       query: { username, avatar },
     });
     socketRef.current = socket;
@@ -42,49 +42,42 @@ export function useChatSocket(username, avatar) {
       );
     });
 
+    socket.on("last-messages", (history) => {
+      const restored = history.map((msg) => ({
+        ...msg,
+        id: msg._id,
+      }));
+      const trimmed = saveChatMessages(restored, 100);
+      setMessages(trimmed);
+    });
 
-  socket.on("last-messages", (history) => {
-  const restored = history.map((msg) => ({
-    ...msg,
-    id: msg._id,
-  }));
-  const trimmed = saveChatMessages(restored, 100);
-  setMessages(trimmed);
-});
+    socket.on("message", (msg) => {
+      const isOwnMessage = msg.username === username;
+      console.log("📨 Message from server:", msg);
+      setMessages((prev) => {
+        const newMsg = { ...msg, id: msg._id };
 
+        if (isOwnMessage) {
+          // замінюємо локальне повідомлення тим, яке надіслав сервер
+          return saveChatMessages(
+            prev.map((m) =>
+              m.local && m.text === msg.text && !m._id ? newMsg : m
+            ),
+            100
+          );
+        } else {
+          return saveChatMessages([...prev, newMsg], 100);
+        }
+      });
+    });
 
-socket.on("message", (msg) => {
-  const isOwnMessage = msg.username === username;
-
-  setMessages((prev) => {
-    const newMsg = { ...msg, id: msg._id };
-
-    if (isOwnMessage) {
-      // замінюємо локальне повідомлення тим, яке надіслав сервер
-      return saveChatMessages(
-        prev.map((m) =>
-          m.local && m.text === msg.text && !m._id
-            ? newMsg
-            : m
-        ),
-        100
+    socket.on("reaction-update", ({ messageId, reactions }) => {
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === messageId ? { ...msg, reactions } : msg
+        )
       );
-    } else {
-      return saveChatMessages([...prev, newMsg], 100);
-    }
-  });
-});
-
-socket.on("reaction-update", ({ messageId, reactions }) => {
-    setMessages((prev) =>
-      prev.map((msg) =>
-        msg.id === messageId
-          ? { ...msg, reactions }
-          : msg
-      )
-    );
-  });
-
+    });
 
     return () => {
       socket.off();
@@ -96,8 +89,8 @@ socket.on("reaction-update", ({ messageId, reactions }) => {
     socketRef.current?.emit("message", msg);
   };
   const toggleReaction = ({ messageId, emoji }) => {
-  socketRef.current?.emit("toggle-reaction", { messageId, emoji });
-};
+    socketRef.current?.emit("toggle-reaction", { messageId, emoji });
+  };
   return {
     messages,
     setMessages,

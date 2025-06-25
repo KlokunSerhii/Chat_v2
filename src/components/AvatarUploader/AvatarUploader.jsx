@@ -6,8 +6,8 @@ import {
   FileInputLabel,
   HiddenFileInput,
 } from "./AvatarUploader.styled.js";
-
-const SERVER_URL = "https://chat-v2-server-7.onrender.com";
+import { SERVER_URL } from "../../utils/url.js";
+// const SERVER_URL = "https://chat-v2-server-7.onrender.com";
 
 export default function AvatarUploader({
   onUpload,

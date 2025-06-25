@@ -16,7 +16,7 @@ export default function MessageItem({
   isDarkTheme,
   onImageClick,
   username,
-  onToggleReaction
+  onToggleReaction,
 }) {
   return (
     <Message
@@ -41,66 +41,77 @@ export default function MessageItem({
       )}
 
       <MessageText $isOwn={isOwn}>
-        <StyledMarkdown>
-          {msg.sender === "system" ? (
-            <span style={{ fontStyle: "italic" }}>{msg.text}</span>
-          ) : (
-            msg.text
-          )}
-        </StyledMarkdown>
+        {(msg.text || msg.sender === "system") && (
+          <StyledMarkdown>
+            {msg.sender === "system" ? (
+              <span style={{ fontStyle: "italic" }}>{msg.text}</span>
+            ) : (
+              msg.text || "\u200B" // zero-width space
+            )}
+          </StyledMarkdown>
+        )}
 
         {msg.image && (
           <MessageImage
             src={msg.image}
             alt="attached"
-            onClick={() => onImageClick(msg.image)} // Викликаємо onImageClick при натисканні на зображення
+            onClick={() => onImageClick(msg.image)}
             style={{ cursor: "pointer" }}
           />
         )}
+
+        {msg.video && (
+          <video
+            controls
+            style={{
+              maxWidth: "300px",
+              borderRadius: "12px",
+              marginTop: "8px",
+            }}
+          >
+            <source src={msg.video} type="video/mp4" />
+            Ваш браузер не підтримує відео.
+          </video>
+        )}
+
         {msg.audio && (
-    <audio controls style={{ maxWidth: "100%", marginTop: "8px" }}>
-      <source src={msg.audio} type="audio/mpeg" />
-      Your browser does not support the audio element.
-    </audio>
-  )}
-
-  {msg.video && (
-    <video controls style={{ maxWidth: "100%", marginTop: "8px" }}>
-      <source src={msg.video} type="video/mp4" />
-      Your browser does not support the video tag.
-    </video>
-  )}
-       
+          <audio controls style={{ marginTop: "8px", width: "100%" }}>
+            <source src={msg.audio} type="audio/mpeg" />
+            Ваш браузер не підтримує аудіо.
+          </audio>
+        )}
       </MessageText>
-<div style={{ display: 'flex', gap: '6px', marginTop: '5px' }}>
-  {["❤️", "😂", "👍", "🔥", "😮"].map((emoji) => {
-    const count = msg.reactions?.filter(r => r.emoji === emoji).length || 0;
-    const reactedByUser = msg.reactions?.some(
-      r => r.emoji === emoji && r.username === username
-    );
+      <div style={{ display: "flex", gap: "6px", marginTop: "5px" }}>
+        {["❤️", "😂", "👍", "🔥", "😮"].map((emoji) => {
+          const count =
+            msg.reactions?.filter((r) => r.emoji === emoji).length ||
+            0;
+          const reactedByUser = msg.reactions?.some(
+            (r) => r.emoji === emoji && r.username === username
+          );
 
-    return (
-      <span
-        key={emoji}
-          onClick={() => {
-    if (msg.id) {
-      onToggleReaction({ messageId: msg.id, emoji });
-    }
-  }}
-        style={{
-          cursor: 'pointer',
-          background: reactedByUser ? '#ffd54f' : 'transparent',
-          borderRadius: '12px',
-          padding: '2px 6px',
-          fontSize: '18px',
-          userSelect: 'none'
-        }}
-      >
-        {emoji} {count > 0 ? count : ""}
-      </span>
-    );
-  })}
-</div>
+          return (
+            <span
+              key={emoji}
+              onClick={() => {
+                if (msg.id) {
+                  onToggleReaction({ messageId: msg.id, emoji });
+                }
+              }}
+              style={{
+                cursor: "pointer",
+                background: reactedByUser ? "#ffd54f" : "transparent",
+                borderRadius: "12px",
+                padding: "2px 6px",
+                fontSize: "18px",
+                userSelect: "none",
+              }}
+            >
+              {emoji} {count > 0 ? count : ""}
+            </span>
+          );
+        })}
+      </div>
       <MessageTime $dark={isDarkTheme} $isOwn={isOwn} $delivered>
         {formatTime(msg.timestamp)}
       </MessageTime>
