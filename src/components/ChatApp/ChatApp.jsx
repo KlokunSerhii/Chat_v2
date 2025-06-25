@@ -156,7 +156,7 @@ useEffect(() => {
 
     
     
-    const response = await fetch(`/api/send-file`, {
+    const response = await fetch(`https://chat-v2-server-7.onrender.com/api/send-file`, {
   method: "POST",
   body: formData,
 });
