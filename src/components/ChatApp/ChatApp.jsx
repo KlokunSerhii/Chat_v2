@@ -66,14 +66,34 @@ export default function ChatApp() {
     isConnected,
     sendMessage: sendSocketMessage,
     socketRef,
+    toggleReaction,
   } = useChatSocket(username, avatar);
-
+const hasInteracted = useRef(false);
   // Реакція на нове повідомлення
   useEffect(() => {
     if (messages.length > 0) {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }
+      const lastMsg = messages[messages.length - 1];
+  if (lastMsg && lastMsg.username !== username) {
+    audioRef.current?.play();
+  }
   }, [messages]);
+useEffect(() => {
+  const handleInteraction = () => {
+    hasInteracted.current = true;
+    window.removeEventListener("click", handleInteraction);
+  };
+
+  window.addEventListener("click", handleInteraction);
+
+  return () => {
+    window.removeEventListener("click", handleInteraction);
+  };
+}, []);
+useEffect(() => {
+  usernameInputRef.current?.focus();
+}, []);
 
   const handleLogin = () => {
     const name = tempUsername.trim();
@@ -211,6 +231,7 @@ setMessages((prev) => {
                 isDarkTheme={isDarkTheme}
                 onImageClick={openImageModal}
                 username={username}
+                onToggleReaction={toggleReaction}
               />
             ))}
             {typingUsers.map((u) => (

@@ -16,6 +16,7 @@ export default function MessageItem({
   isDarkTheme,
   onImageClick,
   username,
+  onToggleReaction
 }) {
 
   return (
@@ -59,7 +60,31 @@ export default function MessageItem({
         )}
        
       </MessageText>
+<div style={{ display: 'flex', gap: '6px', marginTop: '5px' }}>
+  {["❤️", "😂", "👍", "🔥", "😮"].map((emoji) => {
+    const count = msg.reactions?.filter(r => r.emoji === emoji).length || 0;
+    const reactedByUser = msg.reactions?.some(
+      r => r.emoji === emoji && r.username === username
+    );
 
+    return (
+      <span
+        key={emoji}
+        onClick={() => onToggleReaction({ messageId: msg.id, emoji })}
+        style={{
+          cursor: 'pointer',
+          background: reactedByUser ? '#ffd54f' : 'transparent',
+          borderRadius: '12px',
+          padding: '2px 6px',
+          fontSize: '18px',
+          userSelect: 'none'
+        }}
+      >
+        {emoji} {count > 0 ? count : ""}
+      </span>
+    );
+  })}
+</div>
       <MessageTime $dark={isDarkTheme} $isOwn={isOwn} $delivered>
         {formatTime(msg.timestamp)}
       </MessageTime>

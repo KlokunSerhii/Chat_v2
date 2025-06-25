@@ -12,6 +12,7 @@ export function useChatSocket(username, avatar) {
   const [typingUsers, setTypingUsers] = useState([]);
   const [isConnected, setIsConnected] = useState(false);
   const socketRef = useRef(null);
+
   useEffect(() => {
     if (!username) return;
 
@@ -59,17 +60,27 @@ export function useChatSocket(username, avatar) {
       });
     });
 
-   
-    return () => {
+   socket.on("reaction-update", ({ messageId, reactions }) => {
+    setMessages((prevMessages) =>
+    prevMessages.map((msg) =>
+      msg.id === messageId ? { ...msg, reactions } : msg
+    )
+  );
+});
 
+
+    return () => {
+      socket.off();
       socket.disconnect();
     };
-  }, [username, avatar]); // avatar тепер тригерить перепідключення
+  }, [username, avatar]);
 
   const sendMessage = (msg) => {
     socketRef.current?.emit("message", msg);
   };
-
+  const toggleReaction = ({ messageId, emoji }) => {
+  socketRef.current?.emit("toggle-reaction", { messageId, emoji });
+};
   return {
     messages,
     setMessages,
@@ -78,6 +89,7 @@ export function useChatSocket(username, avatar) {
     isConnected,
     sendMessage,
     socketRef,
+    toggleReaction,
   };
 }
 
