@@ -18,7 +18,6 @@ export default function MessageItem({
   username,
   onToggleReaction
 }) {
-console.log("MessageItem msg:", msg);
   return (
     <Message
       $isOwn={isOwn}
@@ -58,6 +57,19 @@ console.log("MessageItem msg:", msg);
             style={{ cursor: "pointer" }}
           />
         )}
+        {msg.audio && (
+    <audio controls style={{ maxWidth: "100%", marginTop: "8px" }}>
+      <source src={msg.audio} type="audio/mpeg" />
+      Your browser does not support the audio element.
+    </audio>
+  )}
+
+  {msg.video && (
+    <video controls style={{ maxWidth: "100%", marginTop: "8px" }}>
+      <source src={msg.video} type="video/mp4" />
+      Your browser does not support the video tag.
+    </video>
+  )}
        
       </MessageText>
 <div style={{ display: 'flex', gap: '6px', marginTop: '5px' }}>
@@ -71,7 +83,6 @@ console.log("MessageItem msg:", msg);
       <span
         key={emoji}
           onClick={() => {
-    console.log("reacting to", msg.id); // msg.id повинен бути валідним _id
     if (msg.id) {
       onToggleReaction({ messageId: msg.id, emoji });
     }

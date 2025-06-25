@@ -46,7 +46,7 @@ export default function ChatInputSection({
       </EmojiButton>
       <input
         type="file"
-        accept="image/*"
+        accept="image/*,audio/*,video/*"
         style={{ display: "none" }}
         ref={fileInputRef}
         onChange={handleFileChange}

@@ -47,6 +47,8 @@ export default function ChatApp() {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [isOnlineListOpen, setIsOnlineListOpen] = useState(false);
   const [attachedImage, setAttachedImage] = useState(null);
+  const [attachedAudio, setAttachedAudio] = useState(null);
+  const [attachedVideo, setAttachedVideo] = useState(null);
   const [isDarkTheme, setIsDarkTheme] = useLocalStorage(
     "chat_theme",
     false
@@ -79,6 +81,8 @@ const hasInteracted = useRef(false);
     audioRef.current?.play();
   }
   }, [messages]);
+
+
 useEffect(() => {
   const handleInteraction = () => {
     hasInteracted.current = true;
@@ -91,6 +95,9 @@ useEffect(() => {
     window.removeEventListener("click", handleInteraction);
   };
 }, []);
+
+
+
 useEffect(() => {
   usernameInputRef.current?.focus();
 }, []);
@@ -118,6 +125,8 @@ useEffect(() => {
     username,
     avatar,
     image: attachedImage || null,
+    audio: attachedAudio || null,
+    video: attachedVideo || null,
     id: tempId,
     local: true, // позначка локального повідомлення
   };
@@ -135,37 +144,43 @@ useEffect(() => {
 };
 
   const handleFileChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+  const file = e.target.files[0];
+  if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
-      alert("Будь ласка, виберіть зображення");
-      return;
+  const fileType = file.type;
+
+  try {
+    // Завантаження на Cloudinary або інший сервіс
+    const formData = new FormData();
+    formData.append("file", file);
+
+    
+    
+    const response = await fetch(`/api/send-file`, {
+  method: "POST",
+  body: formData,
+});
+
+    const data = await response.json();
+
+    // Визначаємо тип файлу
+    if (fileType.startsWith("image/")) {
+      setAttachedImage(data.url);
+      setAttachedAudio(null);
+      setAttachedVideo(null);
+    } else if (fileType.startsWith("audio/")) {
+      setAttachedAudio(data.url);
+      setAttachedImage(null);
+      setAttachedVideo(null);
+    } else if (fileType.startsWith("video/")) {
+      setAttachedVideo(data.url);
+      setAttachedImage(null);
+      setAttachedAudio(null);
     }
-    try {
-
-      const formData = new FormData();
-      formData.append("image", file);
-      const res = await fetch(`${SERVER_URL}/send-image`, {
-        method: "POST",
-        body: formData,
-      });
-
-      const data = await res.json();
-      console.log(data);
-      if (data.imageUrl) {
-        // Зберігаємо URL, який прийшов з сервера
-        setAttachedImage(data.imageUrl);
-      } else {
-        alert("Помилка завантаження зображення");
-      }
-    } catch (err) {
-      alert("Помилка обробки або завантаження зображення");
-      console.error(err);
-    }
-
-    e.target.value = null;
-  };
+  } catch (err) {
+    console.error("File upload error:", err);
+  }
+};
 
 
 
