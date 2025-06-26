@@ -88,6 +88,7 @@ export const MessageImage = styled.img`
 `;
 export const StyledMarkdown = styled.div`
   margin-block-start: 0;
+  text-align: center;
 `;
 export const AvatarImageChat = styled.img`
   border-radius: 50%;
