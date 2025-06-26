@@ -20,7 +20,6 @@ export default function MessageItem({
   username,
   onToggleReaction,
 }) {
-  console.log("MessageItem rendered", msg);
   return (
     <Message
       $isOwn={isOwn}
