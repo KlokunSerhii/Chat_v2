@@ -1,4 +1,5 @@
 // MessageItem.jsx
+import { useState } from "react";
 import CustomAudioPlayer from "../CustomAudioPlayer/CustomAudioPlayer.jsx";
 import "react-h5-audio-player/lib/styles.css";
 import {
@@ -13,7 +14,12 @@ import {
   FileLabelContainer,
   FileLabelContainerPlayer
 } from "./MessageItem.styled";
+import EmojiReactions from "../EmojiReactions/EmojiReactions.jsx";
+import { FaRegSmile } from "react-icons/fa";
+import { ReactionButton, Modal, EmojiOption } from "../EmojiReactions/EmojiReactions.styled.js";
 import { formatTime } from "../../utils/utils";
+
+const emojiOptions = ["❤️", "😂", "👍", "🔥", "😮"];
 
 export default function MessageItem({
   msg,
@@ -23,130 +29,134 @@ export default function MessageItem({
   username,
   onToggleReaction,
 }) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   function extractFilename(url) {
-  try {
-    const lastPart = url.split("/").pop(); // Наприклад: chatgpt-sound-xyz-12345678.wav
-    const [nameWithoutExt] = lastPart.split("."); // Відділяємо розширення
-    const parts = nameWithoutExt.split("-");
-    if (parts.length > 1) {
-      parts.pop(); // Видаляємо timestamp
-      return parts.join("-"); // Повертаємо основну назву
+    try {
+      const lastPart = url.split("/").pop();
+      const [nameWithoutExt] = lastPart.split(".");
+      const parts = nameWithoutExt.split("-");
+      if (parts.length > 1) {
+        parts.pop();
+        return parts.join("-");
+      }
+      return nameWithoutExt;
+    } catch {
+      return "audio file";
     }
-    return nameWithoutExt;
-  } catch {
-    return "audio file";
   }
-}
+
+  const handleEmojiClick = (emoji) => {
+    if (msg.id) {
+      onToggleReaction({ messageId: msg.id, emoji });
+    }
+    setIsModalOpen(false);
+  };
+
   return (
-    <Message
-      $isOwn={isOwn}
-      $dark={isDarkTheme}
-      $system={msg.sender === "system"}
+    <div
+      style={{
+        display: "flex",
+        flexDirection: isOwn ? "row-reverse" : "row",
+        alignItems: "center",
+        gap: "8px",
+        position: "relative"
+      }}
     >
-      {isOwn ? (
-        <MessageUsername
-          $dark={isDarkTheme}
-          $isOwn={isOwn}
-          style={{ justifyContent: "flex-end" }}
-        >
-          {msg.username}
-          <AvatarImageChat src={msg.avatar} alt={msg.username} />
-        </MessageUsername>
-      ) : (
-        <MessageUsername $dark={isDarkTheme} $isOwn={isOwn}>
-          <AvatarImageChat src={msg.avatar} alt={msg.username} />
-          {msg.username}
-        </MessageUsername>
-      )}
+      {/* Зовнішня кнопка 🙂 */}
+    
 
-      <MessageText $isOwn={isOwn}>
-        {msg.text?.trim() && (
-  <StyledMarkdown>{msg.text}</StyledMarkdown>
-)}
-
-        {msg.image && (
-          <FileLabelContainer>
-  
-            <MessageImage
-            src={msg.image}
-            alt="attached"
-            onClick={() => onImageClick(msg.image)}
-            style={{ cursor: "pointer" }}
-          />
-          </FileLabelContainer>
-          
-        )}
-
-        {msg.video && (
-          <FileLabelContainer>
-
-            <video
-            controls
-            style={{
-              maxWidth: "300px",
-              borderRadius: "12px",
-
-            }}
+      {/* Основне повідомлення */}
+      <Message
+        $isOwn={isOwn}
+        $dark={isDarkTheme}
+        $system={msg.sender === "system"}
+      >
+        {isOwn ? (
+          <MessageUsername
+            $dark={isDarkTheme}
+            $isOwn={isOwn}
+            style={{ justifyContent: "flex-end" }}
           >
-            <source src={msg.video} type="video/mp4" />
-            Ваш браузер не підтримує відео.
-          </video>
-          </FileLabelContainer>
-          
+            {msg.username}
+            <AvatarImageChat src={msg.avatar} alt={msg.username} />
+          </MessageUsername>
+        ) : (
+          <MessageUsername $dark={isDarkTheme} $isOwn={isOwn}>
+            <AvatarImageChat src={msg.avatar} alt={msg.username} />
+            {msg.username}
+          </MessageUsername>
         )}
 
-        {msg.audio && (
-  <FileLabelContainerPlayer >
-    <FileLabel
-      $dark={isDarkTheme}
-      $isOwn={isOwn}
-    >
-      {extractFilename(msg.audio)}
-    </FileLabel>
-     <CustomAudioPlayer
-    src={msg.audio}
-    isOwn={isOwn}
-    isDarkTheme={isDarkTheme}
-  />
-  </FileLabelContainerPlayer>
-)}
+        <MessageText $isOwn={isOwn}>
+          {msg.text?.trim() && <StyledMarkdown>{msg.text}</StyledMarkdown>}
 
-      </MessageText>
-      <div style={{ display: "flex", gap: "6px", marginTop: "5px" }}>
-        {["❤️", "😂", "👍", "🔥", "😮"].map((emoji) => {
-          const count =
-            msg.reactions?.filter((r) => r.emoji === emoji).length ||
-            0;
-          const reactedByUser = msg.reactions?.some(
-            (r) => r.emoji === emoji && r.username === username
-          );
+          {msg.image && (
+            <FileLabelContainer>
+              <MessageImage
+                src={msg.image}
+                alt="attached"
+                onClick={() => onImageClick(msg.image)}
+                style={{ cursor: "pointer" }}
+              />
+            </FileLabelContainer>
+          )}
 
-          return (
-            <span
-              key={emoji}
-              onClick={() => {
-                if (msg.id) {
-                  onToggleReaction({ messageId: msg.id, emoji });
-                }
-              }}
-              style={{
-                cursor: "pointer",
-                background: reactedByUser ? "#ffd54f" : "transparent",
-                borderRadius: "12px",
-                padding: "2px 6px",
-                fontSize: "18px",
-                userSelect: "none",
-              }}
-            >
-              {emoji} {count > 0 ? count : ""}
-            </span>
-          );
-        })}
+          {msg.video && (
+            <FileLabelContainer>
+              <video
+                controls
+                style={{
+                  maxWidth: "300px",
+                  borderRadius: "12px",
+                }}
+              >
+                <source src={msg.video} type="video/mp4" />
+                Ваш браузер не підтримує відео.
+              </video>
+            </FileLabelContainer>
+          )}
+
+          {msg.audio && (
+            <FileLabelContainerPlayer>
+              <FileLabel $dark={isDarkTheme} $isOwn={isOwn}>
+                {extractFilename(msg.audio)}
+              </FileLabel>
+              <CustomAudioPlayer
+                src={msg.audio}
+                isOwn={isOwn}
+                isDarkTheme={isDarkTheme}
+              />
+            </FileLabelContainerPlayer>
+          )}
+        </MessageText>
+
+        {/* Відображення реакцій всередині Message */}
+        <EmojiReactions
+          msg={msg}
+          username={username}
+          isOwn={isOwn}
+          onToggleReaction={onToggleReaction}
+        />
+
+        <MessageTime $dark={isDarkTheme} $isOwn={isOwn} $delivered>
+          {formatTime(msg.timestamp)}
+        </MessageTime>
+      </Message>
+        <div style={{ paddingTop: "6px" }}>
+        <ReactionButton onClick={() => setIsModalOpen(!isModalOpen)}>
+          <FaRegSmile size={18} />
+        </ReactionButton>
+        {isModalOpen && (
+          <Modal style={{ top: "30px", [isOwn ? "right" : "left"]: 0 }}>
+            {emojiOptions.map((emoji) => (
+              <EmojiOption key={emoji} onClick={() => handleEmojiClick(emoji)}>
+                {emoji}
+              </EmojiOption>
+            ))}
+          </Modal>
+        )}
       </div>
-      <MessageTime $dark={isDarkTheme} $isOwn={isOwn} $delivered>
-        {formatTime(msg.timestamp)}
-      </MessageTime>
-    </Message>
+    </div>
   );
 }
