@@ -185,6 +185,11 @@ export default function ChatApp() {
       });
 
       const data = await response.json();
+      console.log("File upload response:", data);
+
+      if (!response.ok) {
+      throw new Error(data.error || "Upload failed");
+    }
       // Визначаємо тип файлу
       if (fileType.startsWith("image/")) {
         setImageLoading(true);

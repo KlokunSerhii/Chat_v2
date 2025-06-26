@@ -1,5 +1,5 @@
 // MessageItem.jsx
-import AudioPlayer from "react-h5-audio-player";
+import CustomAudioPlayer from "../CustomAudioPlayer/CustomAudioPlayer.jsx";
 import "react-h5-audio-player/lib/styles.css";
 import {
   Message,
@@ -9,6 +9,9 @@ import {
   MessageTime,
   StyledMarkdown,
   AvatarImageChat,
+  FileLabel,
+  FileLabelContainer,
+  FileLabelContainerPlayer
 } from "./MessageItem.styled";
 import { formatTime } from "../../utils/utils";
 
@@ -20,6 +23,21 @@ export default function MessageItem({
   username,
   onToggleReaction,
 }) {
+
+  function extractFilename(url) {
+  try {
+    const lastPart = url.split("/").pop(); // Наприклад: chatgpt-sound-xyz-12345678.wav
+    const [nameWithoutExt] = lastPart.split("."); // Відділяємо розширення
+    const parts = nameWithoutExt.split("-");
+    if (parts.length > 1) {
+      parts.pop(); // Видаляємо timestamp
+      return parts.join("-"); // Повертаємо основну назву
+    }
+    return nameWithoutExt;
+  } catch {
+    return "audio file";
+  }
+}
   return (
     <Message
       $isOwn={isOwn}
@@ -43,47 +61,57 @@ export default function MessageItem({
       )}
 
       <MessageText $isOwn={isOwn}>
-        <StyledMarkdown>{msg.text || "\u200B"}</StyledMarkdown>
+        {msg.text?.trim() && (
+  <StyledMarkdown>{msg.text}</StyledMarkdown>
+)}
 
         {msg.image && (
-          <MessageImage
+          <FileLabelContainer>
+  
+            <MessageImage
             src={msg.image}
             alt="attached"
             onClick={() => onImageClick(msg.image)}
             style={{ cursor: "pointer" }}
           />
+          </FileLabelContainer>
+          
         )}
 
         {msg.video && (
-          <video
+          <FileLabelContainer>
+
+            <video
             controls
             style={{
               maxWidth: "300px",
               borderRadius: "12px",
-              marginTop: "8px",
+
             }}
           >
             <source src={msg.video} type="video/mp4" />
             Ваш браузер не підтримує відео.
           </video>
+          </FileLabelContainer>
+          
         )}
 
         {msg.audio && (
-          <div style={{ marginTop: "8px" }}>
-            <AudioPlayer
-              src={msg.audio}
-              layout="horizontal"
-              showJumpControls={false}
-              customAdditionalControls={[]}
-              customVolumeControls={[]}
-              style={{
-                borderRadius: "12px",
-                backgroundColor: isDarkTheme ? "#000" : "#f1f1f1",
-                color: isDarkTheme ? "#f1f1f1" : "#000",
-              }}
-            />
-          </div>
-        )}
+  <FileLabelContainerPlayer >
+    <FileLabel
+      $dark={isDarkTheme}
+      $isOwn={isOwn}
+    >
+      {extractFilename(msg.audio)}
+    </FileLabel>
+     <CustomAudioPlayer
+    src={msg.audio}
+    isOwn={isOwn}
+    isDarkTheme={isDarkTheme}
+  />
+  </FileLabelContainerPlayer>
+)}
+
       </MessageText>
       <div style={{ display: "flex", gap: "6px", marginTop: "5px" }}>
         {["❤️", "😂", "👍", "🔥", "😮"].map((emoji) => {
