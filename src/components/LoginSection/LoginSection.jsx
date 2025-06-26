@@ -13,7 +13,10 @@ export default function LoginSection({
   setSelectedSeed,
   tempUsername,
   setTempUsername,
+  tempPassword,
+  setTempPassword,
   handleLogin,
+  handleRegister,
   isDarkTheme,
   avatar,
   setIsDarkTheme,
@@ -27,27 +30,7 @@ export default function LoginSection({
       >
         {isDarkTheme ? " " : " "}
       </ThemeToggle>
-      <div style={{ marginBottom: 12 }}>
-        <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-          {avatarSeeds.map((s) => {
-            const url = `https://api.dicebear.com/7.x/avataaars/svg?seed=${s}`;
-            return (
-              <AvatarImage
-                key={s}
-                src={url}
-                onClick={() => setSelectedSeed(s)}
-                style={{
-                  border:
-                    s === selectedSeed
-                      ? "2px solid #0088cc"
-                      : "2px solid transparent",
-                  cursor: "pointer",
-                }}
-              />
-            );
-          })}
-        </div>
-      </div>
+
       <UsernameInput
         value={tempUsername}
         onChange={(e) => setTempUsername(e.target.value)}
@@ -55,12 +38,26 @@ export default function LoginSection({
         placeholder="Ваше ім'я"
         $dark={isDarkTheme}
       />
-      {avatar && <AvatarImage src={avatar} alt="Вибраний аватар" />}
+      <UsernameInput
+        type="password"
+        value={tempPassword}
+        onChange={(e) => setTempPassword(e.target.value)}
+        onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+        placeholder="Пароль"
+        $dark={isDarkTheme}
+      />
+
       <AvatarImageButton
         onClick={handleLogin}
         disabled={!tempUsername.trim()}
       >
         Увійти
+      </AvatarImageButton>
+      <AvatarImageButton
+        onClick={handleRegister}
+        disabled={!tempUsername.trim()}
+      >
+        Зареєструватися
       </AvatarImageButton>
     </UsernameInputWrapper>
   );

@@ -106,3 +106,16 @@ export const UploadButton = styled.button`
     font-size: 14px;
   }
 `;
+export const ClearButton = styled.button`
+  margin-top: 8px;
+  background: ${({ $dark }) => ($dark ? "#444" : "#eee")};
+  border: 1px solid #ccc;
+  padding: 6px 12px;
+  cursor: pointer;
+  color: ${({ $dark }) => ($dark ? "#fff" : "#000")};
+  border-radius: 6px;
+
+  &:hover {
+    background: ${({ $dark }) => ($dark ? "#666" : "#ddd")};
+  }
+`;

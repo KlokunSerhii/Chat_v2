@@ -2,12 +2,11 @@ import { useState } from "react";
 import {
   UploaderContainer,
   PreviewImage,
-  UploadButton,
   FileInputLabel,
   HiddenFileInput,
+  ClearButton,
 } from "./AvatarUploader.styled.js";
 import { SERVER_URL } from "../../utils/url.js";
-// const SERVER_URL = "https://chat-v2-server-7.onrender.com";
 
 export default function AvatarUploader({
   onUpload,
@@ -16,16 +15,10 @@ export default function AvatarUploader({
   const [preview, setPreview] = useState(null);
   const [file, setFile] = useState(null);
 
-  const handleFileChange = (e) => {
-    const f = e.target.files[0];
-    setFile(f);
-    setPreview(URL.createObjectURL(f));
-  };
-
-  const upload = async () => {
-    if (!file) return;
+  const upload = async (selectedFile) => {
+    if (!selectedFile) return;
     const formData = new FormData();
-    formData.append("avatar", file);
+    formData.append("avatar", selectedFile);
 
     try {
       const res = await fetch(`${SERVER_URL}/api/upload-avatar`, {
@@ -47,6 +40,20 @@ export default function AvatarUploader({
     }
   };
 
+  const handleFileChange = (e) => {
+    const f = e.target.files[0];
+    if (!f) return;
+    setFile(f);
+    setPreview(URL.createObjectURL(f));
+    upload(f); // завантажити одразу після вибору
+  };
+
+  const handleClear = () => {
+    setFile(null);
+    setPreview(null);
+    onUpload(""); // скидаємо URL аватарки
+  };
+
   return (
     <UploaderContainer>
       <FileInputLabel $dark={isDarkTheme}>
@@ -65,13 +72,13 @@ export default function AvatarUploader({
             alt="preview"
             $dark={isDarkTheme}
           />
-          <UploadButton
+          <ClearButton
             type="button"
-            onClick={upload}
+            onClick={handleClear}
             $dark={isDarkTheme}
           >
-            Завантажити аватар
-          </UploadButton>
+            Видалити
+          </ClearButton>
         </>
       )}
     </UploaderContainer>

@@ -44,6 +44,7 @@ export default function ChatApp() {
     `https://api.dicebear.com/7.x/avataaars/svg?seed=${avatarSeeds[0]}`
   );
   const [tempUsername, setTempUsername] = useState(username);
+  const [tempPassword, setTempPassword] = useState(username);
   const [input, setInput] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [isOnlineListOpen, setIsOnlineListOpen] = useState(false);
@@ -114,15 +115,91 @@ export default function ChatApp() {
     usernameInputRef.current?.focus();
   }, []);
 
-  const handleLogin = () => {
-    const name = tempUsername.trim();
-    if (!name) return;
-    setUsername(name);
-    const avatarUrl = avatar.startsWith("http")
-      ? avatar
-      : `${SERVER_URL}${avatar}`;
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    const trimmedUsername = tempUsername.trim();
+    const password = tempPassword.trim();
 
-    setAvatar(avatarUrl);
+    if (!trimmedUsername || !password) {
+      alert("Введіть ім'я та пароль");
+      return;
+    }
+
+    try {
+      const res = await fetch(`${SERVER_URL}/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: trimmedUsername,
+          password,
+          avatar,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.message || "Помилка авторизації");
+        return;
+      }
+
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("username", data.user.username);
+      localStorage.setItem("avatar", data.user.avatar);
+
+      // ❗ ОНОВЛЮЄМО СТАН, БЕЗ redirect
+      setUsername(data.user.username);
+      setAvatar(data.user.avatar);
+    } catch (err) {
+      console.error("Login error:", err);
+      alert("Помилка входу");
+    }
+  };
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    const trimmedUsername = tempUsername.trim();
+    const password = tempPassword.trim();
+
+    if (!trimmedUsername || !password) {
+      alert("Введіть ім'я та пароль");
+      return;
+    }
+
+    if (!avatar || avatar.trim() === "") {
+      alert("Оберіть аватарку");
+      return;
+    }
+
+    try {
+      const res = await fetch(`${SERVER_URL}/api/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: trimmedUsername,
+          password,
+          avatar,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.message || "Помилка авторизації");
+        return;
+      }
+
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("username", data.user.username);
+      localStorage.setItem("avatar", data.user.avatar);
+
+      // ❗ ОНОВЛЮЄМО СТАН, БЕЗ redirect
+      setUsername(data.user.username);
+      setAvatar(data.user.avatar);
+    } catch (err) {
+      console.error("Login error:", err);
+      alert("Помилка входу");
+    }
   };
 
   const sendMessage = () => {
@@ -188,8 +265,8 @@ export default function ChatApp() {
       console.log("File upload response:", data);
 
       if (!response.ok) {
-      throw new Error(data.error || "Upload failed");
-    }
+        throw new Error(data.error || "Upload failed");
+      }
       // Визначаємо тип файлу
       if (fileType.startsWith("image/")) {
         setImageLoading(true);
@@ -259,7 +336,10 @@ export default function ChatApp() {
             setSelectedSeed={setSelectedSeed}
             tempUsername={tempUsername}
             setTempUsername={setTempUsername}
+            tempPassword={tempPassword}
+            setTempPassword={setTempPassword}
             handleLogin={handleLogin}
+            handleRegister={handleRegister}
             isDarkTheme={isDarkTheme}
             usernameInputRef={usernameInputRef}
             avatar={avatar}
