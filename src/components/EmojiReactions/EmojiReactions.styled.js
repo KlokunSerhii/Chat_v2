@@ -60,4 +60,12 @@ export const EmojiDisplay = styled.span.attrs((props) => ({
   &:hover {
     background-color: #ddd;
   }
+
+  @media (max-width: 768px) {
+    font-size: 12px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 10px;
+  }
 `;
