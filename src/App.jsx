@@ -6,10 +6,10 @@ import ChatApp from "./components/ChatApp/ChatApp.jsx";
 function App() {
   return (
     <>
+      <Toaster />
       <main>
         <ChatApp />
       </main>
-      <Toaster />
     </>
   );
 }

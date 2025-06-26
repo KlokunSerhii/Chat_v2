@@ -2,15 +2,11 @@ import React from "react";
 import {
   UsernameInputWrapper,
   UsernameInput,
-  AvatarImage,
   AvatarImageButton,
 } from "./LoginSection.styled";
-import { ThemeToggle } from "../ChatApp/ChatApp.styled";
+import AvatarUploader from "../AvatarUploader/AvatarUploader.jsx";
 
 export default function LoginSection({
-  avatarSeeds,
-  selectedSeed,
-  setSelectedSeed,
   tempUsername,
   setTempUsername,
   tempPassword,
@@ -18,23 +14,13 @@ export default function LoginSection({
   handleLogin,
   handleRegister,
   isDarkTheme,
-  avatar,
-  setIsDarkTheme,
+  setAvatar,
 }) {
   return (
-    <UsernameInputWrapper>
-      <ThemeToggle
-        $dark={isDarkTheme}
-        onClick={() => setIsDarkTheme((d) => !d)}
-        title="Toggle theme"
-      >
-        {isDarkTheme ? " " : " "}
-      </ThemeToggle>
-
+    <UsernameInputWrapper onSubmit={handleLogin}>
       <UsernameInput
         value={tempUsername}
         onChange={(e) => setTempUsername(e.target.value)}
-        onKeyDown={(e) => e.key === "Enter" && handleLogin()}
         placeholder="Ваше ім'я"
         $dark={isDarkTheme}
       />
@@ -42,17 +28,14 @@ export default function LoginSection({
         type="password"
         value={tempPassword}
         onChange={(e) => setTempPassword(e.target.value)}
-        onKeyDown={(e) => e.key === "Enter" && handleLogin()}
         placeholder="Пароль"
         $dark={isDarkTheme}
       />
-
-      <AvatarImageButton
-        onClick={handleLogin}
-        disabled={!tempUsername.trim()}
-      >
-        Увійти
-      </AvatarImageButton>
+      <AvatarUploader
+        isDarkTheme={isDarkTheme}
+        onUpload={(url) => setAvatar(url)}
+      />
+      <AvatarImageButton type="submit">Увійти</AvatarImageButton>
       <AvatarImageButton
         onClick={handleRegister}
         disabled={!tempUsername.trim()}

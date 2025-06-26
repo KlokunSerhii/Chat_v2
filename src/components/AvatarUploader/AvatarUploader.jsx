@@ -6,6 +6,8 @@ import {
   HiddenFileInput,
   ClearButton,
 } from "./AvatarUploader.styled.js";
+import { AiOutlineClose } from "react-icons/ai";
+
 import { SERVER_URL } from "../../utils/url.js";
 
 export default function AvatarUploader({
@@ -77,7 +79,10 @@ export default function AvatarUploader({
             onClick={handleClear}
             $dark={isDarkTheme}
           >
-            Видалити
+            <AiOutlineClose
+              size={20}
+              color={isDarkTheme ? "#fff" : "#000"}
+            />
           </ClearButton>
         </>
       )}

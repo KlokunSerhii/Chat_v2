@@ -5,7 +5,19 @@ export const ChatContainer = styled.div`
   display: flex;
   flex-direction: column;
   height: 100dvh;
+
   background-color: ${({ $dark }) => getTheme($dark).background};
+
+  ${({ $isLogin, $dark }) =>
+    $isLogin &&
+    `
+    background-image: url("/img/background-image.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-blend-mode: ${getTheme($dark).backgroundBlendMode};
+  `}
+
   color: ${({ $dark }) => getTheme($dark).text};
   font-family: "Segoe UI", sans-serif;
 
@@ -21,7 +33,7 @@ export const ChatContainer = styled.div`
 export const StatusBar = styled.div`
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-around;
   padding: 10px 16px;
   border-bottom: 1px solid ${({ $dark }) => getTheme($dark).border};
   background-color: ${({ $dark }) => getTheme($dark).input};
@@ -52,7 +64,9 @@ export const ThemeToggle = styled.button`
 `;
 
 export const ChatButton = styled.button`
-  margin-left: 8px;
+  display: flex;
+  gap: 5px;
+  align-items: center;
   padding: 6px 12px;
   font-weight: bold;
   background-color: ${({ $dark }) => ($dark ? "#444" : "#0088cc")};
@@ -82,12 +96,11 @@ export const TypingIndicator = styled.div`
 `;
 
 export const ConnectionStatus = styled.div`
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   background: ${({ $connected }) =>
     $connected ? "#4caf50" : "#f44336"};
-  margin-right: 10px;
 `;
 export const EmojiPickerContainer = styled.div`
   position: absolute;

@@ -3,26 +3,18 @@ import { getTheme } from "../../utils/theme";
 
 // Контейнер для всіх елементів завантаження
 export const UploaderContainer = styled.div`
-  margin-top: 20px;
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 10px;
   align-items: center;
-  // width: 100%;
   max-width: 350px;
   margin: 0 auto;
-  padding: 20px;
+
   border-radius: 15px;
   background-color: ${({ $dark }) => getTheme($dark).background};
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+
   transition: all 0.3s ease;
-  background: ${({ $dark }) =>
-    $dark
-      ? "linear-gradient(135deg, #333, #1e1e1e)"
-      : "linear-gradient(135deg, #f7f7f7, #dcdcdc)"};
-  &:hover {
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
-  }
+  background: transparent;
 
   @media (max-width: 480px) {
     padding: 15px;
@@ -55,26 +47,18 @@ export const PreviewImage = styled.img`
 // Стилі для мітки файлу
 export const FileInputLabel = styled.label`
   display: inline-block;
-  padding: 12px 20px;
-  background-color: ${({ $dark }) =>
-    getTheme($dark).buttonBackground};
-  color: #444;
-  border-radius: 8px;
-  font-size: 16px;
-  cursor: pointer;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  margin-top: 8px;
+  padding: 6px 12px;
   font-weight: bold;
-  transition: background-color 0.3s ease, transform 0.3s ease;
+  background-color: ${({ $dark }) => ($dark ? "#444" : "#0088cc")};
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
 
   &:hover {
-    background-color: ${({ $dark }) => ($dark ? "#777" : "#0069d9")};
-    transform: translateY(-2px);
-  }
-
-  @media (max-width: 480px) {
-    padding: 10px 18px;
-    font-size: 14px;
+    background-color: ${({ $dark }) => ($dark ? "#555" : "#007ab8")};
   }
 `;
 
@@ -107,15 +91,12 @@ export const UploadButton = styled.button`
   }
 `;
 export const ClearButton = styled.button`
-  margin-top: 8px;
-  background: ${({ $dark }) => ($dark ? "#444" : "#eee")};
-  border: 1px solid #ccc;
-  padding: 6px 12px;
+  background: transparent;
+  border: none;
   cursor: pointer;
-  color: ${({ $dark }) => ($dark ? "#fff" : "#000")};
-  border-radius: 6px;
+  color: "#000";
 
   &:hover {
-    background: ${({ $dark }) => ($dark ? "#666" : "#ddd")};
+    color: ${({ $dark }) => ($dark ? "#fff" : "#000")};
   }
 `;

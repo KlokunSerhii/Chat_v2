@@ -6,6 +6,7 @@ const lightTheme = {
   messageOwn: "#dcf8c6",
   messageOther: "#ffffff",
   username: "#0088cc",
+  backgroundBlendMode: "normal",
 };
 
 const darkTheme = {
@@ -16,6 +17,7 @@ const darkTheme = {
   messageOwn: "#056162",
   messageOther: "#262d31",
   username: "#34b7f1",
+  backgroundBlendMode: "multiply",
 };
 
 export const getTheme = ($dark) => ($dark ? darkTheme : lightTheme);

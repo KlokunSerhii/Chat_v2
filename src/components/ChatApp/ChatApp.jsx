@@ -12,9 +12,9 @@ import {
   ChatMessages,
   TypingIndicator,
   EmojiPickerContainer,
-  Header,
 } from "./ChatApp.styled.js";
-import { compressImage } from "../../utils/utils.js";
+import { Toaster } from "react-hot-toast";
+
 import { useLocalStorage } from "../../hooks/useLocalStorage.js";
 import { useChatSocket } from "../../hooks/useChatSocket.js";
 import { saveChatMessages } from "../../utils/utils.js";
@@ -22,12 +22,11 @@ import LoginSection from "../LoginSection/LoginSection.jsx";
 import MessageItem from "../MessageItem/MessageItem.jsx";
 import ChatInputSection from "../ChatInputSection/ChatInputSection.jsx";
 import OnlineUsersModal from "../OnlineUsersModal/OnlineUsersModal.jsx";
-import AvatarUploader from "../AvatarUploader/AvatarUploader.jsx";
-import ImageModal from "../ImageModal/ImageModal.jsx"; // Імпортуємо компонент ImageModal
+import ImageModal from "../ImageModal/ImageModal.jsx";
 import { SERVER_URL } from "../../utils/url.js";
+import toast from "react-hot-toast";
 
 const SOUND_URL = "./notification.mp3";
-// const SERVER_URL = "https://chat-v2-server-7.onrender.com";
 
 export default function ChatApp() {
   const avatarSeeds = useMemo(
@@ -64,6 +63,7 @@ export default function ChatApp() {
   const [imageLoading, setImageLoading] = useState(false);
   const [videoLoading, setVideoLoading] = useState(false);
   const [audioLoading, setAudioLoading] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // Стан для перевірки, чи користувач увійшов
   const {
     messages,
     setMessages,
@@ -121,8 +121,10 @@ export default function ChatApp() {
     const password = tempPassword.trim();
 
     if (!trimmedUsername || !password) {
-      alert("Введіть ім'я та пароль");
-      return;
+      return toast.error("Введіть ім'я та пароль", {
+        duration: 3000,
+        position: "top-center",
+      });
     }
 
     try {
@@ -148,11 +150,15 @@ export default function ChatApp() {
       localStorage.setItem("avatar", data.user.avatar);
 
       // ❗ ОНОВЛЮЄМО СТАН, БЕЗ redirect
+      setIsLoggedIn(true); // Встановлюємо стан входу
       setUsername(data.user.username);
       setAvatar(data.user.avatar);
     } catch (err) {
       console.error("Login error:", err);
-      alert("Помилка входу");
+      toast.error("Помилка входу", {
+        duration: 3000,
+        position: "top-center",
+      });
     }
   };
 
@@ -162,13 +168,17 @@ export default function ChatApp() {
     const password = tempPassword.trim();
 
     if (!trimmedUsername || !password) {
-      alert("Введіть ім'я та пароль");
-      return;
+      return toast.error("Введіть ім'я та пароль", {
+        duration: 3000,
+        position: "top-center",
+      });
     }
 
     if (!avatar || avatar.trim() === "") {
-      alert("Оберіть аватарку");
-      return;
+      return toast.error("Оберіть аватарку", {
+        duration: 3000,
+        position: "top-center",
+      });
     }
 
     try {
@@ -188,7 +198,7 @@ export default function ChatApp() {
         alert(data.message || "Помилка авторизації");
         return;
       }
-
+      setIsLoggedIn(true);
       localStorage.setItem("token", data.token);
       localStorage.setItem("username", data.user.username);
       localStorage.setItem("avatar", data.user.avatar);
@@ -198,7 +208,10 @@ export default function ChatApp() {
       setAvatar(data.user.avatar);
     } catch (err) {
       console.error("Login error:", err);
-      alert("Помилка входу");
+      toast.error("Помилка входу", {
+        duration: 3000,
+        position: "top-center",
+      });
     }
   };
 
@@ -262,7 +275,6 @@ export default function ChatApp() {
       });
 
       const data = await response.json();
-      console.log("File upload response:", data);
 
       if (!response.ok) {
         throw new Error(data.error || "Upload failed");
@@ -299,12 +311,41 @@ export default function ChatApp() {
     setModalImageSrc(null);
   };
 
+  const handleLogout = () => {
+    // Очистити всі потрібні стани
+    setUsername("");
+    setAvatar("");
+    setTempUsername("");
+    setTempPassword("");
+    localStorage.removeItem("token");
+    localStorage.removeItem("username");
+    localStorage.removeItem("avatar");
+
+    // Повернути на сторінку логіну
+    setIsLoggedIn(false); // або змінити рут, залежно від логіки
+  };
+
   return (
-    <ChatContainer $dark={isDarkTheme}>
+    <ChatContainer $dark={isDarkTheme} $isLogin={!isLoggedIn}>
       <StatusBar $dark={isDarkTheme}>
-        {username ? (
+        {isLoggedIn ? (
           <>
-            <ConnectionStatus $connected={isConnected} />
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+              }}
+            >
+              <ChatButton
+                onClick={() => setIsOnlineListOpen(true)}
+                $dark={isDarkTheme}
+              >
+                <ConnectionStatus $connected={isConnected} />
+                Онлайн: {onlineUsers.length}
+              </ChatButton>
+            </div>
+
             <ThemeToggle
               $dark={isDarkTheme}
               onClick={() => setIsDarkTheme((d) => !d)}
@@ -312,24 +353,23 @@ export default function ChatApp() {
             >
               {isDarkTheme ? " " : " "}
             </ThemeToggle>
-            <ChatButton
-              onClick={() => setIsOnlineListOpen(true)}
-              $dark={isDarkTheme}
-            >
-              Онлайн: {onlineUsers.length}
+            <ChatButton onClick={handleLogout} $dark={isDarkTheme}>
+              Вийти
             </ChatButton>
           </>
         ) : (
-          <Header>Ласкаво просимо!</Header>
+          <ThemeToggle
+            $dark={isDarkTheme}
+            onClick={() => setIsDarkTheme((d) => !d)}
+            title="Toggle theme"
+          >
+            {isDarkTheme ? " " : " "}
+          </ThemeToggle>
         )}
       </StatusBar>
-
-      {!username ? (
+      <Toaster position="top-center" />
+      {!isLoggedIn ? (
         <>
-          <AvatarUploader
-            onUpload={(url) => setAvatar(url)}
-            isDarkTheme={isDarkTheme}
-          />
           <LoginSection
             avatarSeeds={avatarSeeds}
             selectedSeed={selectedSeed}
@@ -344,6 +384,7 @@ export default function ChatApp() {
             usernameInputRef={usernameInputRef}
             avatar={avatar}
             setIsDarkTheme={setIsDarkTheme}
+            setAvatar={setAvatar}
           />
         </>
       ) : (

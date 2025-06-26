@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { getTheme } from "../../utils/theme";
 
 // Контейнер для вводу і аватара з елегантними тінями та плавними переходами
-export const UsernameInputWrapper = styled.div`
+export const UsernameInputWrapper = styled.form`
   padding: 40px;
   text-align: center;
   display: flex;
@@ -10,16 +10,13 @@ export const UsernameInputWrapper = styled.div`
   justify-content: center;
   align-items: center;
   max-width: 450px;
-  margin: 0 auto;
+  margin: 25px auto;
   border-radius: 15px;
   background: ${({ $dark }) => getTheme($dark).background};
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9);
   transition: all 0.3s ease;
 
-  background: ${({ $dark }) =>
-    $dark
-      ? "linear-gradient(135deg, #333, #1e1e1e)"
-      : "linear-gradient(135deg, #f7f7f7, #dcdcdc)"};
+  background: transparent;
 
   &:hover {
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
