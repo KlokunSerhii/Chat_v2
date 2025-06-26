@@ -4,7 +4,7 @@ import { getTheme } from "../../utils/theme";
 export const ChatContainer = styled.div`
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100dvh;
   background-color: ${({ $dark }) => getTheme($dark).background};
   color: ${({ $dark }) => getTheme($dark).text};
   font-family: "Segoe UI", sans-serif;
