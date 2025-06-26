@@ -41,7 +41,7 @@ export const EmojiOption = styled.span`
 export const EmojiList = styled.div`
   display: flex;
   gap: 6px;
-  margin-top: 4px;
+  
 `;
 
 export const EmojiDisplay = styled.span.attrs((props) => ({
