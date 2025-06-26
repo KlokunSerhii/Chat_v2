@@ -10,15 +10,20 @@ export const ChatInputWrapper = styled.div`
 `;
 
 export const ChatInput = styled.textarea`
-  flex-grow: 1;
-  resize: none;
-  border: none;
-  padding: 10px;
-  border-radius: 12px;
-  font-size: 14px;
-  background-color: ${({ $dark }) => ($dark ? "#333" : "#fff")};
-  color: ${({ $dark }) => getTheme($dark).text};
-  outline: none;
+    text-align: left;
+    padding: 10px 12px;
+    font-size: 10px;
+    line-height: 1.4;
+    resize: none;
+    overflow: hidden;
+    height: auto;
+    box-sizing: border-box;
+    flex-grow: 1
+    border: none;
+    border-radius: 12px;
+    background-color: ${({ $dark }) => ($dark ? "#333" : "#fff")};
+    color: ${({ $dark }) => getTheme($dark).text};
+    outline: none;
 `;
 
 export const EmojiButton = styled.button`
