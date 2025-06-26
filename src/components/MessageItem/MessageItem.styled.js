@@ -35,13 +35,13 @@ export const Message = styled.div`
 `;
 
 export const MessageText = styled.div`
+  margin-top: 10px;
   white-space: pre-wrap;
 `;
 
 export const MessageTime = styled.div`
-  font-size: 8px;
+  font-size: 10px;
   text-align: right;
-  margin-top: 4px;
   color: ${({ $dark }) => ($dark ? "#aaa" : "#666")};
 `;
 

@@ -131,7 +131,11 @@ export default function MessageItem({
           )}
         </MessageText>
 
-        {/* Відображення реакцій всередині Message */}
+      <div style={{ 
+        display: "flex", 
+        alignItems: "center", 
+        justifyContent: "space-between",
+        padding: "8px 12px"}}>
         <EmojiReactions
           msg={msg}
           username={username}
@@ -142,6 +146,8 @@ export default function MessageItem({
         <MessageTime $dark={isDarkTheme} $isOwn={isOwn} $delivered>
           {formatTime(msg.timestamp)}
         </MessageTime>
+      </div>
+        
       </Message>
         <div style={{ paddingTop: "6px" }}>
         <ReactionButton onClick={() => setIsModalOpen(!isModalOpen)}>
