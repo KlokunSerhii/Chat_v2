@@ -14,6 +14,10 @@ export const Message = styled.div`
   box-shadow: 0 5px 9px rgba(0, 0, 0, 0.3);
   border-radius: 10px;
   max-width: 70%;
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
   position: relative;
 
   ${({ $isOwn }) =>
