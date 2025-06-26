@@ -21,7 +21,7 @@ export const OnlineListModal = styled.div`
   }
 
   @media (max-width: 480px) {
-    width: 100%;
+    width: 70%;
     border-radius: 0;
   }
 `;
