@@ -12,7 +12,7 @@ export default function LoginSection({
   tempPassword,
   setTempPassword,
   handleLogin,
-  handleRegister,
+  handleRegister,                         
   isDarkTheme,
   setAvatar,
 }) {

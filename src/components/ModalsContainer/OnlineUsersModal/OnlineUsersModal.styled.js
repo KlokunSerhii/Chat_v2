@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { getTheme } from "../../utils/theme";
+import { getTheme } from "../../../utils/theme";
 
 export const OnlineListModal = styled.div`
   position: fixed;

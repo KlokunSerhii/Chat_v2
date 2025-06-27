@@ -32,6 +32,7 @@ export default function AvatarUploader({
         const fullUrl = data.avatarUrl.startsWith("/")
           ? SERVER_URL + data.avatarUrl
           : data.avatarUrl;
+          console.log(fullUrl)
         onUpload(fullUrl);
       } else {
         alert("Помилка: немає avatarUrl у відповіді сервера");

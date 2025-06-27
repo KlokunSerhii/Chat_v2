@@ -1,4 +1,4 @@
-import { AvatarImage } from "../LoginSection/LoginSection.styled";
+import { AvatarImage } from "../../LoginSection/LoginSection.styled";
 import {
   ModalOverlay,
   OnlineListModal,
