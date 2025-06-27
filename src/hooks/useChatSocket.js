@@ -24,7 +24,9 @@ export function useChatSocket(username, avatar) {
     }
 
     const socket = io(SERVER_URL, {
-      query: { username, avatar },
+      auth: {
+        token: localStorage.getItem("token"),
+       },
     });
 
     socketRef.current = socket;

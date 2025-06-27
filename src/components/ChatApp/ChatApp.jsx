@@ -12,6 +12,7 @@ import {
   ChatMessages,
   TypingIndicator,
   EmojiPickerContainer,
+  Loader
 } from "./ChatApp.styled.js";
 import { Toaster } from "react-hot-toast";
 
@@ -59,6 +60,7 @@ export default function ChatApp() {
   const fileInputRef = useRef(null);
   const messagesEndRef = useRef(null);
   const audioRef = useRef(null);
+  const [isAuthChecked, setIsAuthChecked] = useState(false);
   const usernameInputRef = useRef(null);
   const [imageLoading, setImageLoading] = useState(false);
   const [videoLoading, setVideoLoading] = useState(false);
@@ -97,6 +99,34 @@ export default function ChatApp() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+useEffect(() => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    setIsAuthChecked(true);
+    return;
+  }
+
+  fetch(`${SERVER_URL}/api/auth/me`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (data?.user?.username) {
+        setUsername(data.user.username);
+        setAvatar(data.user.avatar);
+        setIsLoggedIn(true);
+      } else {
+        handleLogout();
+      }
+    })
+    .catch(() => {
+      handleLogout();
+    })
+    .finally(() => {
+      setIsAuthChecked(true);
+    });
+}, []);
 
   useEffect(() => {
     const handleInteraction = () => {
@@ -324,10 +354,13 @@ export default function ChatApp() {
     // Повернути на сторінку логіну
     setIsLoggedIn(false); // або змінити рут, залежно від логіки
   };
-
+if (!isAuthChecked) {
+  return <Loader/>
+}
   return (
     <ChatContainer $dark={isDarkTheme} $isLogin={!isLoggedIn}>
       <StatusBar $dark={isDarkTheme}>
+        
         {isLoggedIn ? (
           <>
             <div
@@ -368,6 +401,7 @@ export default function ChatApp() {
         )}
       </StatusBar>
       <Toaster position="top-center" />
+
       {!isLoggedIn ? (
         <>
           <LoginSection
