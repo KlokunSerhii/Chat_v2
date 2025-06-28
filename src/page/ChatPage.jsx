@@ -23,6 +23,8 @@ export default function ChatPage() {
   const messagesEndRef = useRef(null);
   const audioRef = useRef(null);
   const hasInteracted = useRef(false);
+  console.log('🧑‍💻 username for socket:', username);
+  console.log('🪪 token:', localStorage.getItem('token'));
 
   const state = useChatAppState();
   const {
