@@ -1,10 +1,6 @@
-import React from "react";
-import {
-  UsernameInputWrapper,
-  UsernameInput,
-  AvatarImageButton,
-} from "./LoginSection.styled";
-import AvatarUploader from "../AvatarUploader/AvatarUploader.jsx";
+import React from 'react';
+import { UsernameInputWrapper, UsernameInput, AvatarImageButton } from './LoginSection.styled';
+import AvatarUploader from '../AvatarUploader/AvatarUploader.jsx';
 
 export default function LoginSection({
   tempUsername,
@@ -12,7 +8,7 @@ export default function LoginSection({
   tempPassword,
   setTempPassword,
   handleLogin,
-  handleRegister,                         
+  handleRegister,
   isDarkTheme,
   setAvatar,
 }) {
@@ -20,26 +16,20 @@ export default function LoginSection({
     <UsernameInputWrapper onSubmit={handleLogin}>
       <UsernameInput
         value={tempUsername}
-        onChange={(e) => setTempUsername(e.target.value)}
+        onChange={e => setTempUsername(e.target.value)}
         placeholder="Ваше ім'я"
         $dark={isDarkTheme}
       />
       <UsernameInput
         type="password"
         value={tempPassword}
-        onChange={(e) => setTempPassword(e.target.value)}
+        onChange={e => setTempPassword(e.target.value)}
         placeholder="Пароль"
         $dark={isDarkTheme}
       />
-      <AvatarUploader
-        isDarkTheme={isDarkTheme}
-        onUpload={(url) => setAvatar(url)}
-      />
+      <AvatarUploader isDarkTheme={isDarkTheme} onUpload={url => setAvatar(url)} />
       <AvatarImageButton type="submit">Увійти</AvatarImageButton>
-      <AvatarImageButton
-        onClick={handleRegister}
-        disabled={!tempUsername.trim()}
-      >
+      <AvatarImageButton onClick={handleRegister} disabled={!tempUsername.trim()}>
         Зареєструватися
       </AvatarImageButton>
     </UsernameInputWrapper>

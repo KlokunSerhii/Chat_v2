@@ -1,19 +1,19 @@
 // hooks/useChatAppState.js
-import { useState, useMemo } from "react";
-import { v4 as uuidv4 } from "uuid";
-import { useLocalStorage } from "./useLocalStorage";
+import { useState, useMemo } from 'react';
+import { v4 as uuidv4 } from 'uuid';
+import { useLocalStorage } from './useLocalStorage';
 
 export function useChatAppState() {
   const avatarSeeds = useMemo(() => Array.from({ length: 5 }, () => uuidv4()), []);
   const [selectedSeed, setSelectedSeed] = useState(avatarSeeds[0]);
-  const [username, setUsername] = useLocalStorage("chat_username", "");
+  const [username, setUsername] = useLocalStorage('chat_username', '');
   const [avatar, setAvatar] = useLocalStorage(
-    "chat_avatar",
-    `https://api.dicebear.com/7.x/avataaars/svg?seed=${avatarSeeds[0]}`
+    'chat_avatar',
+    `https://api.dicebear.com/7.x/avataaars/svg?seed=${avatarSeeds[0]}`,
   );
-  const [isDarkTheme, setIsDarkTheme] = useLocalStorage("chat_theme", false);
+  const [isDarkTheme, setIsDarkTheme] = useLocalStorage('chat_theme', false);
 
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [isOnlineListOpen, setIsOnlineListOpen] = useState(false);
 

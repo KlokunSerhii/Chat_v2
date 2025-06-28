@@ -3,7 +3,7 @@ import { io } from 'socket.io-client';
 import { v4 as uuidv4 } from 'uuid';
 import toast from 'react-hot-toast';
 
-import { saveChatMessages, formatTime } from '../utils/utils.js';
+import { saveChatMessages } from '../utils/utils.js';
 import { SERVER_URL } from '../utils/url.js';
 
 export function useChatSocket(username, avatar) {
@@ -14,18 +14,26 @@ export function useChatSocket(username, avatar) {
   const socketRef = useRef(null);
 
   useEffect(() => {
-    if (!username) return;
-
-    // Якщо вже є сокет — відключити перед створенням нового
-    if (socketRef.current) {
-      socketRef.current.disconnect();
-    }
-
     const socket = io(SERVER_URL, {
       auth: {
         token: localStorage.getItem('token'),
       },
     });
+    const handleMessage = msg => {
+      const isOwnMessage = msg.username === username;
+      setMessages(prev => {
+        const newMsg = { ...msg, id: msg._id };
+
+        if (isOwnMessage) {
+          return saveChatMessages(
+            prev.map(m => (m.local && m.text === msg.text && !m._id ? newMsg : m)),
+            100,
+          );
+        } else {
+          return saveChatMessages([...prev, newMsg], 100);
+        }
+      });
+    };
 
     socketRef.current = socket;
 
@@ -49,22 +57,7 @@ export function useChatSocket(username, avatar) {
       setMessages(trimmed);
     });
 
-    socket.on('message', msg => {
-      const isOwnMessage = msg.username === username;
-      setMessages(prev => {
-        const newMsg = { ...msg, id: msg._id };
-
-        if (isOwnMessage) {
-          // замінюємо локальне повідомлення тим, яке надіслав сервер
-          return saveChatMessages(
-            prev.map(m => (m.local && m.text === msg.text && !m._id ? newMsg : m)),
-            100,
-          );
-        } else {
-          return saveChatMessages([...prev, newMsg], 100);
-        }
-      });
-    });
+    socket.on('message', handleMessage);
 
     socket.on('reaction-update', ({ messageId, reactions }) => {
       setMessages(prev => prev.map(msg => (msg.id === messageId ? { ...msg, reactions } : msg)));
@@ -113,6 +106,7 @@ export function useChatSocket(username, avatar) {
     });
 
     return () => {
+      socket.off('message', handleMessage);
       socket.off();
       socket.disconnect();
     };

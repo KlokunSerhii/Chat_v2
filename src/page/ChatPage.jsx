@@ -23,15 +23,9 @@ export default function ChatPage() {
   const messagesEndRef = useRef(null);
   const audioRef = useRef(null);
   const hasInteracted = useRef(false);
-  console.log('🧑‍💻 username for socket:', username);
-  console.log('🪪 token:', localStorage.getItem('token'));
 
   const state = useChatAppState();
   const {
-    avatar,
-    username,
-    setUsername,
-    setAvatar,
     input,
     setInput,
     isDarkTheme,
@@ -53,7 +47,7 @@ export default function ChatPage() {
     usernameInputRef,
   } = state;
 
-  const { isAuthChecked, isLoggedIn, handleLogout } = useAuth({ setUsername, setAvatar });
+  const { isAuthChecked, isLoggedIn, handleLogout, username, avatar } = useAuth();
 
   const {
     messages,
@@ -63,7 +57,7 @@ export default function ChatPage() {
     isConnected,
     sendMessage: sendSocketMessage,
     toggleReaction,
-  } = useChatSocket(username, avatar);
+  } = useChatSocket();
 
   const { sendMessage } = useSendMessage({
     username,

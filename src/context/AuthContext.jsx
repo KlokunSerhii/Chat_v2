@@ -59,7 +59,8 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('token', data.token);
       localStorage.setItem('username', data.user.username);
       localStorage.setItem('avatar', data.user.avatar);
-
+      localStorage.setItem('chat_username', data.user.username);
+      localStorage.setItem('chat_avatar', data.user.avatar);
       setUsername(data.user.username);
       setAvatar(data.user.avatar);
       setIsLoggedIn(true);
@@ -95,7 +96,8 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('token', data.token);
       localStorage.setItem('username', data.user.username);
       localStorage.setItem('avatar', data.user.avatar);
-
+      localStorage.setItem('chat_username', data.user.username);
+      localStorage.setItem('chat_avatar', data.user.avatar);
       setUsername(data.user.username);
       setAvatar(data.user.avatar);
       setIsLoggedIn(true);
@@ -109,6 +111,8 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
     localStorage.removeItem('username');
     localStorage.removeItem('avatar');
+    localStorage.removeItem('chat_username');
+    localStorage.removeItem('chat_avatar');
     setUsername('');
     setAvatar('');
     setTempUsername('');

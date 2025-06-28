@@ -18,17 +18,13 @@ export default function LoginPage() {
 
   const {
     isAuthChecked,
-    isLoggedIn,
     handleLogin,
     handleRegister,
     tempUsername,
     setTempUsername,
     tempPassword,
     setTempPassword,
-  } = useAuth({
-    setUsername: () => {},
-    setAvatar,
-  });
+  } = useAuth();
 
   if (!isAuthChecked) return <Loader />;
   return (

@@ -1,7 +1,7 @@
 // components/MessagesSection.jsx
-import React from "react";
-import { ChatMessages, TypingIndicator } from "../ChatApp/ChatApp.styled.js"
-import MessageItem from "../MessageItem/MessageItem.jsx";
+import React from 'react';
+import { ChatMessages, TypingIndicator } from '../ChatApp/ChatApp.styled.js';
+import MessageItem from '../MessageItem/MessageItem.jsx';
 
 export default function MessagesSection({
   messages,
@@ -15,8 +15,8 @@ export default function MessagesSection({
   return (
     <ChatMessages $dark={isDarkTheme}>
       {messages
-        .filter((msg) => msg.sender !== "system")
-        .map((msg) => (
+        .filter(msg => msg.sender !== 'system')
+        .map(msg => (
           <MessageItem
             key={`${msg.username}-${msg.timestamp}`}
             msg={{ ...msg, id: msg.id || msg._id }}
@@ -28,7 +28,7 @@ export default function MessagesSection({
           />
         ))}
 
-      {typingUsers.map((user) => (
+      {typingUsers.map(user => (
         <TypingIndicator key={user} $dark={isDarkTheme}>
           <em>{user} друкує...</em>
         </TypingIndicator>
