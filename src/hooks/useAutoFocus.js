@@ -2,6 +2,6 @@ import { useEffect } from 'react';
 
 export function useAutoFocus(ref) {
   useEffect(() => {
-    ref.current?.focus();
+    ref?.current?.focus();
   }, [ref]);
 }

@@ -1,12 +1,10 @@
-import { useState, useEffect, useRef } from "react";
-import { io } from "socket.io-client";
-import { v4 as uuidv4 } from "uuid";
-import toast from "react-hot-toast";
+import { useState, useEffect, useRef } from 'react';
+import { io } from 'socket.io-client';
+import { v4 as uuidv4 } from 'uuid';
+import toast from 'react-hot-toast';
 
-import { saveChatMessages, formatTime } from "../utils/utils.js";
-import { SERVER_URL } from "../utils/url.js";
-// const SOCKET_SERVER_URL = "https://chat-v2-server-7.onrender.com";
-// const SOCKET_SERVER_URL = "http://localhost:3001";
+import { saveChatMessages, formatTime } from '../utils/utils.js';
+import { SERVER_URL } from '../utils/url.js';
 
 export function useChatSocket(username, avatar) {
   const [messages, setMessages] = useState([]);
@@ -25,30 +23,25 @@ export function useChatSocket(username, avatar) {
 
     const socket = io(SERVER_URL, {
       auth: {
-        token: localStorage.getItem("token"),
-       },
+        token: localStorage.getItem('token'),
+      },
     });
 
     socketRef.current = socket;
 
-    socket.on("connect", () => setIsConnected(true));
-    socket.on("disconnect", () => setIsConnected(false));
+    socket.on('connect', () => setIsConnected(true));
+    socket.on('disconnect', () => setIsConnected(false));
 
-    socket.on("online-users", (users) => setOnlineUsers(users));
+    socket.on('online-users', users => setOnlineUsers(users));
 
-    socket.on("user-typing", (u) => {
+    socket.on('user-typing', u => {
       if (u === username) return;
-      setTypingUsers((prev) =>
-        prev.includes(u) ? prev : [...prev, u]
-      );
-      setTimeout(
-        () => setTypingUsers((prev) => prev.filter((x) => x !== u)),
-        2500
-      );
+      setTypingUsers(prev => (prev.includes(u) ? prev : [...prev, u]));
+      setTimeout(() => setTypingUsers(prev => prev.filter(x => x !== u)), 2500);
     });
 
-    socket.on("last-messages", (history) => {
-      const restored = history.map((msg) => ({
+    socket.on('last-messages', history => {
+      const restored = history.map(msg => ({
         ...msg,
         id: msg._id,
       }));
@@ -56,18 +49,16 @@ export function useChatSocket(username, avatar) {
       setMessages(trimmed);
     });
 
-    socket.on("message", (msg) => {
+    socket.on('message', msg => {
       const isOwnMessage = msg.username === username;
-      setMessages((prev) => {
+      setMessages(prev => {
         const newMsg = { ...msg, id: msg._id };
 
         if (isOwnMessage) {
           // замінюємо локальне повідомлення тим, яке надіслав сервер
           return saveChatMessages(
-            prev.map((m) =>
-              m.local && m.text === msg.text && !m._id ? newMsg : m
-            ),
-            100
+            prev.map(m => (m.local && m.text === msg.text && !m._id ? newMsg : m)),
+            100,
           );
         } else {
           return saveChatMessages([...prev, newMsg], 100);
@@ -75,25 +66,21 @@ export function useChatSocket(username, avatar) {
       });
     });
 
-    socket.on("reaction-update", ({ messageId, reactions }) => {
-      setMessages((prev) =>
-        prev.map((msg) =>
-          msg.id === messageId ? { ...msg, reactions } : msg
-        )
-      );
+    socket.on('reaction-update', ({ messageId, reactions }) => {
+      setMessages(prev => prev.map(msg => (msg.id === messageId ? { ...msg, reactions } : msg)));
     });
 
-    socket.on("user-joined", ({ username, avatar, timestamp }) => {
+    socket.on('user-joined', ({ username, avatar, timestamp }) => {
       toast.success(`${username} приєднався до чату`, {
         duration: 3000,
-        position: "top-center",
+        position: 'top-center',
       });
-      setMessages((prev) => {
+      setMessages(prev => {
         const next = [
           ...prev,
           {
             id: uuidv4(),
-            sender: "system",
+            sender: 'system',
             username,
             avatar,
             text: `${username} приєднався`,
@@ -104,17 +91,17 @@ export function useChatSocket(username, avatar) {
       });
     });
 
-    socket.on("user-left", ({ username, avatar, timestamp }) => {
+    socket.on('user-left', ({ username, avatar, timestamp }) => {
       toast.success(`${username} вийшов із чату`, {
         duration: 3000,
-        position: "top-center",
+        position: 'top-center',
       });
-      setMessages((prev) => {
+      setMessages(prev => {
         const next = [
           ...prev,
           {
             id: uuidv4(),
-            sender: "system",
+            sender: 'system',
             username,
             avatar,
             text: `${username} покинув`,
@@ -131,11 +118,11 @@ export function useChatSocket(username, avatar) {
     };
   }, [username, avatar]);
 
-  const sendMessage = (msg) => {
-    socketRef.current?.emit("message", msg);
+  const sendMessage = msg => {
+    socketRef.current?.emit('message', msg);
   };
   const toggleReaction = ({ messageId, emoji }) => {
-    socketRef.current?.emit("toggle-reaction", { messageId, emoji });
+    socketRef.current?.emit('toggle-reaction', { messageId, emoji });
   };
   return {
     messages,

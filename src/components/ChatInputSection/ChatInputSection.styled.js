@@ -1,5 +1,5 @@
-import styled from "styled-components";
-import { getTheme } from "../../utils/theme";
+import styled from 'styled-components';
+import { getTheme } from '../../utils/theme';
 
 export const ChatInputWrapper = styled.div`
   display: flex;
@@ -10,13 +10,13 @@ export const ChatInputWrapper = styled.div`
 `;
 
 export const ChatInput = styled.textarea`
-   flex-grow: 1;
+  flex-grow: 1;
   resize: none;
   border: none;
   padding: 10px;
   border-radius: 12px;
   font-size: 14px;
-  background-color: ${({ $dark }) => ($dark ? "#333" : "#fff")};
+  background-color: ${({ $dark }) => ($dark ? '#333' : '#fff')};
   color: ${({ $dark }) => getTheme($dark).text};
   outline: none;
 `;
@@ -32,6 +32,7 @@ export const EmojiButton = styled.button`
 export const AttachButton = styled(EmojiButton)``;
 
 export const AttachedImagePreview = styled.img`
+  max-width: 100%;
   width: 40px;
   height: 40px;
   object-fit: cover;
@@ -40,6 +41,7 @@ export const AttachedImagePreview = styled.img`
   cursor: pointer;
 `;
 export const AttachedVideoPreview = styled.video`
+  max-width: 100%;
   width: 40px;
   height: 40px;
   object-fit: cover;
@@ -48,6 +50,7 @@ export const AttachedVideoPreview = styled.video`
   cursor: pointer;
 `;
 export const AttachedAudioPreview = styled.audio`
+  max-width: 100%;
   width: 40px;
   height: 40px;
   object-fit: cover;

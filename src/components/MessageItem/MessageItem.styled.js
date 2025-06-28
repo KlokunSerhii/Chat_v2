@@ -1,14 +1,12 @@
-import styled, { css } from "styled-components";
+import styled, { css } from 'styled-components';
 
-import { getTheme } from "../../utils/theme";
+import { getTheme } from '../../utils/theme';
 
 export const Message = styled.div`
   margin-bottom: 12px;
-  align-self: ${({ $isOwn }) => ($isOwn ? "flex-end" : "flex-start")};
+  align-self: ${({ $isOwn }) => ($isOwn ? 'flex-end' : 'flex-start')};
   background-color: ${({ $isOwn, $dark }) =>
-    $isOwn
-      ? getTheme($dark).messageOwn
-      : getTheme($dark).messageOther};
+    $isOwn ? getTheme($dark).messageOwn : getTheme($dark).messageOther};
   color: ${({ $dark }) => getTheme($dark).text};
   padding: 5px 10px 5px 10px;
   box-shadow: 0 5px 9px rgba(0, 0, 0, 0.3);
@@ -46,7 +44,7 @@ export const MessageText = styled.div`
 export const MessageTime = styled.div`
   font-size: 10px;
   text-align: right;
-  color: ${({ $dark }) => ($dark ? "#aaa" : "#666")};
+  color: ${({ $dark }) => ($dark ? '#aaa' : '#666')};
 `;
 
 export const MessageUsername = styled.div`
@@ -59,7 +57,6 @@ export const MessageUsername = styled.div`
   color: ${({ $dark }) => getTheme($dark).username};
   margin-bottom: 4px;
   border-bottom: 2px solid ${({ $dark }) => getTheme($dark).border};
-
 
   // img {
   //   border-radius: 50%;
@@ -105,28 +102,26 @@ export const AvatarImageChat = styled.img`
 export const FileLabel = styled.div`
   font-size: 14px;
   margin-bottom: 1px;
-  color: ${({ $dark }) => ($dark ? "#e0e0e0" : "#222")};
-    background-color: ${({ $isOwn, $dark }) =>
-    $isOwn
-      ? getTheme($dark).messageOwn
-      : getTheme($dark).messageOther};
+  color: ${({ $dark }) => ($dark ? '#e0e0e0' : '#222')};
+  background-color: ${({ $isOwn, $dark }) =>
+    $isOwn ? getTheme($dark).messageOwn : getTheme($dark).messageOther};
   padding: 6px 10px;
   border-radius: 10px;
   display: inline-block;
   max-width: 100%;
+  width: 200px;
   word-break: break-word;
- 
 `;
 export const FileLabelContainer = styled.div`
- display: flex;
- flex-direction: column;
- margin: 12px;
+  display: flex;
+  flex-direction: column;
+  margin: 12px;
 `;
 export const FileLabelContainerPlayer = styled.div`
- display: flex;
- flex-direction: column;
- margin: 8px;
- padding: 6px 10px;
- box-shadow: 0 5px 9px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  margin: 8px;
+  padding: 6px 10px;
+  box-shadow: 0 5px 9px rgba(0, 0, 0, 0.3);
   border-radius: 10px;
 `;

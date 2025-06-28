@@ -1,5 +1,5 @@
-import React, { useRef, useEffect } from "react";
-import { ChatButton } from "../ChatApp/ChatApp.styled";
+import React, { useRef, useEffect } from 'react';
+import { ChatButton, Loader } from '../ChatApp/ChatApp.styled';
 import {
   ChatInputWrapper,
   ChatInput,
@@ -8,8 +8,8 @@ import {
   AttachedImagePreview,
   AttachedVideoPreview,
   AttachedAudioPreview,
-} from "./ChatInputSection.styled";
-import FancyLoader from "../FancyLoader/FancyLoader.jsx";
+} from './ChatInputSection.styled';
+
 export default function ChatInputSection({
   input,
   setInput,
@@ -23,9 +23,9 @@ export default function ChatInputSection({
   setAttachedVideo,
   setAttachedAudio,
   setAttachedImage,
-  attachedImage, // ✅ ДОДАТИ
-  attachedVideo, // ✅ ДОДАТИ
-  attachedAudio, // ✅ ДОДАТИ
+  attachedImage,
+  attachedVideo,
+  attachedAudio,
   setAudioLoading,
   setImageLoading,
   setVideoLoading,
@@ -45,51 +45,45 @@ export default function ChatInputSection({
       <ChatInput
         ref={chatInputRef}
         value={input}
-        onChange={(e) => setInput(e.target.value)}
-        onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+        onChange={e => setInput(e.target.value)}
+        onKeyDown={e => e.key === 'Enter' && sendMessage()}
         placeholder="Напишіть повідомлення..."
         $dark={isDarkTheme}
       />
-      <EmojiButton
-        onClick={() => setShowEmojiPicker((p) => !p)}
-        $dark={isDarkTheme}
-      >
+      <EmojiButton onClick={() => setShowEmojiPicker(p => !p)} $dark={isDarkTheme}>
         😃
       </EmojiButton>
       <input
         type="file"
         accept="image/*,audio/*,video/*"
-        style={{ display: "none" }}
+        style={{ display: 'none' }}
         ref={fileInputRef}
         onChange={handleFileChange}
       />
-      <AttachButton
-        onClick={() => fileInputRef.current.click()}
-        $dark={isDarkTheme}
-      >
+      <AttachButton onClick={() => fileInputRef.current.click()} $dark={isDarkTheme}>
         📎
       </AttachButton>
       {attachedImage && (
         <>
-          {imageLoading && <FancyLoader isDarkTheme={isDarkTheme} />}
+          {imageLoading && <Loader isDarkTheme={isDarkTheme} />}
           <AttachedImagePreview
             src={attachedImage}
             alt="preview"
             onLoad={() => setImageLoading(false)}
-            style={{ display: imageLoading ? "none" : "block" }}
+            style={{ display: imageLoading ? 'none' : 'block' }}
             onClick={() => setAttachedImage(null)}
           />
         </>
       )}
       {attachedVideo && (
         <>
-          {videoLoading && <FancyLoader isDarkTheme={isDarkTheme} />}
+          {videoLoading && <Loader isDarkTheme={isDarkTheme} />}
           <AttachedVideoPreview
             src={attachedVideo}
             alt="preview"
             controls
             onLoadedData={() => setVideoLoading(false)}
-            style={{ display: videoLoading ? "none" : "block" }}
+            style={{ display: videoLoading ? 'none' : 'block' }}
             onClick={() => setAttachedVideo(null)}
           />
         </>
@@ -97,13 +91,13 @@ export default function ChatInputSection({
 
       {attachedAudio && (
         <>
-          {audioLoading && <FancyLoader isDarkTheme={isDarkTheme} />}
+          {audioLoading && <Loader isDarkTheme={isDarkTheme} />}
           <AttachedAudioPreview
             src={attachedAudio}
             alt="preview"
             controls
             onLoadedData={() => setAudioLoading(false)}
-            style={{ display: audioLoading ? "none" : "block" }}
+            style={{ display: audioLoading ? 'none' : 'block' }}
             onClick={() => setAttachedAudio(null)}
           />
         </>
@@ -111,11 +105,7 @@ export default function ChatInputSection({
       <ChatButton
         onClick={sendMessage}
         disabled={
-          (!input.trim() &&
-            !attachedImage &&
-            !attachedVideo &&
-            !attachedAudio) ||
-          !isConnected
+          (!input.trim() && !attachedImage && !attachedVideo && !attachedAudio) || !isConnected
         }
         $dark={isDarkTheme}
       >
