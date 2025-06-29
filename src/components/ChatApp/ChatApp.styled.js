@@ -34,39 +34,6 @@ export const ChatContainer = styled.div`
   }
 `;
 
-export const StatusBar = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  padding: 10px 16px;
-  border-bottom: 1px solid ${({ $dark }) => getTheme($dark).border};
-  background-color: ${({ $dark }) => getTheme($dark).input};
-`;
-
-export const ThemeToggle = styled.button`
-  appearance: none;
-  border: none;
-  cursor: pointer;
-  background: ${({ $dark }) => ($dark ? '#444' : '#ddd')};
-  border-radius: 20px;
-  width: 40px;
-  height: 20px;
-  position: relative;
-  transition: background 0.3s;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 2px;
-    left: ${({ $dark }) => ($dark ? '20px' : '2px')};
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: ${({ $dark }) => ($dark ? '#fff' : '#333')};
-    transition: left 0.3s;
-  }
-`;
-
 export const ChatButton = styled.button`
   display: flex;
   gap: 5px;

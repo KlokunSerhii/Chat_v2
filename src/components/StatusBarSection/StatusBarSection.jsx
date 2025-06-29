@@ -1,17 +1,33 @@
-import React from 'react';
-import { StatusBar, ChatButton, ConnectionStatus, ThemeToggle } from '../ChatApp/ChatApp.styled.js';
+import { useNavigate } from 'react-router-dom';
+import { FaBars } from 'react-icons/fa';
+import { FaArrowLeft } from 'react-icons/fa';
+
 import useMediaQuery from '../../hooks/useMediaQuery.js';
+import { useAuth } from '../../context/AuthContext';
+
+import {
+  GoBackButton,
+  OnlineUsersButton,
+  ThemeToggle,
+  LogoutButton,
+  StatusBar,
+  StatusUser,
+  StatusUserAvatar,
+  StatusUserContainer,
+} from './StatusBarSection.styled.js';
+import { ConnectionStatus } from '../ChatApp/ChatApp.styled';
 
 export default function StatusBarSection({
   isDarkTheme,
   isLoggedIn,
   isConnected,
-  onlineUsers,
   onToggleTheme,
   onLogout,
   onOpenOnlineUsers,
 }) {
   const isMobile = useMediaQuery('(max-width: 767px)');
+  const navigate = useNavigate();
+  const { username, avatar } = useAuth();
 
   return (
     <StatusBar $dark={isDarkTheme}>
@@ -19,19 +35,27 @@ export default function StatusBarSection({
         <>
           {isMobile && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <ChatButton onClick={onOpenOnlineUsers} $dark={isDarkTheme}>
-                <ConnectionStatus $connected={isConnected} />
-                Онлайн: {onlineUsers.length}
-              </ChatButton>
+              <OnlineUsersButton onClick={onOpenOnlineUsers} $dark={isDarkTheme}>
+                <FaBars />
+              </OnlineUsersButton>
             </div>
           )}
+          <GoBackButton onClick={() => navigate(-1)} $dark={isDarkTheme}>
+            <FaArrowLeft />
+          </GoBackButton>
           <ThemeToggle $dark={isDarkTheme} onClick={onToggleTheme} title="Toggle theme">
             {isDarkTheme ? ' ' : ' '}
           </ThemeToggle>
-
-          <ChatButton onClick={onLogout} $dark={isDarkTheme}>
-            Вийти
-          </ChatButton>
+          <StatusUserContainer>
+            <StatusUser $dark={isDarkTheme}>
+              <StatusUserAvatar src={avatar} alt={username} />
+              {username}
+              <ConnectionStatus $connected={isConnected} />
+            </StatusUser>
+            <LogoutButton onClick={onLogout} $dark={isDarkTheme}>
+              Вийти
+            </LogoutButton>
+          </StatusUserContainer>
         </>
       ) : (
         <ThemeToggle $dark={isDarkTheme} onClick={onToggleTheme} title="Toggle theme">

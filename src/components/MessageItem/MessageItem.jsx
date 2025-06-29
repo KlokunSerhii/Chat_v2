@@ -18,8 +18,7 @@ import EmojiReactions from '../EmojiReactions/EmojiReactions.jsx';
 import { FaRegSmile } from 'react-icons/fa';
 import { ReactionButton, Modal, EmojiOption } from '../EmojiReactions/EmojiReactions.styled.js';
 import { formatTime } from '../../utils/utils';
-
-const emojiOptions = ['❤️', '😂', '👍', '🔥', '😮'];
+import { emojiOptions } from '../../utils/emojiOptions.js';
 
 export default function MessageItem({
   msg,
