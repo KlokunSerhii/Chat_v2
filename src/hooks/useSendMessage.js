@@ -1,5 +1,5 @@
-import { v4 as uuidv4 } from "uuid";
-import { saveChatMessages } from "../utils/utils";
+import { v4 as uuidv4 } from 'uuid';
+import { saveChatMessages } from '../utils/utils';
 
 export function useSendMessage({ username, avatar, setMessages, sendSocketMessage }) {
   const sendMessage = ({ input, attachedImage, attachedAudio, attachedVideo, onClear }) => {
@@ -12,7 +12,7 @@ export function useSendMessage({ username, avatar, setMessages, sendSocketMessag
     const timestamp = new Date().toISOString();
 
     const localMsg = {
-      sender: "user",
+      sender: 'user',
       text: trimmedText,
       timestamp,
       username,
@@ -21,20 +21,22 @@ export function useSendMessage({ username, avatar, setMessages, sendSocketMessag
       audio: attachedAudio || null,
       video: attachedVideo || null,
       id: tempId,
-      local: true,
+      local: false,
     };
 
     // Локально додаємо повідомлення
-    setMessages((prev) => saveChatMessages([...prev, localMsg], 100));
+    setMessages(prev => saveChatMessages([...prev, localMsg], 100));
 
-    // Надсилаємо на сервер (без id)
+    // Надсилаємо на сервер (без id і local)
+    const { id, local, ...serverMsg } = localMsg;
+
     sendSocketMessage({
-      ...localMsg,
-      id: undefined,
+      ...serverMsg,
+      localId: tempId,
     });
 
     // Очистка полів
-    if (typeof onClear === "function") {
+    if (typeof onClear === 'function') {
       onClear();
     }
   };

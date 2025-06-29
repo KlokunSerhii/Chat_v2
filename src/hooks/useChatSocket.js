@@ -14,6 +14,7 @@ export function useChatSocket(username, avatar) {
   const socketRef = useRef(null);
 
   useEffect(() => {
+    if (socketRef.current) return;
     const socket = io(SERVER_URL, {
       auth: {
         token: localStorage.getItem('token'),
@@ -21,17 +22,29 @@ export function useChatSocket(username, avatar) {
     });
     const handleMessage = msg => {
       const isOwnMessage = msg.username === username;
+      console.log('handleMessage received:', msg);
       setMessages(prev => {
         const newMsg = { ...msg, id: msg._id };
 
-        if (isOwnMessage) {
-          return saveChatMessages(
-            prev.map(m => (m.local && m.text === msg.text && !m._id ? newMsg : m)),
-            100,
-          );
-        } else {
-          return saveChatMessages([...prev, newMsg], 100);
+        // Якщо це власне повідомлення, і ми вже додали його локально
+        if (isOwnMessage && msg.localId) {
+          const localIndex = prev.findIndex(m => m.id === msg.localId);
+          if (localIndex !== -1) {
+            const updated = [...prev];
+            updated[localIndex] = {
+              ...msg,
+              id: msg._id,
+            };
+            return saveChatMessages(updated, 100);
+          }
         }
+        // Якщо вже є повідомлення з таким id (наприклад, двічі прилетіло) — ігноруємо
+        if (prev.some(m => m.id === newMsg.id || (msg.localId && m.id === msg.localId))) {
+          return prev;
+        }
+
+        // Інакше додаємо нове
+        return saveChatMessages([...prev, newMsg], 100);
       });
     };
 

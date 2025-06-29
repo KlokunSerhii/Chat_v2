@@ -18,7 +18,7 @@ export default function MessagesSection({
         .filter(msg => msg.sender !== 'system')
         .map(msg => (
           <MessageItem
-            key={`${msg.username}-${msg.timestamp}`}
+            key={msg.id}
             msg={{ ...msg, id: msg.id || msg._id }}
             isOwn={msg.username === username}
             isDarkTheme={isDarkTheme}
