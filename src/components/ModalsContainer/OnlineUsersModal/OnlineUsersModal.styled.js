@@ -1,5 +1,5 @@
-import styled from "styled-components";
-import { getTheme } from "../../../utils/theme";
+import styled from 'styled-components';
+import { getTheme } from '../../../utils/theme';
 
 export const OnlineListModal = styled.div`
   position: fixed;
@@ -29,8 +29,10 @@ export const OnlineListModal = styled.div`
 export const OnlineUser = styled.div`
   display: flex;
   align-items: center;
+  border-bottom: 1px solid #ccc;
+  padding: 8px;
   gap: 8px;
-  margin-bottom: 10px;
+  font-size: 0.95rem;
 `;
 export const ModalOverlay = styled.div`
   position: fixed;

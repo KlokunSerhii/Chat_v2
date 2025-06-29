@@ -40,7 +40,7 @@ export const SidebarUserAvatar = styled.img`
   }
 
   @media (max-width: 480px) {
-    width: 50px;
-    height: 50px;
+    width: 35px;
+    height: 35px;
   }
 `;
