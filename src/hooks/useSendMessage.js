@@ -1,8 +1,27 @@
 import { v4 as uuidv4 } from 'uuid';
+import { jwtDecode } from 'jwt-decode';
 import { saveChatMessages } from '../utils/utils';
 
 export function useSendMessage({ username, avatar, setMessages, sendSocketMessage }) {
-  const sendMessage = ({ input, attachedImage, attachedAudio, attachedVideo, onClear }) => {
+  const token = localStorage.getItem('token');
+  let currentUserId = null;
+  if (token) {
+    try {
+      const decoded = jwtDecode(token);
+      currentUserId = decoded.id;
+    } catch (error) {
+      console.error('❌ Помилка при декодуванні токена:', error);
+    }
+  }
+
+  const sendMessage = ({
+    input,
+    attachedImage,
+    attachedAudio,
+    attachedVideo,
+    onClear,
+    recipientId = null,
+  }) => {
     const trimmedText = input.trim();
     const hasMedia = attachedImage || attachedAudio || attachedVideo;
 
@@ -22,6 +41,8 @@ export function useSendMessage({ username, avatar, setMessages, sendSocketMessag
       video: attachedVideo || null,
       id: tempId,
       local: false,
+      senderId: currentUserId,
+      recipientId: recipientId,
     };
 
     // Локально додаємо повідомлення
@@ -33,6 +54,7 @@ export function useSendMessage({ username, avatar, setMessages, sendSocketMessag
     sendSocketMessage({
       ...serverMsg,
       localId: tempId,
+      senderId: currentUserId,
     });
 
     // Очистка полів

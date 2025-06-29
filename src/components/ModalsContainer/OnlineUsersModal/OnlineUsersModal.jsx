@@ -1,9 +1,10 @@
 import { AvatarImage } from '../../LoginSection/LoginSection.styled';
 import { ModalOverlay, OnlineListModal, OnlineUser } from './OnlineUsersModal.styled';
+import useMediaQuery from '../../../hooks/useMediaQuery';
 
 export default function OnlineUsersModal({ onlineUsers, setIsOnlineListOpen, isDarkTheme }) {
-  console.log('onlineUsers:', onlineUsers);
-
+  const isMobile = useMediaQuery('(max-width: 767px)');
+  if (!isMobile) return null;
   return (
     <>
       <ModalOverlay onClick={() => setIsOnlineListOpen(false)} />

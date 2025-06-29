@@ -27,6 +27,14 @@ export default function AppRouter() {
             </PrivateRoute>
           }
         />
+        <Route
+          path="/chat/:userId"
+          element={
+            <PrivateRoute isLoggedIn={isLoggedIn} isAuthChecked={isAuthChecked}>
+              <ChatPage />
+            </PrivateRoute>
+          }
+        />
         <Route path="*" element={<Navigate to={isLoggedIn ? '/chat' : '/login'} replace />} />
       </Routes>
     </Router>

@@ -1,4 +1,6 @@
 import React, { useEffect, useRef } from 'react';
+import { useParams } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
 
 import { ChatContainer, Loader } from '../components/ChatApp/ChatApp.styled.js';
 import { useChatSocket } from '../hooks/useChatSocket.js';
@@ -15,7 +17,8 @@ import MessagesSection from '../components/MessagesSection/MessagesSection.jsx';
 import StatusBarSection from '../components/StatusBarSection/StatusBarSection.jsx';
 import EmojiPickerSection from '../components/EmojiPickerSection/EmojiPickerSection.jsx';
 import ModalsContainer from '../components/ModalsContainer/ModalsContainer';
-
+import SidebarUsers from '../components/SidebarUsers/SidebarUsers';
+import { FlexWrapper } from '../components/ChatApp/ChatApp.styled';
 import { SOUND_URL } from '../utils/sound.js';
 
 export default function ChatPage() {
@@ -23,7 +26,18 @@ export default function ChatPage() {
   const messagesEndRef = useRef(null);
   const audioRef = useRef(null);
   const hasInteracted = useRef(false);
-
+  const { userId } = useParams();
+  const token = localStorage.getItem('token');
+  let currentUserId = null;
+  if (token) {
+    try {
+      const decoded = jwtDecode(token);
+      currentUserId = decoded.id;
+    } catch (error) {
+      console.error('❌ Помилка при декодуванні токена:', error);
+    }
+  }
+  const routeUserId = String(userId || '');
   const state = useChatAppState();
   const {
     input,
@@ -88,6 +102,7 @@ export default function ChatPage() {
       attachedImage,
       attachedAudio,
       attachedVideo,
+      recipientId: userId || null,
       onClear: () => {
         setInput('');
         setAttachedImage(null);
@@ -100,57 +115,76 @@ export default function ChatPage() {
   const { openImageModal, closeImageModal } = useImageModal(setIsImageModalOpen, setModalImageSrc);
   useChatEffects({ messages, username, audioRef, messagesEndRef, hasInteracted });
 
+  const isPrivateChat = !!userId;
+
+  const filteredMessages = isPrivateChat
+    ? messages.filter(
+        msg =>
+          (msg.senderId === currentUserId && msg.recipientId === routeUserId) ||
+          (msg.senderId === routeUserId && msg.recipientId === currentUserId),
+      )
+    : messages.filter(msg => !msg.recipientId);
+
   if (!isAuthChecked) return <Loader />;
 
   return (
     <ChatContainer $dark={isDarkTheme} $isLogin={false}>
-      <StatusBarSection
-        isDarkTheme={isDarkTheme}
-        isLoggedIn={isLoggedIn}
-        isConnected={isConnected}
-        onlineUsers={onlineUsers}
-        onToggleTheme={() => setIsDarkTheme(d => !d)}
-        onLogout={handleLogout}
-        onOpenOnlineUsers={() => setIsOnlineListOpen(true)}
-      />
+      <FlexWrapper>
+        <SidebarUsers
+          onlineUsers={onlineUsers}
+          isDarkTheme={isDarkTheme}
+          isConnected={isConnected}
+        />
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+          <StatusBarSection
+            isDarkTheme={isDarkTheme}
+            isLoggedIn={isLoggedIn}
+            isConnected={isConnected}
+            onlineUsers={onlineUsers}
+            onToggleTheme={() => setIsDarkTheme(d => !d)}
+            onLogout={handleLogout}
+            onOpenOnlineUsers={() => setIsOnlineListOpen(true)}
+          />
 
-      <MessagesSection
-        messages={messages}
-        username={username}
-        isDarkTheme={isDarkTheme}
-        typingUsers={typingUsers}
-        onImageClick={openImageModal}
-        messagesEndRef={messagesEndRef}
-        onToggleReaction={toggleReaction}
-      />
-      <ChatInputSection
-        input={input}
-        setInput={setInput}
-        sendMessage={handleSendMessage}
-        isDarkTheme={isDarkTheme}
-        showEmojiPicker={showEmojiPicker}
-        setShowEmojiPicker={setShowEmojiPicker}
-        fileInputRef={fileInputRef}
-        handleFileChange={handleFileChange}
-        setAttachedAudio={setAttachedAudio}
-        setAttachedVideo={setAttachedVideo}
-        setAttachedImage={setAttachedImage}
-        attachedImage={attachedImage}
-        attachedVideo={attachedVideo}
-        attachedAudio={attachedAudio}
-        setAudioLoading={setAudioLoading}
-        setImageLoading={setImageLoading}
-        setVideoLoading={setVideoLoading}
-        audioLoading={audioLoading}
-        imageLoading={imageLoading}
-        videoLoading={videoLoading}
-        isConnected={isConnected}
-      />
-      <EmojiPickerSection
-        showEmojiPicker={showEmojiPicker}
-        isDarkTheme={isDarkTheme}
-        setInput={setInput}
-      />
+          <MessagesSection
+            messages={filteredMessages}
+            username={username}
+            isDarkTheme={isDarkTheme}
+            typingUsers={typingUsers}
+            onImageClick={openImageModal}
+            messagesEndRef={messagesEndRef}
+            onToggleReaction={toggleReaction}
+          />
+          <ChatInputSection
+            input={input}
+            setInput={setInput}
+            sendMessage={handleSendMessage}
+            isDarkTheme={isDarkTheme}
+            showEmojiPicker={showEmojiPicker}
+            setShowEmojiPicker={setShowEmojiPicker}
+            fileInputRef={fileInputRef}
+            handleFileChange={handleFileChange}
+            setAttachedAudio={setAttachedAudio}
+            setAttachedVideo={setAttachedVideo}
+            setAttachedImage={setAttachedImage}
+            attachedImage={attachedImage}
+            attachedVideo={attachedVideo}
+            attachedAudio={attachedAudio}
+            setAudioLoading={setAudioLoading}
+            setImageLoading={setImageLoading}
+            setVideoLoading={setVideoLoading}
+            audioLoading={audioLoading}
+            imageLoading={imageLoading}
+            videoLoading={videoLoading}
+            isConnected={isConnected}
+          />
+          <EmojiPickerSection
+            showEmojiPicker={showEmojiPicker}
+            isDarkTheme={isDarkTheme}
+            setInput={setInput}
+          />
+        </div>
+      </FlexWrapper>
       <ModalsContainer
         isOnlineListOpen={isOnlineListOpen}
         setIsOnlineListOpen={setIsOnlineListOpen}

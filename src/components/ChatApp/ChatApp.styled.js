@@ -102,8 +102,8 @@ export const TypingIndicator = styled.div`
 `;
 
 export const ConnectionStatus = styled.div`
-  width: 12px;
-  height: 12px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: ${({ $connected }) => ($connected ? '#4caf50' : '#f44336')};
 `;
@@ -132,4 +132,10 @@ export const Loader = styled.div`
   display: inline-block;
   box-sizing: border-box;
   animation: rotation 1s linear infinite;
+`;
+export const FlexWrapper = styled.div`
+  display: flex;
+  flex: 1;
+  height: 100%;
+  overflow: hidden;
 `;

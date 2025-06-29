@@ -1,5 +1,6 @@
 import React from 'react';
 import { StatusBar, ChatButton, ConnectionStatus, ThemeToggle } from '../ChatApp/ChatApp.styled.js';
+import useMediaQuery from '../../hooks/useMediaQuery.js';
 
 export default function StatusBarSection({
   isDarkTheme,
@@ -10,22 +11,21 @@ export default function StatusBarSection({
   onLogout,
   onOpenOnlineUsers,
 }) {
+  const isMobile = useMediaQuery('(max-width: 767px)');
+
   return (
     <StatusBar $dark={isDarkTheme}>
       {isLoggedIn ? (
         <>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <ChatButton onClick={onOpenOnlineUsers} $dark={isDarkTheme}>
-              <ConnectionStatus $connected={isConnected} />
-              Онлайн: {onlineUsers.length}
-            </ChatButton>
-          </div>
-
-          <ThemeToggle
-            $dark={isDarkTheme}
-            onClick={onToggleTheme}
-            title="Toggle theme"
-          >
+          {isMobile && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <ChatButton onClick={onOpenOnlineUsers} $dark={isDarkTheme}>
+                <ConnectionStatus $connected={isConnected} />
+                Онлайн: {onlineUsers.length}
+              </ChatButton>
+            </div>
+          )}
+          <ThemeToggle $dark={isDarkTheme} onClick={onToggleTheme} title="Toggle theme">
             {isDarkTheme ? ' ' : ' '}
           </ThemeToggle>
 
@@ -34,11 +34,7 @@ export default function StatusBarSection({
           </ChatButton>
         </>
       ) : (
-        <ThemeToggle
-          $dark={isDarkTheme}
-          onClick={onToggleTheme}
-          title="Toggle theme"
-        >
+        <ThemeToggle $dark={isDarkTheme} onClick={onToggleTheme} title="Toggle theme">
           {isDarkTheme ? ' ' : ' '}
         </ThemeToggle>
       )}

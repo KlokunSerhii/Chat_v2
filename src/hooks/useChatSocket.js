@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 import { v4 as uuidv4 } from 'uuid';
 import toast from 'react-hot-toast';
+import { jwtDecode } from 'jwt-decode';
 
 import { saveChatMessages } from '../utils/utils.js';
 import { SERVER_URL } from '../utils/url.js';
@@ -22,7 +23,7 @@ export function useChatSocket(username, avatar) {
     });
     const handleMessage = msg => {
       const isOwnMessage = msg.username === username;
-      console.log('handleMessage received:', msg);
+
       setMessages(prev => {
         const newMsg = { ...msg, id: msg._id };
 
@@ -62,6 +63,12 @@ export function useChatSocket(username, avatar) {
     });
 
     socket.on('last-messages', history => {
+      const currentUserId = jwtDecode(localStorage.getItem('token')).id;
+
+      const filtered = history.filter(
+        msg =>
+          !msg.recipientId || msg.senderId === currentUserId || msg.recipientId === currentUserId,
+      );
       const restored = history.map(msg => ({
         ...msg,
         id: msg._id,

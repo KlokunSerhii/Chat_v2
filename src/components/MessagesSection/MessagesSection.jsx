@@ -14,19 +14,17 @@ export default function MessagesSection({
 }) {
   return (
     <ChatMessages $dark={isDarkTheme}>
-      {messages
-        .filter(msg => msg.sender !== 'system')
-        .map(msg => (
-          <MessageItem
-            key={msg.id}
-            msg={{ ...msg, id: msg.id || msg._id }}
-            isOwn={msg.username === username}
-            isDarkTheme={isDarkTheme}
-            onImageClick={onImageClick}
-            username={username}
-            onToggleReaction={onToggleReaction}
-          />
-        ))}
+      {messages.map(msg => (
+        <MessageItem
+          key={msg.id}
+          msg={{ ...msg, id: msg.id || msg._id }}
+          isOwn={msg.username === username}
+          isDarkTheme={isDarkTheme}
+          onImageClick={onImageClick}
+          username={username}
+          onToggleReaction={onToggleReaction}
+        />
+      ))}
 
       {typingUsers.map(user => (
         <TypingIndicator key={user} $dark={isDarkTheme}>
