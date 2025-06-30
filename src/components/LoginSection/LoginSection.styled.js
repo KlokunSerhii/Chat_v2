@@ -1,5 +1,5 @@
-import styled from "styled-components";
-import { getTheme } from "../../utils/theme";
+import styled from 'styled-components';
+import { getTheme } from '../../utils/theme';
 
 // Контейнер для вводу і аватара з елегантними тінями та плавними переходами
 export const UsernameInputWrapper = styled.form`
@@ -39,7 +39,7 @@ export const UsernameInput = styled.input`
   max-width: 360px;
   box-sizing: border-box;
   transition: all 0.3s ease;
-  font-family: "Arial", sans-serif;
+  font-family: 'Arial', sans-serif;
 
   &::placeholder {
     color: ${({ $dark }) => getTheme($dark).placeholder};
@@ -85,7 +85,7 @@ export const AvatarImageButton = styled.button`
   margin-top: 8px;
   padding: 6px 12px;
   font-weight: bold;
-  background-color: ${({ $dark }) => ($dark ? "#444" : "#0088cc")};
+  background-color: ${({ $dark }) => ($dark ? '#444' : '#0088cc')};
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -93,6 +93,21 @@ export const AvatarImageButton = styled.button`
   transition: background 0.3s;
 
   &:hover {
-    background-color: ${({ $dark }) => ($dark ? "#555" : "#007ab8")};
+    background-color: ${({ $dark }) => ($dark ? '#555' : '#007ab8')};
   }
+`;
+
+export const HidePasswordButton = styled.button`
+  position: absolute;
+  right: 20px;
+  top: 63%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: ${({ $dark }) => ($dark ? '#fff' : '#000')};
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;

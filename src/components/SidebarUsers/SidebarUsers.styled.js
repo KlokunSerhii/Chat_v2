@@ -7,7 +7,7 @@ export const SidebarWrapper = styled.div`
   @media (min-width: 768px) {
     display: flex;
     flex-direction: column;
-    width: 350px;
+    width: 300px;
     padding: 16px 0;
     background-color: ${({ $dark }) => ($dark ? '#222' : '#f3f3f3')};
     color: ${({ $dark }) => ($dark ? '#fff' : '#000')};

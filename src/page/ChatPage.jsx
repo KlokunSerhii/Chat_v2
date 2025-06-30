@@ -144,7 +144,6 @@ export default function ChatPage() {
   useEffect(() => {
     scrollToBottom();
   }, [userId]);
-  console.log(typingUsers);
 
   if (!isAuthChecked) return <Loader />;
 
