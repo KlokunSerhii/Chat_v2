@@ -1,5 +1,6 @@
-// MessageItem.jsx
 import { useState } from 'react';
+import MarkdownRenderer from '../MarkdownRenderer/MarkdownRenderer.jsx';
+
 import CustomAudioPlayer from '../CustomAudioPlayer/CustomAudioPlayer.jsx';
 import 'react-h5-audio-player/lib/styles.css';
 import {
@@ -8,7 +9,6 @@ import {
   MessageText,
   MessageImage,
   MessageTime,
-  StyledMarkdown,
   AvatarImageChat,
   FileLabel,
   FileLabelContainer,
@@ -80,7 +80,7 @@ export default function MessageItem({
         )}
 
         <MessageText $isOwn={isOwn}>
-          {msg.text?.trim() && <StyledMarkdown>{msg.text}</StyledMarkdown>}
+          {msg.text?.trim() && <MarkdownRenderer content={msg.text} />}
 
           {msg.image && (
             <FileLabelContainer>

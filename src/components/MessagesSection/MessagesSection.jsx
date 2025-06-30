@@ -22,8 +22,6 @@ export default function MessagesSection({
 
   const chatTitle = activeChatUserId ? 'Приватний чат' : 'Загальний чат';
 
-  console.log(activeChatUserId);
-
   return (
     <>
       <h3 style={{ textAlign: 'center', margin: '10px 0', color: isDarkTheme ? '#fff' : '#000' }}>

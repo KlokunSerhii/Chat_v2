@@ -1,5 +1,4 @@
 import styled, { css } from 'styled-components';
-
 import { getTheme } from '../../utils/theme';
 
 export const Message = styled.div`
@@ -83,10 +82,7 @@ export const MessageImage = styled.img`
     max-height: 200px;
   }
 `;
-export const StyledMarkdown = styled.div`
-  margin-block-start: 0;
-  text-align: start;
-`;
+
 export const AvatarImageChat = styled.img`
   border-radius: 50%;
   width: 30px;
