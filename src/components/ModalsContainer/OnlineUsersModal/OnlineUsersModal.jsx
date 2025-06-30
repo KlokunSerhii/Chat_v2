@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 
 import { SidebarUserAvatar } from '../../SidebarUsers/SidebarUsers.styled';
 import { ModalOverlay, OnlineListModal, OnlineUser } from './OnlineUsersModal.styled';
@@ -7,6 +7,8 @@ import { useAuth } from '../../../context/AuthContext';
 
 export default function OnlineUsersModal({ onlineUsers, setIsOnlineListOpen, isDarkTheme }) {
   const { username: currentUsername } = useAuth();
+  const { userId: activeChatUserId } = useParams();
+
   const isMobile = useMediaQuery('(max-width: 767px)');
   if (!isMobile) return null;
   return (
@@ -17,8 +19,12 @@ export default function OnlineUsersModal({ onlineUsers, setIsOnlineListOpen, isD
         {onlineUsers
           .filter(user => user.username !== currentUsername)
           .map((user, index) => (
-            <Link key={`${user.username}-${index}`} to={`/chat/${user.id}`}>
-              <OnlineUser key={`${user.username}-${user.avatar}-${index}`} $dark={isDarkTheme}>
+            <Link
+              key={`${user.id}`}
+              to={`/chat/${user.id}`}
+              onClick={() => setIsOnlineListOpen(false)}
+            >
+              <OnlineUser $dark={isDarkTheme} $active={user.id === activeChatUserId}>
                 <SidebarUserAvatar src={user.avatar} alt={user.username} />
                 {user.username}
               </OnlineUser>

@@ -24,12 +24,18 @@ export const ChatInput = styled.textarea`
 export const EmojiButton = styled.button`
   background: none;
   border: none;
-  font-size: 20px;
   margin: 0 5px;
+  padding: 8px;
   cursor: pointer;
 `;
 
-export const AttachButton = styled(EmojiButton)``;
+export const AttachButton = styled.button`
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  margin-right: 5px;
+`;
 
 export const AttachedImagePreview = styled.img`
   max-width: 100%;
@@ -37,7 +43,7 @@ export const AttachedImagePreview = styled.img`
   height: 40px;
   object-fit: cover;
   border-radius: 6px;
-  margin: 0 5px;
+  margin-right: 5px;
   cursor: pointer;
 `;
 export const AttachedVideoPreview = styled.video`
@@ -46,7 +52,7 @@ export const AttachedVideoPreview = styled.video`
   height: 40px;
   object-fit: cover;
   border-radius: 6px;
-  margin: 0 5px;
+  margin-right: 5px;
   cursor: pointer;
 `;
 export const AttachedAudioPreview = styled.audio`
@@ -55,7 +61,7 @@ export const AttachedAudioPreview = styled.audio`
   height: 40px;
   object-fit: cover;
   border-radius: 6px;
-  margin: 0 5px;
+  margin-right: 5px;
   cursor: pointer;
 `;
 export const Loader = styled.div`

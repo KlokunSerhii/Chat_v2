@@ -59,7 +59,7 @@ export function useChatSocket(username, avatar) {
     socket.on('user-typing', u => {
       if (u === username) return;
       setTypingUsers(prev => (prev.includes(u) ? prev : [...prev, u]));
-      setTimeout(() => setTypingUsers(prev => prev.filter(x => x !== u)), 2500);
+      setTimeout(() => setTypingUsers(prev => prev.filter(x => x !== u)), 1000);
     });
 
     socket.on('last-messages', history => {
@@ -79,8 +79,15 @@ export function useChatSocket(username, avatar) {
 
     socket.on('message', handleMessage);
 
-    socket.on('reaction-update', ({ messageId, reactions }) => {
-      setMessages(prev => prev.map(msg => (msg.id === messageId ? { ...msg, reactions } : msg)));
+    socket.on('reaction-update', updatedMsg => {
+      setMessages(prev => {
+        const exists = prev.some(msg => msg.id === updatedMsg.id);
+        if (!exists) {
+          return [...prev, updatedMsg]; // або ігноруємо, якщо не хочемо додавати
+        }
+
+        return prev.map(msg => (msg.id === updatedMsg.id ? updatedMsg : msg));
+      });
     });
 
     socket.on('user-joined', ({ username, avatar, timestamp }) => {

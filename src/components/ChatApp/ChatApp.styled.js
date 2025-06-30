@@ -63,6 +63,7 @@ export const ChatMessages = styled.div`
 `;
 
 export const TypingIndicator = styled.div`
+  display: flex;
   font-style: italic;
   color: ${({ $dark }) => ($dark ? '#aaa' : '#555')};
   margin: 5px 10px;

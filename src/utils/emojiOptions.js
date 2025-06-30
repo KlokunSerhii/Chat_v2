@@ -1,1 +1,1 @@
-export const emojiOptions = ['❤️', '😂', '👍', '🔥', '😮'];
+export const emojiOptions = ['❤️', '😂', '👍', '🔥', '😮', '👀', '😢', '👏', '💯', '🎉'];

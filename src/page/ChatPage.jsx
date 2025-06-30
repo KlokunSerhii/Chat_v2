@@ -63,6 +63,8 @@ export default function ChatPage() {
 
   const { isAuthChecked, isLoggedIn, handleLogout, username, avatar } = useAuth();
 
+  const chatSocket = useChatSocket();
+  const socket = chatSocket.socketRef.current;
   const {
     messages,
     setMessages,
@@ -71,7 +73,7 @@ export default function ChatPage() {
     isConnected,
     sendMessage: sendSocketMessage,
     toggleReaction,
-  } = useChatSocket();
+  } = chatSocket;
 
   const { sendMessage } = useSendMessage({
     username,
@@ -177,6 +179,8 @@ export default function ChatPage() {
             imageLoading={imageLoading}
             videoLoading={videoLoading}
             isConnected={isConnected}
+            socket={socket}
+            recipientId={userId || null}
           />
           <EmojiPickerSection
             showEmojiPicker={showEmojiPicker}

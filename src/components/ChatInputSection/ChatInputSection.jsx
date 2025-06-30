@@ -1,4 +1,7 @@
-import React, { useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
+import { FaPlus } from 'react-icons/fa';
+import { MdEmojiEmotions } from 'react-icons/md';
+
 import { ChatButton, Loader } from '../ChatApp/ChatApp.styled';
 import {
   ChatInputWrapper,
@@ -15,9 +18,7 @@ export default function ChatInputSection({
   setInput,
   sendMessage,
   isDarkTheme,
-  showEmojiPicker,
   setShowEmojiPicker,
-  addEmoji,
   fileInputRef,
   handleFileChange,
   setAttachedVideo,
@@ -33,6 +34,8 @@ export default function ChatInputSection({
   videoLoading,
   audioLoading,
   isConnected,
+  socket,
+  recipientId,
 }) {
   const chatInputRef = useRef(null);
 
@@ -40,18 +43,27 @@ export default function ChatInputSection({
     chatInputRef.current?.focus();
   }, []);
 
+  const handleInputChange = e => {
+    setInput(e.target.value);
+
+    // Надсилаємо подію typing на сервер
+    if (socket && socket.connected) {
+      socket.emit('typing', { recipientId });
+    }
+  };
+
   return (
     <ChatInputWrapper $dark={isDarkTheme}>
       <ChatInput
         ref={chatInputRef}
         value={input}
-        onChange={e => setInput(e.target.value)}
+        onChange={handleInputChange}
         onKeyDown={e => e.key === 'Enter' && sendMessage()}
         placeholder="Напишіть повідомлення..."
         $dark={isDarkTheme}
       />
       <EmojiButton onClick={() => setShowEmojiPicker(p => !p)} $dark={isDarkTheme}>
-        😃
+        <MdEmojiEmotions size={24} color="#fbbf24" />
       </EmojiButton>
       <input
         type="file"
@@ -61,7 +73,7 @@ export default function ChatInputSection({
         onChange={handleFileChange}
       />
       <AttachButton onClick={() => fileInputRef.current.click()} $dark={isDarkTheme}>
-        📎
+        <FaPlus size={20} />
       </AttachButton>
       {attachedImage && (
         <>
@@ -88,7 +100,6 @@ export default function ChatInputSection({
           />
         </>
       )}
-
       {attachedAudio && (
         <>
           {audioLoading && <Loader isDarkTheme={isDarkTheme} />}

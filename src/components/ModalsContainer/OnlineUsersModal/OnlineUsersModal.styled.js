@@ -29,11 +29,18 @@ export const OnlineListModal = styled.div`
 export const OnlineUser = styled.div`
   display: flex;
   align-items: center;
+  background-color: ${({ $active, $dark }) =>
+    $active ? ($dark ? '#444' : '#d0ebff') : 'transparent'};
   border-bottom: 1px solid #ccc;
   padding: 8px;
   gap: 8px;
   font-size: 0.95rem;
+
+  &:hover {
+    background-color: ${({ $dark }) => ($dark ? '#555' : '#f0f0f0')};
+  }
 `;
+
 export const ModalOverlay = styled.div`
   position: fixed;
   inset: 0;
