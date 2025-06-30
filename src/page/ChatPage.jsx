@@ -217,6 +217,7 @@ export default function ChatPage() {
         isImageModalOpen={isImageModalOpen}
         modalImageSrc={modalImageSrc}
         closeImageModal={closeImageModal}
+        unreadPrivateMessages={unreadPrivateMessages}
       />
       <audio ref={audioRef} src={SOUND_URL} />
     </ChatContainer>

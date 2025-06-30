@@ -5,7 +5,12 @@ import { ModalOverlay, OnlineListModal, OnlineUser } from './OnlineUsersModal.st
 import useMediaQuery from '../../../hooks/useMediaQuery';
 import { useAuth } from '../../../context/AuthContext';
 import { MsgUnreadCount } from '../../SidebarUsers/SidebarUsers.styled';
-export default function OnlineUsersModal({ onlineUsers, setIsOnlineListOpen, isDarkTheme }) {
+export default function OnlineUsersModal({
+  onlineUsers,
+  setIsOnlineListOpen,
+  isDarkTheme,
+  unreadPrivateMessages = {},
+}) {
   const { username: currentUsername } = useAuth();
   const { userId: activeChatUserId } = useParams();
 

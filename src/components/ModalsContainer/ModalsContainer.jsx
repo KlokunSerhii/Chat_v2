@@ -12,6 +12,7 @@ export default function ModalsContainer({
   isImageModalOpen,
   modalImageSrc,
   closeImageModal,
+  unreadPrivateMessages,
 }) {
   return (
     <>
@@ -20,14 +21,11 @@ export default function ModalsContainer({
           onlineUsers={onlineUsers}
           setIsOnlineListOpen={setIsOnlineListOpen}
           isDarkTheme={isDarkTheme}
+          unreadPrivateMessages={unreadPrivateMessages}
         />
       )}
 
-      <ImageModal
-        isOpen={isImageModalOpen}
-        imageSrc={modalImageSrc}
-        onClose={closeImageModal}
-      />
+      <ImageModal isOpen={isImageModalOpen} imageSrc={modalImageSrc} onClose={closeImageModal} />
     </>
   );
 }
