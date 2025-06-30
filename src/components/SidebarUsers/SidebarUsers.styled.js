@@ -51,3 +51,14 @@ export const SidebarUserAvatar = styled.img`
     height: 35px;
   }
 `;
+export const MsgUnreadCount = styled.div`
+  background: #ff0000;
+  color: #fff;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  text-align: center;
+  line-height: 20px;
+  margin-left: 8px;
+  fontsize: 12px;
+`;

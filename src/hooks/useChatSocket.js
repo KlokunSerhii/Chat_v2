@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { io } from 'socket.io-client';
 import { v4 as uuidv4 } from 'uuid';
 import toast from 'react-hot-toast';
@@ -7,11 +7,12 @@ import { jwtDecode } from 'jwt-decode';
 import { saveChatMessages } from '../utils/utils.js';
 import { SERVER_URL } from '../utils/url.js';
 
-export function useChatSocket(username, avatar) {
+export function useChatSocket(username, avatar, activeChatUserId) {
   const [messages, setMessages] = useState([]);
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [typingUsers, setTypingUsers] = useState([]);
   const [isConnected, setIsConnected] = useState(false);
+  const [unreadPrivateMessages, setUnreadPrivateMessages] = useState({});
   const socketRef = useRef(null);
 
   useEffect(() => {
@@ -21,8 +22,37 @@ export function useChatSocket(username, avatar) {
         token: localStorage.getItem('token'),
       },
     });
+
+    const token = localStorage.getItem('token');
+    let currentUserId = null;
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        currentUserId = decoded.id;
+      } catch (error) {
+        console.error('❌ Помилка при декодуванні токена:', error);
+      }
+    }
     const handleMessage = msg => {
       const isOwnMessage = msg.username === username;
+      const isPrivate = msg.recipientId && msg.senderId !== msg.recipientId;
+      const isToCurrentUser = msg.recipientId === currentUserId;
+      const isFromAnotherUser = msg.senderId !== currentUserId;
+
+      if (isPrivate && isToCurrentUser && isFromAnotherUser) {
+        if (msg.senderId !== activeChatUserId) {
+          setUnreadPrivateMessages(prev => ({
+            ...prev,
+            [msg.senderId]: (prev[msg.senderId] || 0) + 1,
+          }));
+        } else {
+          // очищаємо, бо чат відкритий
+          setUnreadPrivateMessages(prev => ({
+            ...prev,
+            [msg.senderId]: 0,
+          }));
+        }
+      }
 
       setMessages(prev => {
         const newMsg = { ...msg, id: msg._id };
@@ -56,10 +86,27 @@ export function useChatSocket(username, avatar) {
 
     socket.on('online-users', users => setOnlineUsers(users));
 
-    socket.on('user-typing', u => {
-      if (u === username) return;
-      setTypingUsers(prev => (prev.includes(u) ? prev : [...prev, u]));
-      setTimeout(() => setTypingUsers(prev => prev.filter(x => x !== u)), 1000);
+    const typingTimers = {};
+
+    socket.on('user-typing', user => {
+      if (user.username === username) return;
+
+      setTypingUsers(prev => {
+        const exists = prev.some(u => u.userId === user.userId);
+        if (!exists) return [...prev, user];
+        return prev;
+      });
+
+      // Скидаємо старий таймер, якщо був
+      if (typingTimers[user.userId]) {
+        clearTimeout(typingTimers[user.userId]);
+      }
+
+      // Ставимо новий
+      typingTimers[user.userId] = setTimeout(() => {
+        setTypingUsers(prev => prev.filter(u => u.userId !== user.userId));
+        delete typingTimers[user.userId];
+      }, 1000);
     });
 
     socket.on('last-messages', history => {
@@ -80,55 +127,34 @@ export function useChatSocket(username, avatar) {
     socket.on('message', handleMessage);
 
     socket.on('reaction-update', updatedMsg => {
-      setMessages(prev => {
-        const exists = prev.some(msg => msg.id === updatedMsg.id);
-        if (!exists) {
-          return [...prev, updatedMsg]; // або ігноруємо, якщо не хочемо додавати
-        }
+      setMessages(prev =>
+        prev.map(msg => {
+          const sameByMongoId = msg.id === updatedMsg._id;
+          const sameByLocalId = updatedMsg.localId && msg.id === updatedMsg.localId;
 
-        return prev.map(msg => (msg.id === updatedMsg.id ? updatedMsg : msg));
-      });
+          if (sameByMongoId || sameByLocalId) {
+            return {
+              ...msg,
+              reactions: updatedMsg.reactions,
+            };
+          }
+
+          return msg;
+        }),
+      );
     });
 
-    socket.on('user-joined', ({ username, avatar, timestamp }) => {
+    socket.on('user-joined', ({ username }) => {
       toast.success(`${username} приєднався до чату`, {
         duration: 3000,
         position: 'top-center',
       });
-      setMessages(prev => {
-        const next = [
-          ...prev,
-          {
-            id: uuidv4(),
-            sender: 'system',
-            username,
-            avatar,
-            text: `${username} приєднався`,
-            timestamp,
-          },
-        ];
-        return saveChatMessages(next, 100);
-      });
     });
 
-    socket.on('user-left', ({ username, avatar, timestamp }) => {
+    socket.on('user-left', ({ username }) => {
       toast.success(`${username} вийшов із чату`, {
         duration: 3000,
         position: 'top-center',
-      });
-      setMessages(prev => {
-        const next = [
-          ...prev,
-          {
-            id: uuidv4(),
-            sender: 'system',
-            username,
-            avatar,
-            text: `${username} покинув`,
-            timestamp,
-          },
-        ];
-        return saveChatMessages(next, 100);
       });
     });
 
@@ -154,5 +180,7 @@ export function useChatSocket(username, avatar) {
     sendMessage,
     socketRef,
     toggleReaction,
+    unreadPrivateMessages,
+    setUnreadPrivateMessages,
   };
 }

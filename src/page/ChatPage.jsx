@@ -28,6 +28,9 @@ export default function ChatPage() {
   const hasInteracted = useRef(false);
   const { userId } = useParams();
   const token = localStorage.getItem('token');
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
   let currentUserId = null;
   if (token) {
     try {
@@ -63,7 +66,7 @@ export default function ChatPage() {
 
   const { isAuthChecked, isLoggedIn, handleLogout, username, avatar } = useAuth();
 
-  const chatSocket = useChatSocket();
+  const chatSocket = useChatSocket(username, avatar, routeUserId);
   const socket = chatSocket.socketRef.current;
   const {
     messages,
@@ -73,6 +76,8 @@ export default function ChatPage() {
     isConnected,
     sendMessage: sendSocketMessage,
     toggleReaction,
+    unreadPrivateMessages,
+    setUnreadPrivateMessages,
   } = chatSocket;
 
   const { sendMessage } = useSendMessage({
@@ -127,6 +132,20 @@ export default function ChatPage() {
       )
     : messages.filter(msg => !msg.recipientId);
 
+  useEffect(() => {
+    if (userId && unreadPrivateMessages[userId]) {
+      setUnreadPrivateMessages(prev => ({
+        ...prev,
+        [userId]: 0,
+      }));
+    }
+  }, [userId, unreadPrivateMessages]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [userId]);
+  console.log(typingUsers);
+
   if (!isAuthChecked) return <Loader />;
 
   return (
@@ -136,6 +155,7 @@ export default function ChatPage() {
           onlineUsers={onlineUsers}
           isDarkTheme={isDarkTheme}
           isConnected={isConnected}
+          unreadPrivateMessages={unreadPrivateMessages}
         />
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           <StatusBarSection

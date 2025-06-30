@@ -1,5 +1,6 @@
-// components/MessagesSection.jsx
-import React from 'react';
+import React, { useMemo } from 'react';
+import { useParams } from 'react-router-dom';
+
 import { ChatMessages, TypingIndicator } from '../ChatApp/ChatApp.styled.js';
 import MessageItem from '../MessageItem/MessageItem.jsx';
 
@@ -12,6 +13,14 @@ export default function MessagesSection({
   messagesEndRef,
   onToggleReaction,
 }) {
+  const { userId: activeChatUserId } = useParams();
+  console.log(typingUsers);
+
+  const visibleTypingUsers = useMemo(() => {
+    if (!activeChatUserId) return typingUsers;
+    return typingUsers.filter(user => user.userId === activeChatUserId);
+  }, [typingUsers, activeChatUserId]);
+
   return (
     <ChatMessages $dark={isDarkTheme}>
       {messages.map(msg => (
@@ -26,9 +35,9 @@ export default function MessagesSection({
         />
       ))}
 
-      {typingUsers.map(user => (
-        <TypingIndicator key={user} $dark={isDarkTheme}>
-          <em>{user} друкує...</em>
+      {visibleTypingUsers.map(user => (
+        <TypingIndicator key={user.userId} $dark={isDarkTheme}>
+          <em>{user.username} друкує...</em>
         </TypingIndicator>
       ))}
 
