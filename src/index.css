@@ -99,3 +99,15 @@ body.dark ::-webkit-scrollbar-thumb {
 body.dark * {
   scrollbar-color: rgba(255, 255, 255, 0.4) transparent;
 }
+.highlight {
+  animation: flash 1s ease;
+}
+
+@keyframes flash {
+  0% {
+    background-color: #fff59d;
+  }
+  100% {
+    background-color: transparent;
+  }
+}

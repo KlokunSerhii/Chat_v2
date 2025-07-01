@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 
@@ -27,6 +27,7 @@ export default function ChatPage() {
   const audioRef = useRef(null);
   const hasInteracted = useRef(false);
   const { userId } = useParams();
+  const [replyToMessage, setReplyToMessage] = useState(null);
   const token = localStorage.getItem('token');
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -104,17 +105,20 @@ export default function ChatPage() {
   useAutoFocus(usernameInputRef);
 
   const handleSendMessage = () => {
+    console.log(replyToMessage);
     sendMessage({
       input,
       attachedImage,
       attachedAudio,
       attachedVideo,
       recipientId: userId || null,
+      replyTo: replyToMessage,
       onClear: () => {
         setInput('');
         setAttachedImage(null);
         setAttachedAudio(null);
         setAttachedVideo(null);
+        setReplyToMessage(null);
       },
     });
   };
@@ -175,6 +179,7 @@ export default function ChatPage() {
             onImageClick={openImageModal}
             messagesEndRef={messagesEndRef}
             onToggleReaction={toggleReaction}
+            onReplyMessage={setReplyToMessage}
           />
           <ChatInputSection
             input={input}
@@ -200,6 +205,8 @@ export default function ChatPage() {
             isConnected={isConnected}
             socket={socket}
             recipientId={userId || null}
+            replyToMessage={replyToMessage}
+            setReplyToMessage={setReplyToMessage}
           />
           <EmojiPickerSection
             showEmojiPicker={showEmojiPicker}

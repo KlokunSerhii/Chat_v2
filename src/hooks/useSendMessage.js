@@ -21,6 +21,7 @@ export function useSendMessage({ username, avatar, setMessages, sendSocketMessag
     attachedVideo,
     onClear,
     recipientId = null,
+    replyTo = null,
   }) => {
     const trimmedText = input.trim();
     const hasMedia = attachedImage || attachedAudio || attachedVideo;
@@ -29,6 +30,14 @@ export function useSendMessage({ username, avatar, setMessages, sendSocketMessag
 
     const tempId = uuidv4();
     const timestamp = new Date().toISOString();
+
+    const replyObject = replyTo
+      ? {
+          id: replyTo.id,
+          text: replyTo.text,
+          username: replyTo.username,
+        }
+      : null;
 
     const localMsg = {
       sender: 'user',
@@ -43,6 +52,7 @@ export function useSendMessage({ username, avatar, setMessages, sendSocketMessag
       local: false,
       senderId: currentUserId,
       recipientId: recipientId,
+      replyTo: replyObject,
     };
 
     // Локально додаємо повідомлення
@@ -55,6 +65,8 @@ export function useSendMessage({ username, avatar, setMessages, sendSocketMessag
       ...serverMsg,
       localId: tempId,
       senderId: currentUserId,
+      recipientId,
+      replyTo: replyObject,
     });
 
     // Очистка полів

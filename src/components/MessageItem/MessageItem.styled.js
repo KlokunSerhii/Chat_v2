@@ -121,3 +121,30 @@ export const FileLabelContainerPlayer = styled.div`
   box-shadow: 0 5px 9px rgba(0, 0, 0, 0.3);
   border-radius: 10px;
 `;
+export const ReplyContainer = styled.div`
+  border-left: 4px solid #e91e63;
+  background-color: #fce4ec;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  border-radius: 6px;
+  font-size: 0.95em;
+  color: #333;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: #f8bbd0;
+    cursor: pointer;
+  }
+`;
+
+export const ReplyUsername = styled.div`
+  font-weight: bold;
+  margin-bottom: 4px;
+  color: #c2185b;
+`;
+
+export const ReplyText = styled.div`
+  font-style: italic;
+  color: #555;
+  word-break: break-word;
+`;

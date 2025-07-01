@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import MarkdownRenderer from '../MarkdownRenderer/MarkdownRenderer.jsx';
+import MessageContextMenu from '../MessageContextMenu.jsx';
 
 import CustomAudioPlayer from '../CustomAudioPlayer/CustomAudioPlayer.jsx';
 import 'react-h5-audio-player/lib/styles.css';
@@ -13,6 +14,9 @@ import {
   FileLabel,
   FileLabelContainer,
   FileLabelContainerPlayer,
+  ReplyContainer,
+  ReplyUsername,
+  ReplyText,
 } from './MessageItem.styled';
 import EmojiReactions from '../EmojiReactions/EmojiReactions.jsx';
 import { FaRegSmile } from 'react-icons/fa';
@@ -27,8 +31,57 @@ export default function MessageItem({
   onImageClick,
   username,
   onToggleReaction,
+  onDeleteMessage,
+  onReplyMessage,
 }) {
+  const [showContextMenu, setShowContextMenu] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const touchTimeout = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = () => setShowContextMenu(false);
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
+
+  const handleContextMenu = e => {
+    e.preventDefault();
+    setMenuPosition({ x: e.clientX, y: e.clientY });
+    setShowContextMenu(true);
+  };
+
+  const handleTouchStart = e => {
+    touchTimeout.current = setTimeout(() => {
+      const touch = e.touches[0];
+      setMenuPosition({ x: touch.clientX, y: touch.clientY });
+      setShowContextMenu(true);
+    }, 500);
+  };
+
+  const handleTouchEnd = () => {
+    clearTimeout(touchTimeout.current);
+  };
+
+  const handleCopy = () => {
+    if (msg.text) navigator.clipboard.writeText(msg.text);
+  };
+
+  const handleDelete = () => {
+    if (msg.id && onDeleteMessage) {
+      onDeleteMessage(msg.id);
+    }
+  };
+
+  const handleReply = () => {
+    if (onReplyMessage) {
+      onReplyMessage({
+        id: msg.id,
+        username: msg.username,
+        text: msg.text,
+      });
+    }
+  };
 
   function extractFilename(url) {
     try {
@@ -54,6 +107,9 @@ export default function MessageItem({
 
   return (
     <div
+      onContextMenu={handleContextMenu}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
       style={{
         display: 'flex',
         flexDirection: isOwn ? 'row-reverse' : 'row',
@@ -80,6 +136,17 @@ export default function MessageItem({
         )}
 
         <MessageText $isOwn={isOwn}>
+          {msg.replyTo ? (
+            <ReplyContainer>
+              <ReplyUsername>{msg.replyTo.username || 'Користувач'}:</ReplyUsername>
+              <ReplyText>
+                {msg.replyTo.text?.length > 100
+                  ? msg.replyTo.text.slice(0, 100) + '...'
+                  : msg.replyTo.text || 'Відповідь'}
+              </ReplyText>
+            </ReplyContainer>
+          ) : null}
+
           {msg.text?.trim() && <MarkdownRenderer content={msg.text} />}
 
           {msg.image && (
@@ -152,6 +219,15 @@ export default function MessageItem({
           </Modal>
         )}
       </div>
+      {showContextMenu && (
+        <MessageContextMenu
+          position={menuPosition}
+          onClose={() => setShowContextMenu(false)}
+          onReply={handleReply}
+          onCopy={handleCopy}
+          onDelete={handleDelete}
+        />
+      )}
     </div>
   );
 }

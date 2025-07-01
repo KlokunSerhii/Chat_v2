@@ -55,7 +55,14 @@ export function useChatSocket(username, avatar, activeChatUserId) {
       }
 
       setMessages(prev => {
-        const newMsg = { ...msg, id: msg._id };
+        let fullReplyTo = null;
+        if (msg.replyTo && typeof msg.replyTo === 'string') {
+          fullReplyTo = prev.find(m => m.id === msg.replyTo || m._id === msg.replyTo);
+        } else if (typeof msg.replyTo === 'object') {
+          fullReplyTo = msg.replyTo;
+        }
+
+        const newMsg = { ...msg, id: msg._id, replyTo: fullReplyTo || null };
 
         // Якщо це власне повідомлення, і ми вже додали його локально
         if (isOwnMessage && msg.localId) {
@@ -65,6 +72,7 @@ export function useChatSocket(username, avatar, activeChatUserId) {
             updated[localIndex] = {
               ...msg,
               id: msg._id,
+              replyTo: fullReplyTo || null,
             };
             return saveChatMessages(updated, 100);
           }

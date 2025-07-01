@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { ChatMessages, TypingIndicator } from '../ChatApp/ChatApp.styled.js';
@@ -12,6 +12,8 @@ export default function MessagesSection({
   onImageClick,
   messagesEndRef,
   onToggleReaction,
+  onDeleteMessage,
+  onReplyMessage,
 }) {
   const { userId: activeChatUserId } = useParams();
 
@@ -28,17 +30,21 @@ export default function MessagesSection({
         {chatTitle}
       </h3>
       <ChatMessages $dark={isDarkTheme}>
-        {messages.map(msg => (
-          <MessageItem
-            key={msg.id}
-            msg={{ ...msg, id: msg.id || msg._id }}
-            isOwn={msg.username === username}
-            isDarkTheme={isDarkTheme}
-            onImageClick={onImageClick}
-            username={username}
-            onToggleReaction={onToggleReaction}
-          />
-        ))}
+        {messages.map(msg => {
+          return (
+            <MessageItem
+              key={msg.id}
+              msg={{ ...msg, id: msg.id || msg._id }}
+              isOwn={msg.username === username}
+              isDarkTheme={isDarkTheme}
+              onImageClick={onImageClick}
+              username={username}
+              onToggleReaction={onToggleReaction}
+              onDeleteMessage={onDeleteMessage}
+              onReplyMessage={onReplyMessage}
+            />
+          );
+        })}
 
         {visibleTypingUsers.map(user => (
           <TypingIndicator key={user.userId} $dark={isDarkTheme}>

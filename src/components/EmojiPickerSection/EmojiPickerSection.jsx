@@ -1,4 +1,3 @@
-import React from 'react';
 import Picker from '@emoji-mart/react';
 import data from '@emoji-mart/data';
 import { AnimatePresence } from 'framer-motion';
@@ -11,7 +10,9 @@ const EmojiPickerSection = ({ showEmojiPicker, isDarkTheme, setInput }) => {
         <EmojiPickerContainer>
           <Picker
             data={data}
-            onEmojiSelect={(emoji) => setInput((prev) => prev + emoji.native)}
+            onEmojiSelect={emoji => {
+              setInput(prev => prev + emoji.native);
+            }}
             theme={isDarkTheme ? 'dark' : 'light'}
           />
         </EmojiPickerContainer>
