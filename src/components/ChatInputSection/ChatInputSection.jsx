@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState} from 'react';
 import { FaPlus } from 'react-icons/fa';
 import { MdEmojiEmotions } from 'react-icons/md';
 
