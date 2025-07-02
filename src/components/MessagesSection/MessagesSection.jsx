@@ -14,6 +14,8 @@ export default function MessagesSection({
   onToggleReaction,
   onDeleteMessage,
   onReplyMessage,
+  messageRefs,
+  handleScrollToMessage,
 }) {
   const { userId: activeChatUserId } = useParams();
 
@@ -31,10 +33,13 @@ export default function MessagesSection({
       </h3>
       <ChatMessages $dark={isDarkTheme}>
         {messages.map(msg => {
+          const ref = messageRefs.current[msg.id] || React.createRef();
+          messageRefs.current[msg.id] = ref;
           return (
             <MessageItem
               key={msg.id}
               msg={{ ...msg, id: msg.id || msg._id }}
+              scrollToRef={ref}
               isOwn={msg.username === username}
               isDarkTheme={isDarkTheme}
               onImageClick={onImageClick}
@@ -42,6 +47,7 @@ export default function MessagesSection({
               onToggleReaction={onToggleReaction}
               onDeleteMessage={onDeleteMessage}
               onReplyMessage={onReplyMessage}
+              onScrollToMessage={handleScrollToMessage}
             />
           );
         })}

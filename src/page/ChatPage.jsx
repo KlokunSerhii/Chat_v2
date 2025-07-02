@@ -24,6 +24,7 @@ import { SOUND_URL } from '../utils/sound.js';
 export default function ChatPage() {
   const fileInputRef = useRef(null);
   const messagesEndRef = useRef(null);
+  const messageRefs = useRef({});
   const audioRef = useRef(null);
   const hasInteracted = useRef(false);
   const { userId } = useParams();
@@ -105,7 +106,6 @@ export default function ChatPage() {
   useAutoFocus(usernameInputRef);
 
   const handleSendMessage = () => {
-    console.log(replyToMessage);
     sendMessage({
       input,
       attachedImage,
@@ -149,6 +149,19 @@ export default function ChatPage() {
     scrollToBottom();
   }, [userId]);
 
+  const scrollToMessageById = id => {
+    const ref = messageRefs.current?.[id];
+    if (ref && ref.current) {
+      ref.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  };
+  const handleScrollToMessage = id => {
+    const ref = messageRefs.current?.[id];
+    if (ref?.current) {
+      ref.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  };
+
   if (!isAuthChecked) return <Loader />;
 
   return (
@@ -180,6 +193,8 @@ export default function ChatPage() {
             messagesEndRef={messagesEndRef}
             onToggleReaction={toggleReaction}
             onReplyMessage={setReplyToMessage}
+            messageRefs={messageRefs}
+            handleScrollToMessage={handleScrollToMessage}
           />
           <ChatInputSection
             input={input}

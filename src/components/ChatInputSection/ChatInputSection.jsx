@@ -91,7 +91,12 @@ export default function ChatInputSection({
           ref={chatInputRef}
           value={input}
           onChange={handleInputChange}
-          onKeyDown={e => e.key === 'Enter' && sendMessage()}
+          onKeyDown={e => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              sendMessage();
+            }
+          }}
           placeholder="Напишіть повідомлення..."
           $dark={isDarkTheme}
         />
@@ -147,7 +152,10 @@ export default function ChatInputSection({
           </>
         )}
         <ChatButton
-          onClick={sendMessage}
+          onClick={() => {
+            setShowEmojiPicker(false);
+            sendMessage();
+          }}
           disabled={
             (!input.trim() && !attachedImage && !attachedVideo && !attachedAudio) || !isConnected
           }

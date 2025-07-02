@@ -33,6 +33,8 @@ export default function MessageItem({
   onToggleReaction,
   onDeleteMessage,
   onReplyMessage,
+  scrollToRef,
+  onScrollToMessage,
 }) {
   const [showContextMenu, setShowContextMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
@@ -107,6 +109,7 @@ export default function MessageItem({
 
   return (
     <div
+      ref={scrollToRef}
       onContextMenu={handleContextMenu}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
@@ -137,7 +140,14 @@ export default function MessageItem({
 
         <MessageText $isOwn={isOwn}>
           {msg.replyTo ? (
-            <ReplyContainer>
+            <ReplyContainer
+              onClick={() => {
+                if (msg.replyTo.id && onScrollToMessage) {
+                  onScrollToMessage(msg.replyTo.id);
+                }
+              }}
+              style={{ cursor: 'pointer' }}
+            >
               <ReplyUsername>{msg.replyTo.username || 'Користувач'}:</ReplyUsername>
               <ReplyText>
                 {msg.replyTo.text?.length > 100
@@ -148,30 +158,29 @@ export default function MessageItem({
           ) : null}
 
           {msg.text?.trim() && <MarkdownRenderer content={msg.text} />}
-       {msg.linkPreview && (
-              <a
-                href={msg.linkPreview.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ textDecoration: 'none', color: 'inherit' }}
-              >
-                {msg.linkPreview.image ? (
-                  <img
-                    src={msg.linkPreview.image}
-                    alt="preview"
-                    style={{
-                      width: '100%',
-                      maxHeight: '100%',
-                      objectFit: 'cover',
-                      borderRadius: '8px',
-                      marginTop: '8px',
-                    }}
-                  />
-                ):(
-              <div style={{ padding: 8, fontSize: 12, color: "#999" }}>
-                Зображення недоступне
-              </div>)}
-              </a>
+          {msg.linkPreview && (
+            <a
+              href={msg.linkPreview.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ textDecoration: 'none', color: 'inherit' }}
+            >
+              {msg.linkPreview.image ? (
+                <img
+                  src={msg.linkPreview.image}
+                  alt="preview"
+                  style={{
+                    width: '100%',
+                    maxHeight: '100%',
+                    objectFit: 'cover',
+                    borderRadius: '8px',
+                    marginTop: '8px',
+                  }}
+                />
+              ) : (
+                <div style={{ padding: 8, fontSize: 12, color: '#999' }}>Зображення недоступне</div>
+              )}
+            </a>
           )}
           {msg.image && (
             <FileLabelContainer>

@@ -13,7 +13,8 @@ export const ChatInput = styled.textarea`
   flex-grow: 1;
   resize: none;
   border: none;
-  padding: 10px;
+  padding-top: 14px;
+  padding-left: 18px;
   border-radius: 12px;
   font-size: 14px;
   background-color: ${({ $dark }) => ($dark ? '#333' : '#fff')};
