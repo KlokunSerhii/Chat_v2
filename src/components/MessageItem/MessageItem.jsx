@@ -149,20 +149,13 @@ export default function MessageItem({
 
           {msg.text?.trim() && <MarkdownRenderer content={msg.text} />}
        {msg.linkPreview && (
-            <div
-              style={{
-                border: '1px solid #ccc',
-                borderRadius: '8px',
-                marginTop: '8px',
-              }}
-            >
               <a
                 href={msg.linkPreview.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ textDecoration: 'none', color: 'inherit' }}
               >
-                {msg.linkPreview.image ?(
+                {msg.linkPreview.image ? (
                   <img
                     src={msg.linkPreview.image}
                     alt="preview"
@@ -170,17 +163,15 @@ export default function MessageItem({
                       width: '100%',
                       maxHeight: '100%',
                       objectFit: 'cover',
-                      borderTopLeftRadius: '8px',
-                      borderTopRightRadius: '8px',
+                      borderRadius: '8px',
+                      marginTop: '8px',
                     }}
                   />
                 ):(
-  <div style={{ padding: 8, fontSize: 12, color: "#999" }}>
-    Зображення недоступне
-  </div>)}
-                
+              <div style={{ padding: 8, fontSize: 12, color: "#999" }}>
+                Зображення недоступне
+              </div>)}
               </a>
-            </div>
           )}
           {msg.image && (
             <FileLabelContainer>
