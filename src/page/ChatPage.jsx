@@ -149,12 +149,6 @@ export default function ChatPage() {
     scrollToBottom();
   }, [userId]);
 
-  const scrollToMessageById = id => {
-    const ref = messageRefs.current?.[id];
-    if (ref && ref.current) {
-      ref.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  };
   const handleScrollToMessage = id => {
     const ref = messageRefs.current?.[id];
     if (ref?.current) {
@@ -195,6 +189,7 @@ export default function ChatPage() {
             onReplyMessage={setReplyToMessage}
             messageRefs={messageRefs}
             handleScrollToMessage={handleScrollToMessage}
+            setMessages={setMessages}
           />
           <ChatInputSection
             input={input}

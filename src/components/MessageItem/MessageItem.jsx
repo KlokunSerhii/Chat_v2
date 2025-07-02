@@ -23,6 +23,7 @@ import { FaRegSmile } from 'react-icons/fa';
 import { ReactionButton, Modal, EmojiOption } from '../EmojiReactions/EmojiReactions.styled.js';
 import { formatTime } from '../../utils/utils';
 import { emojiOptions } from '../../utils/emojiOptions.js';
+import { SERVER_URL } from '../../utils/url.js';
 
 export default function MessageItem({
   msg,
@@ -31,15 +32,38 @@ export default function MessageItem({
   onImageClick,
   username,
   onToggleReaction,
-  onDeleteMessage,
   onReplyMessage,
   scrollToRef,
   onScrollToMessage,
+  setMessages,
 }) {
   const [showContextMenu, setShowContextMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const touchTimeout = useRef(null);
+
+  const handleDeleteMessage = async id => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${SERVER_URL}/api/messages/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete message');
+      }
+
+      // Оновити локальний стан - видалити повідомлення
+      setMessages(prev => prev.filter(msg => msg._id !== id && msg.localId !== id));
+    } catch (error) {
+      console.error('Error deleting message:', error);
+      alert('Не вдалося видалити повідомлення');
+    }
+  };
 
   useEffect(() => {
     const handleClickOutside = () => setShowContextMenu(false);
@@ -67,12 +91,6 @@ export default function MessageItem({
 
   const handleCopy = () => {
     if (msg.text) navigator.clipboard.writeText(msg.text);
-  };
-
-  const handleDelete = () => {
-    if (msg.id && onDeleteMessage) {
-      onDeleteMessage(msg.id);
-    }
   };
 
   const handleReply = () => {
@@ -258,7 +276,9 @@ export default function MessageItem({
           onClose={() => setShowContextMenu(false)}
           onReply={handleReply}
           onCopy={handleCopy}
-          onDelete={handleDelete}
+          onDelete={() => {
+            handleDeleteMessage(msg.id);
+          }}
         />
       )}
     </div>

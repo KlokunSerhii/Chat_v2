@@ -166,6 +166,10 @@ export function useChatSocket(username, avatar, activeChatUserId) {
       });
     });
 
+    socket.on('message-deleted', ({ id }) => {
+      setMessages(prev => prev.filter(msg => msg._id !== id && msg.localId !== id));
+    });
+
     return () => {
       socket.off('message', handleMessage);
       socket.off();

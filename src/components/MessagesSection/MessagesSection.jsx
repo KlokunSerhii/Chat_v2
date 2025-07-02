@@ -12,10 +12,10 @@ export default function MessagesSection({
   onImageClick,
   messagesEndRef,
   onToggleReaction,
-  onDeleteMessage,
   onReplyMessage,
   messageRefs,
   handleScrollToMessage,
+  setMessages,
 }) {
   const { userId: activeChatUserId } = useParams();
 
@@ -45,9 +45,9 @@ export default function MessagesSection({
               onImageClick={onImageClick}
               username={username}
               onToggleReaction={onToggleReaction}
-              onDeleteMessage={onDeleteMessage}
               onReplyMessage={onReplyMessage}
               onScrollToMessage={handleScrollToMessage}
+              setMessages={setMessages}
             />
           );
         })}
