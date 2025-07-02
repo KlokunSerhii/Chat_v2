@@ -20,6 +20,7 @@ import ModalsContainer from '../components/ModalsContainer/ModalsContainer';
 import SidebarUsers from '../components/SidebarUsers/SidebarUsers';
 import { FlexWrapper } from '../components/ChatApp/ChatApp.styled';
 import { SOUND_URL } from '../utils/sound.js';
+import { SERVER_URL } from '../utils/url.js';
 
 export default function ChatPage() {
   const fileInputRef = useRef(null);
@@ -29,7 +30,38 @@ export default function ChatPage() {
   const hasInteracted = useRef(false);
   const { userId } = useParams();
   const [replyToMessage, setReplyToMessage] = useState(null);
+  const [allUsers, setAllUsers] = useState([]);
   const token = localStorage.getItem('token');
+  console.log(allUsers);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      console.log('fetchUsers викликається');
+
+      try {
+        const token = localStorage.getItem('token');
+        console.log(token);
+
+        const response = await fetch(`${SERVER_URL}/api/users`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        console.log('Отримали відповідь', response);
+
+        if (!response.ok) throw new Error('Failed to fetch users');
+
+        const data = await response.json();
+        console.log('Отримані дані з сервера:', data);
+
+        setAllUsers(data.users); // або data, залежно від API
+      } catch (err) {
+        console.error('Помилка при завантаженні користувачів:', err);
+      }
+    };
+
+    fetchUsers();
+  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -167,6 +199,7 @@ export default function ChatPage() {
     <ChatContainer $dark={isDarkTheme} $isLogin={false}>
       <FlexWrapper>
         <SidebarUsers
+          allUsers={allUsers}
           onlineUsers={onlineUsers}
           isDarkTheme={isDarkTheme}
           isConnected={isConnected}

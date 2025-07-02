@@ -10,6 +10,7 @@ import { ConnectionStatus } from '../ChatApp/ChatApp.styled';
 import { useAuth } from '../../context/AuthContext';
 
 export default function SidebarUsers({
+  allUsers,
   onlineUsers,
   isDarkTheme,
   isConnected,
@@ -20,17 +21,18 @@ export default function SidebarUsers({
 
   return (
     <SidebarWrapper $dark={isDarkTheme}>
-      {onlineUsers
+      {allUsers
         .filter(user => user.username !== currentUsername)
         .map(user => {
           const unreadCount = unreadPrivateMessages[user.id] || 0;
+          const isOnline = onlineUsers.some(online => online.id === user.id);
           return (
             <Link key={`${user.id}`} to={`/chat/${user.id}`}>
               <SidebarUser $dark={isDarkTheme} $active={user.id === activeChatUserId}>
                 <SidebarUserAvatar src={user.avatar} alt={user.username} />
                 {user.username}
                 {unreadCount > 0 && <MsgUnreadCount>{unreadCount}</MsgUnreadCount>}
-                <ConnectionStatus $connected={isConnected} />
+                <ConnectionStatus $connected={isOnline} />
               </SidebarUser>
             </Link>
           );
