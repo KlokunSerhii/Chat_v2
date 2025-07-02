@@ -40,7 +40,7 @@ export default function ChatInputSection({
   setReplyToMessage,
 }) {
   const chatInputRef = useRef(null);
-const fileInputRef = useRef(null);
+
 const [isModalOpen, setIsModalOpen] = useState(false);
 
 const openFileModal = () => {
