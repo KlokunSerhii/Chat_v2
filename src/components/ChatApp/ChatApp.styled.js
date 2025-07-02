@@ -11,16 +11,25 @@ export const ChatContainer = styled.div`
   width: 100%;
   margin: 0 auto;
   text-align: center;
-  background-color: ${({ $dark }) => getTheme($dark).background};
-  ${({ $isLogin, $dark }) =>
-    $isLogin &&
-    `
-    background-image: url("/img/background-image.jpg");
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-blend-mode: ${getTheme($dark).backgroundBlendMode};
-  `}
+
+  background-image: url("/img/background-image.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  ${({ $dark, $isLogin }) => {
+    const theme = getTheme($dark);
+    const overlayColor = $isLogin
+      ? theme.background // Звичайне тло для логіну
+      : $dark
+      ? 'rgba(0, 0, 0, 0.7)' // Темна півпрозора заливка
+      : 'rgba(255, 255, 255, 0.6)'; // Світла півпрозора заливка
+
+    return `
+      background-color: ${overlayColor};
+      background-blend-mode: ${theme.backgroundBlendMode};
+    `;
+  }}
 
   color: ${({ $dark }) => getTheme($dark).text};
   font-family: 'Segoe UI', sans-serif;
