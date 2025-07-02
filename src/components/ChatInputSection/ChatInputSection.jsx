@@ -126,7 +126,7 @@ const handleFileTypeSelect = (type) => {
           ref={fileInputRef}
           onChange={handleFileChange}
         />
-        <AttachButton onClick={onClick={openFileModal} } $dark={isDarkTheme}>
+        <AttachButton onClick={openFileModal} $dark={isDarkTheme}>
           <FaPlus size={20} />
         </AttachButton>
         {attachedImage && (
