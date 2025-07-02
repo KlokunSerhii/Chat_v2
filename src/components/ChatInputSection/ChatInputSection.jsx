@@ -40,6 +40,22 @@ export default function ChatInputSection({
   setReplyToMessage,
 }) {
   const chatInputRef = useRef(null);
+const fileInputRef = useRef(null);
+const [isModalOpen, setIsModalOpen] = useState(false);
+
+const openFileModal = () => {
+  setIsModalOpen(true);
+};
+const handleFileTypeSelect = (type) => {
+  if (type === 'media') {
+    fileInputRef.current.setAttribute('accept', 'image/*,video/*');
+  } else {
+    fileInputRef.current.setAttribute('accept', '.mp3,.wav,.m4a,.aac');
+  }
+  setIsModalOpen(false);
+  fileInputRef.current.click();
+};
+
 
   useEffect(() => {
     chatInputRef.current?.focus();
@@ -110,13 +126,7 @@ export default function ChatInputSection({
           ref={fileInputRef}
           onChange={handleFileChange}
         />
-        <AttachButton onClick={() =>{ const acceptType = prompt("Що хочеш надіслати? Введи '1' для фото/відео, або '2' для музики");
-  if (acceptType === '1') {
-    fileInputRef.current.setAttribute('accept', 'image/*,video/*');
-  } else {
-    fileInputRef.current.setAttribute('accept', '.mp3,.wav,.m4a,.aac');
-  }
-  fileInputRef.current.click()} } $dark={isDarkTheme}>
+        <AttachButton onClick={onClick={openFileModal} } $dark={isDarkTheme}>
           <FaPlus size={20} />
         </AttachButton>
         {attachedImage && (
@@ -169,6 +179,17 @@ export default function ChatInputSection({
         >
           Надіслати
         </ChatButton>
+          {isModalOpen && (
+    <div style={modalStyles.overlay}>
+      <div style={modalStyles.modal}>
+        <h3>Що хочеш надіслати?</h3>
+        <button onClick={() => handleFileTypeSelect('media')}>📷 Фото / Відео</button>
+        <button onClick={() => handleFileTypeSelect('audio')}>🎵 Аудіо</button>
+        <button onClick={() => setIsModalOpen(false)}>❌ Скасувати</button>
+      </div>
+    </div>)}
+        
+        
       </ChatInputWrapper>
     </>
   );
