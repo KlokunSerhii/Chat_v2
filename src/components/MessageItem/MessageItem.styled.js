@@ -30,12 +30,13 @@ export const Message = styled.div`
     `}
 
   @media (max-width: 480px) {
-    max-width: 90%;
+    max-width: 40%;
     font-size: 14px;
   }
 `;
 
 export const MessageText = styled.div`
+max-width: 40%;
   margin-top: 10px;
   white-space: pre-wrap;
 `;
