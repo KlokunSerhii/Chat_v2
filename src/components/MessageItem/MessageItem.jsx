@@ -164,7 +164,7 @@ export default function MessageItem({
                 rel="noopener noreferrer"
                 style={{ textDecoration: 'none', color: 'inherit' }}
               >
-                {msg.linkPreview.image && (
+                {msg.linkPreview.image ?(
                   <img
                     src={msg.linkPreview.image}
                     alt="preview"
@@ -184,7 +184,10 @@ export default function MessageItem({
                 </div>
               </a>
             </div>
-          )}
+          ):(
+  <div style={{ padding: 8, fontSize: 12, color: "#999" }}>
+    Зображення недоступне
+  </div>)}
           {msg.image && (
             <FileLabelContainer>
               <MessageImage
