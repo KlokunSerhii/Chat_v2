@@ -154,10 +154,6 @@ export default function MessageItem({
                 border: '1px solid #ccc',
                 borderRadius: '8px',
                 marginTop: '8px',
-                overflow: 'hidden',
-                width: '100%',        
-                height: '100%',      
-                objectFit: 'cover'
               }}
             >
               <a
@@ -172,7 +168,7 @@ export default function MessageItem({
                     alt="preview"
                     style={{
                       width: '100%',
-                      maxHeight: '160px',
+                      maxHeight: '100%',
                       objectFit: 'cover',
                       borderTopLeftRadius: '8px',
                       borderTopRightRadius: '8px',
