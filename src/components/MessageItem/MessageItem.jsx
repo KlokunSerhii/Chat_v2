@@ -148,7 +148,43 @@ export default function MessageItem({
           ) : null}
 
           {msg.text?.trim() && <MarkdownRenderer content={msg.text} />}
-
+       {msg.linkPreview && (
+            <div
+              style={{
+                border: '1px solid #ccc',
+                borderRadius: '8px',
+                marginTop: '8px',
+                overflow: 'hidden',
+                maxWidth: '300px',
+              }}
+            >
+              <a
+                href={msg.linkPreview.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ textDecoration: 'none', color: 'inherit' }}
+              >
+                {msg.linkPreview.image && (
+                  <img
+                    src={msg.linkPreview.image}
+                    alt="preview"
+                    style={{
+                      width: '100%',
+                      maxHeight: '160px',
+                      objectFit: 'cover',
+                      borderTopLeftRadius: '8px',
+                      borderTopRightRadius: '8px',
+                    }}
+                  />
+                )}
+                <div style={{ padding: '8px' }}>
+                  <strong style={{ fontSize: '14px' }}>{msg.linkPreview.title}</strong>
+                  <p style={{ fontSize: '12px', color: '#666' }}>{msg.linkPreview.description}</p>
+                  <p style={{ fontSize: '10px', color: '#999' }}>{msg.linkPreview.url}</p>
+                </div>
+              </a>
+            </div>
+          )}
           {msg.image && (
             <FileLabelContainer>
               <MessageImage
