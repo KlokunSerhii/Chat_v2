@@ -179,7 +179,7 @@ export default function MessageItem({
                 ):(
   <div style={{ padding: 8, fontSize: 12, color: "#999" }}>
     Зображення недоступне
-  </div>))}
+  </div>)}
                 <div style={{ padding: '8px' }}>
                   <strong style={{ fontSize: '14px' }}>{msg.linkPreview.title}</strong>
                   <p style={{ fontSize: '12px', color: '#666' }}>{msg.linkPreview.description}</p>
