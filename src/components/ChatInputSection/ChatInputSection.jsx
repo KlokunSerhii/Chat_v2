@@ -110,6 +110,13 @@ export default function ChatInputSection({
           ref={fileInputRef}
           onChange={handleFileChange}
         />
+        <input
+          type="file"
+         accept="image/*,video/*, audio/*"
+          style={{ display: 'none' }}
+          ref={fileInputRef}
+          onChange={handleFileChange}
+        />
         <AttachButton onClick={() => fileInputRef.current.click()} $dark={isDarkTheme}>
           <FaPlus size={20} />
         </AttachButton>
