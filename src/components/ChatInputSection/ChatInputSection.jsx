@@ -103,21 +103,20 @@ export default function ChatInputSection({
         <EmojiButton onClick={() => setShowEmojiPicker(p => !p)} $dark={isDarkTheme}>
           <MdEmojiEmotions size={24} color="#fbbf24" />
         </EmojiButton>
+        
         <input
           type="file"
-         accept=".mp3,.wav,.m4a,.aac"
           style={{ display: 'none' }}
           ref={fileInputRef}
           onChange={handleFileChange}
         />
-        <input
-          type="file"
-         accept="image/*,video/*, audio/*"
-          style={{ display: 'none' }}
-          ref={fileInputRef}
-          onChange={handleFileChange}
-        />
-        <AttachButton onClick={() => fileInputRef.current.click()} $dark={isDarkTheme}>
+        <AttachButton onClick={() =>{ const acceptType = prompt("Що хочеш надіслати? Введи '1' для фото/відео, або '2' для музики");
+  if (acceptType === '1') {
+    fileInputRef.current.setAttribute('accept', 'image/*,video/*');
+  } else {
+    fileInputRef.current.setAttribute('accept', '.mp3,.wav,.m4a,.aac');
+  }
+  fileInputRef.current.click()} } $dark={isDarkTheme}>
           <FaPlus size={20} />
         </AttachButton>
         {attachedImage && (
