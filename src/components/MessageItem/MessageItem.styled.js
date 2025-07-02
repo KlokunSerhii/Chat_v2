@@ -36,7 +36,7 @@ export const Message = styled.div`
 `;
 
 export const MessageText = styled.div`
-max-width: 40%;
+
   margin-top: 10px;
   white-space: pre-wrap;
 `;
