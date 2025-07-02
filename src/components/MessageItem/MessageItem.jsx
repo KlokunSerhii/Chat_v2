@@ -276,9 +276,7 @@ export default function MessageItem({
           onClose={() => setShowContextMenu(false)}
           onReply={handleReply}
           onCopy={handleCopy}
-          onDelete={() => {
-            handleDeleteMessage(msg.id);
-          }}
+          onDelete={isOwn ? () => handleDeleteMessage(msg.id) : undefined}
         />
       )}
     </div>
