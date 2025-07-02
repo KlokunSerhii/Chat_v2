@@ -10,7 +10,7 @@ export const Message = styled.div`
   padding: 5px 10px 5px 10px;
   box-shadow: 0 5px 9px rgba(0, 0, 0, 0.3);
   border-radius: 10px;
-  max-width: 70%;
+  max-width: 40%;
   word-wrap: break-word;
   word-break: break-word;
   overflow-wrap: break-word;
