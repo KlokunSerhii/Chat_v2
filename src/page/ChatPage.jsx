@@ -30,9 +30,11 @@ export default function ChatPage() {
   const { userId } = useParams();
   const [replyToMessage, setReplyToMessage] = useState(null);
   const token = localStorage.getItem('token');
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
+
   let currentUserId = null;
   if (token) {
     try {
@@ -150,7 +152,10 @@ export default function ChatPage() {
   }, [userId]);
 
   const handleScrollToMessage = id => {
+    console.log(id);
+
     const ref = messageRefs.current?.[id];
+    console.log(ref);
     if (ref?.current) {
       ref.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }

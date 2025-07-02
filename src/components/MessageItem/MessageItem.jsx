@@ -218,8 +218,9 @@ export default function MessageItem({
           {msg.replyTo ? (
             <ReplyContainer
               onClick={() => {
-                if (msg.replyTo.id && onScrollToMessage) {
-                  onScrollToMessage(msg.replyTo.id);
+                if (msg.replyTo.id || msg.replyTo._id) {
+                  const id = msg.replyTo.id || msg.replyTo._id;
+                  onScrollToMessage(id);
                 }
               }}
               style={{ cursor: 'pointer' }}
