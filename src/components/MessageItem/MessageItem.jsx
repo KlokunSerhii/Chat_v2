@@ -155,7 +155,7 @@ export default function MessageItem({
                 borderRadius: '8px',
                 marginTop: '8px',
                 overflow: 'hidden',
-                maxWidth: '300px',
+                // maxWidth: '300px',
               }}
             >
               <a
