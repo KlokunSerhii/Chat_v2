@@ -41,6 +41,7 @@ export default function MessageItem({
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const touchTimeout = useRef(null);
+  const messageRef = useRef(null);
 
   const handleDeleteMessage = async id => {
     try {
@@ -73,15 +74,67 @@ export default function MessageItem({
 
   const handleContextMenu = e => {
     e.preventDefault();
-    setMenuPosition({ x: e.clientX, y: e.clientY });
-    setShowContextMenu(true);
+    if (messageRef.current && messageRef.current.contains(e.target)) {
+      const rect = messageRef.current.getBoundingClientRect();
+
+      const menuWidth = 140; // ширина меню приблизно
+      const menuHeight = 120; // висота меню приблизно
+
+      let x;
+      if (isOwn) {
+        // Твоє повідомлення - позиціюємо меню зліва під повідомленням
+        x = rect.left;
+      } else {
+        // Чужі - позиціюємо меню правим краєм під повідомленням
+        x = rect.right - menuWidth;
+      }
+
+      let y = rect.bottom;
+
+      // Перевірка, щоб не вийшло за межі вікна
+      const maxX = window.innerWidth - menuWidth;
+      const maxY = window.innerHeight - menuHeight;
+
+      if (x < 0) x = 0;
+      if (x > maxX) x = maxX;
+      if (y > maxY) y = maxY;
+
+      setMenuPosition({ x, y });
+      setShowContextMenu(true);
+    } else {
+      // Якщо клік не по контейнеру, меню не відкривати
+      setShowContextMenu(false);
+    }
   };
 
+  // Для сенсорних пристроїв теж можна додати аналогічний підхід
   const handleTouchStart = e => {
     touchTimeout.current = setTimeout(() => {
-      const touch = e.touches[0];
-      setMenuPosition({ x: touch.clientX, y: touch.clientY });
-      setShowContextMenu(true);
+      if (messageRef.current) {
+        const rect = messageRef.current.getBoundingClientRect();
+
+        const menuWidth = 140;
+        const menuHeight = 120;
+
+        let x;
+        if (isOwn) {
+          x = rect.left;
+        } else {
+          x = rect.right - menuWidth;
+        }
+
+        let y = rect.bottom;
+
+        const maxX = window.innerWidth - menuWidth;
+        const maxY = window.innerHeight - menuHeight;
+
+        if (x < 0) x = 0;
+        if (x > maxX) x = maxX;
+        if (y > maxY) y = maxY;
+
+        setMenuPosition({ x, y });
+        setShowContextMenu(true);
+      }
     }, 500);
   };
 
@@ -139,7 +192,12 @@ export default function MessageItem({
         position: 'relative',
       }}
     >
-      <Message $isOwn={isOwn} $dark={isDarkTheme} $system={msg.sender === 'system'}>
+      <Message
+        ref={messageRef}
+        $isOwn={isOwn}
+        $dark={isDarkTheme}
+        $system={msg.sender === 'system'}
+      >
         {isOwn ? (
           <MessageUsername
             $dark={isDarkTheme}

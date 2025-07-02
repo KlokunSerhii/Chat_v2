@@ -8,9 +8,9 @@ export const Message = styled.div`
     $isOwn ? getTheme($dark).messageOwn : getTheme($dark).messageOther};
   color: ${({ $dark }) => getTheme($dark).text};
   padding: 5px 10px 5px 10px;
-  box-shadow: 0 5px 9px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 5px 9px rgba(0, 0, 0, 0.55);
   border-radius: 10px;
-  max-width: 40%;
+  max-width: 50%;
   word-wrap: break-word;
   word-break: break-word;
   overflow-wrap: break-word;
@@ -30,13 +30,12 @@ export const Message = styled.div`
     `}
 
   @media (max-width: 480px) {
-    max-width: 40%;
+    max-width: 95%;
     font-size: 14px;
   }
 `;
 
 export const MessageText = styled.div`
-
   margin-top: 10px;
   white-space: pre-wrap;
 `;
