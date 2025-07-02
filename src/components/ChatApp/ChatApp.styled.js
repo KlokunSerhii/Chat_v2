@@ -19,15 +19,25 @@ export const ChatContainer = styled.div`
 
   ${({ $dark, $isLogin }) => {
     const theme = getTheme($dark);
-    const overlayColor = $isLogin
-      ? theme.background // Звичайне тло для логіну
-      : $dark
-      ? 'rgba(0, 0, 0, 0.7)' // Темна півпрозора заливка
-      : 'rgba(255, 255, 255, 0.6)'; // Світла півпрозора заливка
+
+    // Приглушення картинки тільки в звичайному чаті (не логін)
+    if ($isLogin) {
+      return `
+        background-color: ${theme.background};
+        background-blend-mode: ${theme.backgroundBlendMode};
+      `;
+    }
+
+    // Приглушений фон в звичайному чаті
+    const overlayColor = $dark
+      ? 'rgba(0, 0, 0, 0.6)'   // Темна заливка при темній темі
+      : 'rgba(255, 255, 255, 0.8)'; // Світла заливка при світлій темі
+
+    const blendMode = $dark ? 'overlay' : 'lighten';
 
     return `
       background-color: ${overlayColor};
-      background-blend-mode: ${theme.backgroundBlendMode};
+      background-blend-mode: ${blendMode};
     `;
   }}
 
