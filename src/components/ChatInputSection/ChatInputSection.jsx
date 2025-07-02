@@ -105,7 +105,7 @@ export default function ChatInputSection({
         </EmojiButton>
         <input
           type="file"
-          accept="image/*,audio/*,video/*"
+         accept=".mp3,.wav,.m4a,.aac"
           style={{ display: 'none' }}
           ref={fileInputRef}
           onChange={handleFileChange}
