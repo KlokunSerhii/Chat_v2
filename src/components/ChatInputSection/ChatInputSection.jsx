@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState} from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { FaPlus } from 'react-icons/fa';
 import { MdEmojiEmotions } from 'react-icons/md';
 
@@ -41,21 +41,20 @@ export default function ChatInputSection({
 }) {
   const chatInputRef = useRef(null);
 
-const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-const openFileModal = () => {
-  setIsModalOpen(true);
-};
-const handleFileTypeSelect = (type) => {
-  if (type === 'media') {
-    fileInputRef.current.setAttribute('accept', 'image/*,video/*');
-  } else {
-    fileInputRef.current.setAttribute('accept', '.mp3,.wav,.m4a,.aac');
-  }
-  setIsModalOpen(false);
-  fileInputRef.current.click();
-};
-
+  const openFileModal = () => {
+    setIsModalOpen(true);
+  };
+  const handleFileTypeSelect = type => {
+    if (type === 'media') {
+      fileInputRef.current.setAttribute('accept', 'image/*,video/*');
+    } else {
+      fileInputRef.current.setAttribute('accept', '.mp3,.wav,.m4a,.aac');
+    }
+    setIsModalOpen(false);
+    fileInputRef.current.click();
+  };
 
   useEffect(() => {
     chatInputRef.current?.focus();
@@ -119,7 +118,7 @@ const handleFileTypeSelect = (type) => {
         <EmojiButton onClick={() => setShowEmojiPicker(p => !p)} $dark={isDarkTheme}>
           <MdEmojiEmotions size={24} color="#fbbf24" />
         </EmojiButton>
-        
+
         <input
           type="file"
           style={{ display: 'none' }}
@@ -179,17 +178,16 @@ const handleFileTypeSelect = (type) => {
         >
           Надіслати
         </ChatButton>
-          {isModalOpen && (
-    <div style={modalStyles.overlay}>
-      <div style={modalStyles.modal}>
-        <h3>Що хочеш надіслати?</h3>
-        <button onClick={() => handleFileTypeSelect('media')}>📷 Фото / Відео</button>
-        <button onClick={() => handleFileTypeSelect('audio')}>🎵 Аудіо</button>
-        <button onClick={() => setIsModalOpen(false)}>❌ Скасувати</button>
-      </div>
-    </div>)}
-        
-        
+        {isModalOpen && (
+          <div>
+            <div>
+              <h3>Що хочеш надіслати?</h3>
+              <button onClick={() => handleFileTypeSelect('media')}>📷 Фото / Відео</button>
+              <button onClick={() => handleFileTypeSelect('audio')}>🎵 Аудіо</button>
+              <button onClick={() => setIsModalOpen(false)}>❌ Скасувати</button>
+            </div>
+          </div>
+        )}
       </ChatInputWrapper>
     </>
   );
