@@ -43,6 +43,9 @@ export default function MessageItem({
   const touchTimeout = useRef(null);
   const messageRef = useRef(null);
 
+  // Відповідь для кліку: відображаємо повідомлення, на яке відповідають
+  const fullReply = msg.replyTo && (msg.replyTo.id || msg.replyTo._id) ? msg.replyTo : null;
+
   const handleDeleteMessage = async id => {
     try {
       const token = localStorage.getItem('token');
@@ -58,8 +61,7 @@ export default function MessageItem({
         throw new Error('Failed to delete message');
       }
 
-      // Оновити локальний стан - видалити повідомлення
-      setMessages(prev => prev.filter(msg => msg._id !== id && msg.localId !== id));
+      setMessages(prev => prev.filter(m => m.id !== id && m.localId !== id));
     } catch (error) {
       console.error('Error deleting message:', error);
       alert('Не вдалося видалити повідомлення');
@@ -77,21 +79,12 @@ export default function MessageItem({
     if (messageRef.current && messageRef.current.contains(e.target)) {
       const rect = messageRef.current.getBoundingClientRect();
 
-      const menuWidth = 140; // ширина меню приблизно
-      const menuHeight = 120; // висота меню приблизно
+      const menuWidth = 140;
+      const menuHeight = 120;
 
-      let x;
-      if (isOwn) {
-        // Твоє повідомлення - позиціюємо меню зліва під повідомленням
-        x = rect.left;
-      } else {
-        // Чужі - позиціюємо меню правим краєм під повідомленням
-        x = rect.right - menuWidth;
-      }
-
+      let x = isOwn ? rect.left : rect.right - menuWidth;
       let y = rect.bottom;
 
-      // Перевірка, щоб не вийшло за межі вікна
       const maxX = window.innerWidth - menuWidth;
       const maxY = window.innerHeight - menuHeight;
 
@@ -102,12 +95,10 @@ export default function MessageItem({
       setMenuPosition({ x, y });
       setShowContextMenu(true);
     } else {
-      // Якщо клік не по контейнеру, меню не відкривати
       setShowContextMenu(false);
     }
   };
 
-  // Для сенсорних пристроїв теж можна додати аналогічний підхід
   const handleTouchStart = e => {
     touchTimeout.current = setTimeout(() => {
       if (messageRef.current) {
@@ -116,13 +107,7 @@ export default function MessageItem({
         const menuWidth = 140;
         const menuHeight = 120;
 
-        let x;
-        if (isOwn) {
-          x = rect.left;
-        } else {
-          x = rect.right - menuWidth;
-        }
-
+        let x = isOwn ? rect.left : rect.right - menuWidth;
         let y = rect.bottom;
 
         const maxX = window.innerWidth - menuWidth;
@@ -178,6 +163,10 @@ export default function MessageItem({
     setIsModalOpen(false);
   };
 
+  const safeImageSrc = msg.image && !msg.image.startsWith('blob:') ? msg.image : null;
+const safeVideoSrc = msg.video && !msg.video.startsWith('blob:') ? msg.video : null;
+const safeAudioSrc = msg.audio && !msg.audio.startsWith('blob:') ? msg.audio : null;
+
   return (
     <div
       ref={scrollToRef}
@@ -215,21 +204,21 @@ export default function MessageItem({
         )}
 
         <MessageText $isOwn={isOwn}>
-          {msg.replyTo ? (
+          {fullReply ? (
             <ReplyContainer
               onClick={() => {
-                if (msg.replyTo.id || msg.replyTo._id) {
-                  const id = msg.replyTo.id || msg.replyTo._id;
+                if (fullReply.id || fullReply._id) {
+                  const id = fullReply.id || fullReply._id;
                   onScrollToMessage(id);
                 }
               }}
               style={{ cursor: 'pointer' }}
             >
-              <ReplyUsername>{msg.replyTo.username || 'Користувач'}:</ReplyUsername>
+              <ReplyUsername>{fullReply.username || 'Користувач'}:</ReplyUsername>
               <ReplyText>
-                {msg.replyTo.text?.length > 100
-                  ? msg.replyTo.text.slice(0, 100) + '...'
-                  : msg.replyTo.text || 'Відповідь'}
+                {fullReply.text?.length > 100
+                  ? fullReply.text.slice(0, 100) + '...'
+                  : fullReply.text || 'Відповідь'}
               </ReplyText>
             </ReplyContainer>
           ) : null}
@@ -259,10 +248,10 @@ export default function MessageItem({
               )}
             </a>
           )}
-          {msg.image && (
+          {safeImageSrc && typeof safeImageSrc === 'string' && safeImageSrc.length > 0 &&  (
             <FileLabelContainer>
               <MessageImage
-                src={msg.image}
+                src={safeImageSrc}
                 alt="attached"
                 onClick={() => onImageClick(msg.image)}
                 style={{ cursor: 'pointer' }}
@@ -270,7 +259,7 @@ export default function MessageItem({
             </FileLabelContainer>
           )}
 
-          {msg.video && (
+          {safeVideoSrc && typeof safeVideoSrc === 'string' && safeVideoSrc.length > 0 &&  (
             <FileLabelContainer>
               <video
                 controls
@@ -279,18 +268,18 @@ export default function MessageItem({
                   borderRadius: '12px',
                 }}
               >
-                <source src={msg.video} type="video/mp4" />
+                <source src={safeVideoSrc} type="video/mp4" />
                 Ваш браузер не підтримує відео.
               </video>
             </FileLabelContainer>
           )}
 
-          {msg.audio && (
+          {safeAudioSrc && typeof safeAudioSrc === 'string' && safeAudioSrc.length > 0 &&  (
             <FileLabelContainerPlayer>
               <FileLabel $dark={isDarkTheme} $isOwn={isOwn}>
-                {extractFilename(msg.audio)}
+                {extractFilename(safeAudioSrc)}
               </FileLabel>
-              <CustomAudioPlayer src={msg.audio} isOwn={isOwn} isDarkTheme={isDarkTheme} />
+              <CustomAudioPlayer src={safeAudioSrc} isOwn={isOwn} isDarkTheme={isDarkTheme} />
             </FileLabelContainerPlayer>
           )}
         </MessageText>

@@ -32,29 +32,23 @@ export default function ChatPage() {
   const [replyToMessage, setReplyToMessage] = useState(null);
   const [allUsers, setAllUsers] = useState([]);
   const token = localStorage.getItem('token');
-  console.log(allUsers);
 
   useEffect(() => {
     const fetchUsers = async () => {
-      console.log('fetchUsers викликається');
-
       try {
         const token = localStorage.getItem('token');
-        console.log(token);
 
         const response = await fetch(`${SERVER_URL}/api/users`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log('Отримали відповідь', response);
 
         if (!response.ok) throw new Error('Failed to fetch users');
 
         const data = await response.json();
-        console.log('Отримані дані з сервера:', data);
 
-        setAllUsers(data.users); // або data, залежно від API
+        setAllUsers(data.users);
       } catch (err) {
         console.error('Помилка при завантаженні користувачів:', err);
       }
@@ -77,6 +71,7 @@ export default function ChatPage() {
     }
   }
   const routeUserId = String(userId || '');
+
   const state = useChatAppState();
   const {
     input,
@@ -103,10 +98,11 @@ export default function ChatPage() {
   const { isAuthChecked, isLoggedIn, handleLogout, username, avatar } = useAuth();
 
   const chatSocket = useChatSocket(username, avatar, routeUserId);
-  const socket = chatSocket.socketRef.current;
+    const socket = chatSocket.socketRef.current;
+
   const {
-    messages,
-    setMessages,
+    messagesByChat,
+    setMessagesByChat,
     onlineUsers,
     typingUsers,
     isConnected,
@@ -119,7 +115,7 @@ export default function ChatPage() {
   const { sendMessage } = useSendMessage({
     username,
     avatar,
-    setMessages,
+    setMessagesByChat,
     sendSocketMessage,
   });
 
@@ -158,17 +154,13 @@ export default function ChatPage() {
   };
 
   const { openImageModal, closeImageModal } = useImageModal(setIsImageModalOpen, setModalImageSrc);
-  useChatEffects({ messages, username, audioRef, messagesEndRef, hasInteracted });
+  useChatEffects({ messages: messagesByChat[routeUserId ? [currentUserId, routeUserId].sort().join('_') : 'public'] || [], username, audioRef, messagesEndRef, hasInteracted });
 
   const isPrivateChat = !!userId;
 
-  const filteredMessages = isPrivateChat
-    ? messages.filter(
-        msg =>
-          (msg.senderId === currentUserId && msg.recipientId === routeUserId) ||
-          (msg.senderId === routeUserId && msg.recipientId === currentUserId),
-      )
-    : messages.filter(msg => !msg.recipientId);
+  // Відфільтровуємо повідомлення поточного чату для рендеру
+  const currentChatId = userId ? [currentUserId, routeUserId].filter(Boolean).sort().join('_') : 'public';
+  const filteredMessages = messagesByChat[currentChatId] || [];
 
   useEffect(() => {
     if (userId && unreadPrivateMessages[userId]) {
@@ -181,13 +173,10 @@ export default function ChatPage() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [userId]);
+  }, [userId, filteredMessages]);
 
   const handleScrollToMessage = id => {
-    console.log(id);
-
     const ref = messageRefs.current?.[id];
-    console.log(ref);
     if (ref?.current) {
       ref.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
@@ -227,7 +216,8 @@ export default function ChatPage() {
             onReplyMessage={setReplyToMessage}
             messageRefs={messageRefs}
             handleScrollToMessage={handleScrollToMessage}
-            setMessages={setMessages}
+            setMessages={setMessagesByChat} // Передаємо новий сеттер
+            // chatId={chatId} 
           />
           <ChatInputSection
             input={input}
@@ -274,7 +264,7 @@ export default function ChatPage() {
         unreadPrivateMessages={unreadPrivateMessages}
         allUsers={allUsers}
       />
-      <audio ref={audioRef} src={SOUND_URL} />
+      <audio ref={audioRef} src={SOUND_URL} preload="auto" />
     </ChatContainer>
   );
 }

@@ -1,8 +1,9 @@
 import { v4 as uuidv4 } from 'uuid';
 import { jwtDecode } from 'jwt-decode';
+
 import { saveChatMessages } from '../utils/utils';
 
-export function useSendMessage({ username, avatar, setMessages, sendSocketMessage }) {
+export function useSendMessage({ username, avatar, setMessagesByChat, sendSocketMessage }) {
   const token = localStorage.getItem('token');
   let currentUserId = null;
   if (token) {
@@ -45,20 +46,27 @@ export function useSendMessage({ username, avatar, setMessages, sendSocketMessag
       timestamp,
       username,
       avatar,
-      image: attachedImage || null,
-      audio: attachedAudio || null,
-      video: attachedVideo || null,
+       image: attachedImage && !attachedImage.startsWith('blob:') ? attachedImage : null,
+  audio: attachedAudio && !attachedAudio.startsWith('blob:') ? attachedAudio : null,
+  video: attachedVideo && !attachedVideo.startsWith('blob:') ? attachedVideo : null,
       id: tempId,
       local: false,
       senderId: currentUserId,
       recipientId: recipientId,
       replyTo: replyObject,
+      localId: tempId,
     };
 
-    // Локально додаємо повідомлення
-    setMessages(prev => saveChatMessages([...prev, localMsg], 100));
+    setMessagesByChat(prev => {
+      const chatId = recipientId ? [currentUserId, recipientId].filter(Boolean).sort().join('_') : 'public';
+      const oldMsgs = prev[chatId] || [];
+      return {
+        ...prev,
+        [chatId]: saveChatMessages([...oldMsgs, localMsg], 100),
+      };
+    });
 
-    // Надсилаємо на сервер (без id і local)
+    // Відправляємо на сервер без id і local
     const { id, local, ...serverMsg } = localMsg;
 
     sendSocketMessage({
@@ -69,7 +77,6 @@ export function useSendMessage({ username, avatar, setMessages, sendSocketMessag
       replyTo: replyObject,
     });
 
-    // Очистка полів
     if (typeof onClear === 'function') {
       onClear();
     }

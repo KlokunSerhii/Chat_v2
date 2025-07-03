@@ -1,4 +1,3 @@
-
 import { useRef, useState, useEffect } from "react";
 import {
   PlayerContainer,
@@ -14,6 +13,26 @@ export default function CustomAudioPlayer({ src, isOwn, isDarkTheme }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [audioSrc, setAudioSrc] = useState(null);
+
+  // Обробка src: якщо це Blob/File — створюємо blob URL, якщо рядок — просто ставимо
+  useEffect(() => {
+    if (!src) {
+      setAudioSrc(null);
+      return;
+    }
+
+    if (src instanceof Blob) {
+      const url = URL.createObjectURL(src);
+      setAudioSrc(url);
+
+      return () => {
+        URL.revokeObjectURL(url);
+      };
+    }
+
+    setAudioSrc(src);
+  }, [src]);
 
   const togglePlay = () => {
     const audio = audioRef.current;
@@ -68,7 +87,7 @@ export default function CustomAudioPlayer({ src, isOwn, isDarkTheme }) {
         <ProgressFill style={{ width: `${progress}%` }} $dark={isDarkTheme} />
       </ProgressBar>
       <TimeText>{formatTime(duration * (progress / 100))}</TimeText>
-      <audio ref={audioRef} src={src} preload="metadata" />
+      <audio ref={audioRef} src={audioSrc} preload="metadata" />
     </PlayerContainer>
   );
 }

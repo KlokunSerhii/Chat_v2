@@ -1,91 +1,39 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
-import { v4 as uuidv4 } from 'uuid';
 import toast from 'react-hot-toast';
 import { jwtDecode } from 'jwt-decode';
 
 import { saveChatMessages } from '../utils/utils.js';
 import { SERVER_URL } from '../utils/url.js';
 
+function getChatId(userA, userB) {
+  return [userA, userB].filter(Boolean).sort().join('_');
+}
+
 export function useChatSocket(username, avatar, activeChatUserId) {
-  const [messages, setMessages] = useState([]);
+  const [messagesByChat, setMessagesByChat] = useState({});
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [typingUsers, setTypingUsers] = useState([]);
   const [isConnected, setIsConnected] = useState(false);
   const [unreadPrivateMessages, setUnreadPrivateMessages] = useState({});
   const socketRef = useRef(null);
 
+  const currentUserIdRef = useRef(null);
+
   useEffect(() => {
     if (socketRef.current) return;
-    const socket = io(SERVER_URL, {
-      auth: {
-        token: localStorage.getItem('token'),
-      },
-    });
 
-    const token = localStorage.getItem('token');
-    let currentUserId = null;
-    if (token) {
-      try {
-        const decoded = jwtDecode(token);
-        currentUserId = decoded.id;
-      } catch (error) {
-        console.error('❌ Помилка при декодуванні токена:', error);
-      }
+    try {
+      const token = localStorage.getItem('token');
+      const decoded = jwtDecode(token);
+      currentUserIdRef.current = decoded.id;
+    } catch (error) {
+      console.error('❌ Помилка при декодуванні токена:', error);
     }
-    const handleMessage = msg => {
-      const isOwnMessage = msg.username === username;
-      const isPrivate = msg.recipientId && msg.senderId !== msg.recipientId;
-      const isToCurrentUser = msg.recipientId === currentUserId;
-      const isFromAnotherUser = msg.senderId !== currentUserId;
 
-      if (isPrivate && isToCurrentUser && isFromAnotherUser) {
-        if (msg.senderId !== activeChatUserId) {
-          setUnreadPrivateMessages(prev => ({
-            ...prev,
-            [msg.senderId]: (prev[msg.senderId] || 0) + 1,
-          }));
-        } else {
-          // очищаємо, бо чат відкритий
-          setUnreadPrivateMessages(prev => ({
-            ...prev,
-            [msg.senderId]: 0,
-          }));
-        }
-      }
-
-      setMessages(prev => {
-        let fullReplyTo = null;
-        if (msg.replyTo && typeof msg.replyTo === 'string') {
-          fullReplyTo = prev.find(m => m.id === msg.replyTo || m._id === msg.replyTo);
-        } else if (typeof msg.replyTo === 'object') {
-          fullReplyTo = msg.replyTo;
-        }
-
-        const newMsg = { ...msg, id: msg._id, replyTo: fullReplyTo || null };
-
-        // Якщо це власне повідомлення, і ми вже додали його локально
-        if (isOwnMessage && msg.localId) {
-          const localIndex = prev.findIndex(m => m.id === msg.localId);
-          if (localIndex !== -1) {
-            const updated = [...prev];
-            updated[localIndex] = {
-              ...msg,
-              id: msg._id,
-              replyTo: fullReplyTo || null,
-            };
-            return saveChatMessages(updated, 100);
-          }
-        }
-        // Якщо вже є повідомлення з таким id (наприклад, двічі прилетіло) — ігноруємо
-        if (prev.some(m => m.id === newMsg.id || (msg.localId && m.id === msg.localId))) {
-          return prev;
-        }
-
-        // Інакше додаємо нове
-        return saveChatMessages([...prev, newMsg], 100);
-      });
-    };
+    const socket = io(SERVER_URL, {
+      auth: { token: localStorage.getItem('token') },
+    });
 
     socketRef.current = socket;
 
@@ -100,17 +48,16 @@ export function useChatSocket(username, avatar, activeChatUserId) {
       if (user.username === username) return;
 
       setTypingUsers(prev => {
-        const exists = prev.some(u => u.userId === user.userId);
-        if (!exists) return [...prev, user];
+        if (!prev.some(u => u.userId === user.userId)) {
+          return [...prev, user];
+        }
         return prev;
       });
 
-      // Скидаємо старий таймер, якщо був
       if (typingTimers[user.userId]) {
         clearTimeout(typingTimers[user.userId]);
       }
 
-      // Ставимо новий
       typingTimers[user.userId] = setTimeout(() => {
         setTypingUsers(prev => prev.filter(u => u.userId !== user.userId));
         delete typingTimers[user.userId];
@@ -118,38 +65,139 @@ export function useChatSocket(username, avatar, activeChatUserId) {
     });
 
     socket.on('last-messages', history => {
-      const currentUserId = jwtDecode(localStorage.getItem('token')).id;
-
+      const currentUserId = currentUserIdRef.current;
+      // Відфільтруємо повідомлення що належать нам: приватні (де sender або recipient ми), або публічні
       const filtered = history.filter(
         msg =>
-          !msg.recipientId || msg.senderId === currentUserId || msg.recipientId === currentUserId,
+          !msg.recipientId ||
+          msg.senderId === currentUserId ||
+          msg.recipientId === currentUserId,
       );
-      const restored = history.map(msg => ({
-        ...msg,
-        id: msg._id,
-      }));
-      const trimmed = saveChatMessages(restored, 100);
-      setMessages(trimmed);
+
+      // Реструктуруємо в обʼєкт messagesByChat
+      const grouped = {};
+
+      filtered.forEach(msg => {
+        const chatId = msg.recipientId
+          ? getChatId(msg.senderId, msg.recipientId)
+          : 'public'; // для загального чату
+
+        const formattedMsg = { ...msg, id: msg._id };
+
+        if (!grouped[chatId]) grouped[chatId] = [];
+        grouped[chatId].push(formattedMsg);
+      });
+
+      // Зберігаємо у стейт обмежуючи довжину
+      Object.keys(grouped).forEach(chatId => {
+        grouped[chatId] = saveChatMessages(grouped[chatId], 100);
+      });
+
+      setMessagesByChat(grouped);
     });
 
-    socket.on('message', handleMessage);
+    socket.on('message', msg => {
+      const chatId = msg.recipientId
+        ? getChatId(msg.senderId, msg.recipientId)
+        : 'public';
+
+      setMessagesByChat(prev => {
+        const oldMsgs = prev[chatId] || [];
+
+        // Перевірка дубліката по id або localId
+        if (
+          oldMsgs.some(
+            m => m.id === msg._id || (msg.localId && m.id === msg.localId),
+          )
+        ) {
+          return prev;
+        }
+
+        const fullReplyTo =
+          msg.replyTo && typeof msg.replyTo === 'string'
+            ? oldMsgs.find(m => m.id === msg.replyTo || m._id === msg.replyTo)
+            : msg.replyTo || null;
+
+        const newMsg = { ...msg, id: msg._id, replyTo: fullReplyTo };
+
+        return {
+          ...prev,
+          [chatId]: saveChatMessages([...oldMsgs, newMsg], 100),
+        };
+      });
+
+      // Якщо це приватне повідомлення іншого чату, збільшуємо лічильник непрочитаних
+      const currentUserId = currentUserIdRef.current;
+      if (
+        msg.recipientId &&
+        msg.recipientId === currentUserId &&
+        msg.senderId !== activeChatUserId
+      ) {
+        setUnreadPrivateMessages(prev => ({
+          ...prev,
+          [msg.senderId]: (prev[msg.senderId] || 0) + 1,
+        }));
+      }
+
+      // Якщо ми в активному чаті — скидаємо лічильник
+      if (msg.recipientId && msg.senderId === activeChatUserId) {
+        setUnreadPrivateMessages(prev => ({
+          ...prev,
+          [msg.senderId]: 0,
+        }));
+      }
+    });
 
     socket.on('reaction-update', updatedMsg => {
-      setMessages(prev =>
-        prev.map(msg => {
-          const sameByMongoId = msg.id === updatedMsg._id;
-          const sameByLocalId = updatedMsg.localId && msg.id === updatedMsg.localId;
+      setMessagesByChat(prev => {
+        // Знаходимо чат для цього повідомлення
+        let foundChatId = null;
+        Object.entries(prev).some(([chatId, msgs]) => {
+          if (
+            msgs.some(
+              m =>
+                m.id === updatedMsg._id ||
+                (updatedMsg.localId && m.id === updatedMsg.localId),
+            )
+          ) {
+            foundChatId = chatId;
+            return true;
+          }
+          return false;
+        });
 
-          if (sameByMongoId || sameByLocalId) {
+        if (!foundChatId) return prev;
+
+        const updatedMsgs = prev[foundChatId].map(m => {
+          if (
+            m.id === updatedMsg._id ||
+            (updatedMsg.localId && m.id === updatedMsg.localId)
+          ) {
             return {
-              ...msg,
+              ...m,
               reactions: updatedMsg.reactions,
             };
           }
+          return m;
+        });
 
-          return msg;
-        }),
-      );
+        return {
+          ...prev,
+          [foundChatId]: updatedMsgs,
+        };
+      });
+    });
+
+    socket.on('message-deleted', ({ id }) => {
+      setMessagesByChat(prev => {
+        const updatedChats = {};
+        Object.entries(prev).forEach(([chatId, msgs]) => {
+          updatedChats[chatId] = msgs.filter(
+            msg => msg._id !== id && msg.localId !== id,
+          );
+        });
+        return updatedChats;
+      });
     });
 
     socket.on('user-joined', ({ username }) => {
@@ -166,26 +214,38 @@ export function useChatSocket(username, avatar, activeChatUserId) {
       });
     });
 
-    socket.on('message-deleted', ({ id }) => {
-      setMessages(prev => prev.filter(msg => msg._id !== id && msg.localId !== id));
-    });
-
     return () => {
-      socket.off('message', handleMessage);
       socket.off();
       socket.disconnect();
     };
-  }, [username, avatar]);
+  }, [username, avatar, activeChatUserId]);
 
   const sendMessage = msg => {
+    const chatId = msg.recipientId
+      ? getChatId(msg.senderId, msg.recipientId)
+      : 'public';
+
+    setMessagesByChat(prev => {
+      const oldMsgs = prev[chatId] || [];
+
+      if (oldMsgs.some(m => m.localId === msg.localId)) return prev;
+
+      return {
+        ...prev,
+        [chatId]: saveChatMessages([...oldMsgs, msg], 100),
+      };
+    });
+
     socketRef.current?.emit('message', msg);
   };
+
   const toggleReaction = ({ messageId, emoji }) => {
     socketRef.current?.emit('toggle-reaction', { messageId, emoji });
   };
+
   return {
-    messages,
-    setMessages,
+    messagesByChat,
+    setMessagesByChat,
     onlineUsers,
     typingUsers,
     isConnected,

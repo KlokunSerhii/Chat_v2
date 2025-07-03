@@ -1,1 +1,1 @@
-export const SOUND_URL = './notification.mp3';
+export const SOUND_URL = '/notification.mp3';

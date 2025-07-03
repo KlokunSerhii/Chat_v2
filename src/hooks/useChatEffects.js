@@ -2,16 +2,17 @@ import { useEffect } from "react";
 
 export function useChatEffects({ messages, username, audioRef, messagesEndRef, hasInteracted }) {
   // Програвання звуку
-  useEffect(() => {
-    if (!hasInteracted.current || messages.length === 0) return;
+ useEffect(() => {
+  if (!hasInteracted.current || messages.length === 0) return;
 
-    const lastMsg = messages[messages.length - 1];
-    const isIncomingUserMsg = lastMsg?.sender !== "system" && lastMsg?.username !== username;
+  const lastMsg = messages[messages.length - 1];
+  const isIncomingUserMsg = lastMsg?.sender !== "system" && lastMsg?.username !== username;
 
-    if (isIncomingUserMsg) {
-      audioRef.current?.play().catch(console.warn);
-    }
-  }, [messages, username]);
+  const audioEl = audioRef.current;
+  if (isIncomingUserMsg && audioEl && audioEl.src) {
+    audioEl.play().catch(console.warn);
+  }
+}, [messages, username]);
 
   // Автоматична прокрутка
   useEffect(() => {

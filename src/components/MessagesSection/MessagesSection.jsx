@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useEffect } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { ChatMessages, TypingIndicator } from '../ChatApp/ChatApp.styled.js';
@@ -19,6 +19,7 @@ export default function MessagesSection({
 }) {
   const { userId: activeChatUserId } = useParams();
 
+  // Відфільтрувати typingUsers, щоб показувати лише тих, хто друкує в поточному чаті
   const visibleTypingUsers = useMemo(() => {
     if (!activeChatUserId) return typingUsers;
     return typingUsers.filter(user => user.userId === activeChatUserId);
@@ -33,12 +34,16 @@ export default function MessagesSection({
       </h3>
       <ChatMessages $dark={isDarkTheme}>
         {messages.map(msg => {
-          const ref = messageRefs.current[msg.id] || React.createRef();
-          messageRefs.current[msg.id] = ref;
+          // Створюємо або використовуємо існуючий ref для кожного повідомлення
+          if (!messageRefs.current[msg.id]) {
+            messageRefs.current[msg.id] = React.createRef();
+          }
+          const ref = messageRefs.current[msg.id];
+
           return (
             <MessageItem
               key={msg.id}
-              msg={{ ...msg, id: msg.id || msg._id }}
+              msg={msg}
               scrollToRef={ref}
               isOwn={msg.username === username}
               isDarkTheme={isDarkTheme}

@@ -17,6 +17,11 @@ export function useFileUpload({
     const fileType = file.type;
 
     try {
+      // Включаємо лоадер в залежності від типу перед початком завантаження
+      if (fileType.startsWith("image/")) setImageLoading(true);
+      else if (fileType.startsWith("audio/")) setAudioLoading(true);
+      else if (fileType.startsWith("video/")) setVideoLoading(true);
+
       const formData = new FormData();
       formData.append("file", file);
 
@@ -32,23 +37,27 @@ export function useFileUpload({
       }
 
       if (fileType.startsWith("image/")) {
-        setImageLoading(true);
         setAttachedImage(data.url);
         setAttachedAudio(null);
         setAttachedVideo(null);
+        setImageLoading(false);
       } else if (fileType.startsWith("audio/")) {
-        setAudioLoading(true);
         setAttachedAudio(data.url);
         setAttachedImage(null);
         setAttachedVideo(null);
+        setAudioLoading(false);
       } else if (fileType.startsWith("video/")) {
-        setVideoLoading(true);
         setAttachedVideo(data.url);
         setAttachedImage(null);
         setAttachedAudio(null);
+        setVideoLoading(false);
       }
     } catch (err) {
       console.error("File upload error:", err);
+      // Вимикаємо лоадер, навіть якщо помилка
+      setImageLoading(false);
+      setAudioLoading(false);
+      setVideoLoading(false);
     }
   };
 
