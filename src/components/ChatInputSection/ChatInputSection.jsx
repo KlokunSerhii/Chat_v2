@@ -11,6 +11,10 @@ import {
   AttachedImagePreview,
   AttachedVideoPreview,
   AttachedAudioPreview,
+  ModalButton,
+  ModalContent ,
+  ModalOverlay,
+  GlobalModalAnimations,
 } from './ChatInputSection.styled';
 
 export default function ChatInputSection({
@@ -178,15 +182,17 @@ export default function ChatInputSection({
         >
           Надіслати
         </ChatButton>
+        <GlobalModalAnimations />
+
         {isModalOpen && (
-          <div>
-            <div>
+          <ModalOverlay>
+            <ModalContent $dark={isDarkTheme}>
               <h3>Що хочеш надіслати?</h3>
-              <button onClick={() => handleFileTypeSelect('media')}>📷 Фото / Відео</button>
-              <button onClick={() => handleFileTypeSelect('audio')}>🎵 Аудіо</button>
-              <button onClick={() => setIsModalOpen(false)}>❌ Скасувати</button>
-            </div>
-          </div>
+              <ModalButton  onClick={() => handleFileTypeSelect('media')}>📷 Фото / Відео</ModalButton >
+              <ModalButton  onClick={() => handleFileTypeSelect('audio')}>🎵 Аудіо</ModalButton >
+              <ModalButton  onClick={() => setIsModalOpen(false)}>❌ Скасувати</ModalButton >
+            </ModalContent>
+          </ModalOverlay>
         )}
       </ChatInputWrapper>
     </>
