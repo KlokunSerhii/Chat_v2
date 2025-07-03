@@ -61,7 +61,17 @@ export default function MessageItem({
         throw new Error('Failed to delete message');
       }
 
-      setMessages(prev => prev.filter(m => m.id !== id && m.localId !== id));
+      setMessages(prev => {
+  const updated = {};
+
+  for (const chatId in prev) {
+    updated[chatId] = prev[chatId].filter(
+      m => m.id !== id && m.localId !== id
+    );
+  }
+
+  return updated;
+});
     } catch (error) {
       console.error('Error deleting message:', error);
       alert('Не вдалося видалити повідомлення');
