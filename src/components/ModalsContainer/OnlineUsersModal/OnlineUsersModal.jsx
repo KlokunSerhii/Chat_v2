@@ -5,8 +5,12 @@ import { ModalOverlay, OnlineListModal, OnlineUser } from './OnlineUsersModal.st
 import useMediaQuery from '../../../hooks/useMediaQuery';
 import { useAuth } from '../../../context/AuthContext';
 import { MsgUnreadCount } from '../../SidebarUsers/SidebarUsers.styled';
+import { ConnectionStatus } from '../../ChatApp/ChatApp.styled';
+
+
 export default function OnlineUsersModal({
   onlineUsers,
+  allUsers,
   setIsOnlineListOpen,
   isDarkTheme,
   unreadPrivateMessages = {},
@@ -20,11 +24,13 @@ export default function OnlineUsersModal({
     <>
       <ModalOverlay onClick={() => setIsOnlineListOpen(false)} />
       <OnlineListModal $dark={isDarkTheme}>
-        <h3>Користувачі онлайн</h3>
+        <h3>Онлайн</h3>
         {onlineUsers
           .filter(user => user.username !== currentUsername)
           .map(user => {
             const unreadCount = unreadPrivateMessages[user.id] || 0;
+            const isOnline = onlineUsers.some(online => online.id === user.id);
+
             return (
               <Link
                 key={`${user.id}`}
@@ -35,6 +41,8 @@ export default function OnlineUsersModal({
                   <SidebarUserAvatar src={user.avatar} alt={user.username} />
                   {user.username}
                   {unreadCount > 0 && <MsgUnreadCount>{unreadCount}</MsgUnreadCount>}
+                  <ConnectionStatus $connected={isOnline} />
+                  
                 </OnlineUser>
               </Link>
             );

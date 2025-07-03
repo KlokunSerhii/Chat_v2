@@ -13,6 +13,7 @@ export default function ModalsContainer({
   modalImageSrc,
   closeImageModal,
   unreadPrivateMessages,
+  allUsers
 }) {
   return (
     <>
@@ -22,6 +23,7 @@ export default function ModalsContainer({
           setIsOnlineListOpen={setIsOnlineListOpen}
           isDarkTheme={isDarkTheme}
           unreadPrivateMessages={unreadPrivateMessages}
+          allUsers={allUsers}
         />
       )}
 
