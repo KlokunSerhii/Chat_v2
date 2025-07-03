@@ -62,7 +62,7 @@ export default function ChatInputSection({
 
   useEffect(() => {
     chatInputRef.current?.focus();
-  }, []);
+  }, [replyToMessage]);
 
   const handleInputChange = e => {
     setInput(e.target.value);
