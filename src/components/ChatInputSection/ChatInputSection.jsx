@@ -72,6 +72,21 @@ export default function ChatInputSection({
       socket.emit('typing', { recipientId });
     }
   };
+  const handlePaste = (event) => {
+  const items = event.clipboardData?.items;
+  if (!items) return;
+
+  for (const item of items) {
+    if (item.type.startsWith("image/")) {
+      const file = item.getAsFile();
+      if (file) {
+        const url = URL.createObjectURL(file);
+        setAttachedImage(url);
+        handleFileChange({ target: { files: [file] } });
+      }
+    }
+  }
+};
   return (
     <>
       {replyToMessage && (
@@ -116,6 +131,7 @@ export default function ChatInputSection({
               sendMessage();
             }
           }}
+          onPaste={handlePaste}
           placeholder="Напишіть повідомлення..."
           $dark={isDarkTheme}
         />
