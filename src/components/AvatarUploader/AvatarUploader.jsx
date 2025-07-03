@@ -7,7 +7,7 @@ import {
   ClearButton,
 } from "./AvatarUploader.styled.js";
 import { AiOutlineClose } from "react-icons/ai";
-
+import {compressImage} from "../../utils/utils.js";
 import { SERVER_URL } from "../../utils/url.js";
 
 export default function AvatarUploader({
@@ -43,13 +43,29 @@ export default function AvatarUploader({
     }
   };
 
-  const handleFileChange = (e) => {
-    const f = e.target.files[0];
-    if (!f) return;
-    setFile(f);
-    setPreview(URL.createObjectURL(f));
-    upload(f); // завантажити одразу після вибору
-  };
+const handleFileChange = async (e) => {
+  const originalFile = e.target.files[0];
+  if (!originalFile) return;
+
+  const MAX_MB = 2;
+  const MAX_BYTES = MAX_MB * 1024 * 1024;
+  let finalFile = originalFile;
+
+  // Якщо файл завеликий — стискаємо
+  if (originalFile.size > MAX_BYTES) {
+    try {
+      finalFile = await compressImage(originalFile);
+    } catch (err) {
+      alert("Не вдалося стиснути зображення");
+      console.error(err);
+      return;
+    }
+  }
+
+  setFile(finalFile);
+  setPreview(URL.createObjectURL(finalFile));
+  upload(finalFile); // надсилаємо на сервер
+};
 
   const handleClear = () => {
     setFile(null);

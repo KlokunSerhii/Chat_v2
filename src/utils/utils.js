@@ -42,11 +42,21 @@ export function compressImage(
       const ctx = canvas.getContext("2d");
       ctx.drawImage(image, 0, 0, width, height);
 
-      const compressedDataUrl = canvas.toDataURL(
-        "image/jpeg",
-        quality
-      );
-      resolve(compressedDataUrl);
+      const mimeType = file.type.includes("image") ? file.type : "image/jpeg";
+
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          reject(new Error("Не вдалося створити blob"));
+          return;
+        }
+
+        const compressedFile = new File([blob], file.name, {
+          type: mimeType,
+          lastModified: Date.now(),
+        });
+
+        resolve(compressedFile);
+      }, mimeType, quality);
     };
 
     reader.onerror = reject;
