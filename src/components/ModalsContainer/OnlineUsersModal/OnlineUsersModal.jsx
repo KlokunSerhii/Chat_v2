@@ -25,7 +25,7 @@ export default function OnlineUsersModal({
       <ModalOverlay onClick={() => setIsOnlineListOpen(false)} />
       <OnlineListModal $dark={isDarkTheme}>
         <h3>Онлайн</h3>
-        {onlineUsers
+        {allUsers
           .filter(user => user.username !== currentUsername)
           .map(user => {
             const unreadCount = unreadPrivateMessages[user.id] || 0;
