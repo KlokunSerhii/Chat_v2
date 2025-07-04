@@ -44,8 +44,7 @@ export default function StatusBarSection({
           <GoBackButton $dark={isDarkTheme}>
                 <FaArrowLeft />
           </GoBackButton>
-      <Link/>
-          
+      </Link>
           <ThemeToggle $dark={isDarkTheme} onClick={onToggleTheme} title="Toggle theme">
             {isDarkTheme ? ' ' : ' '}
           </ThemeToggle>
