@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { FaBars } from 'react-icons/fa';
 import { FaArrowLeft } from 'react-icons/fa';
 
@@ -40,9 +40,12 @@ export default function StatusBarSection({
               </OnlineUsersButton>
             </div>
           )}
-          <GoBackButton onClick={() => navigate(-1)} $dark={isDarkTheme}>
-            <FaArrowLeft />
+      <Link to="/chat">
+          <GoBackButton $dark={isDarkTheme}>
+                <FaArrowLeft />
           </GoBackButton>
+      <Link/>
+          
           <ThemeToggle $dark={isDarkTheme} onClick={onToggleTheme} title="Toggle theme">
             {isDarkTheme ? ' ' : ' '}
           </ThemeToggle>
