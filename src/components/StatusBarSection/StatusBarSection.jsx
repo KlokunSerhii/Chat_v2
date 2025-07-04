@@ -26,7 +26,6 @@ export default function StatusBarSection({
   onOpenOnlineUsers,
 }) {
   const isMobile = useMediaQuery('(max-width: 767px)');
-  const navigate = useNavigate();
   const { username, avatar } = useAuth();
 
   return (
